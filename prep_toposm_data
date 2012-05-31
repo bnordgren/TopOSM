@@ -21,7 +21,7 @@ for x in `seq $RIGHT $LEFT`; do
 for y in `seq $BOTTOM $TOP`; do
 
     BASE=`printf "n%02dw%03d" $y $x`
-    FILE=$BASE.tif
+    FILE=$BASE/elevation.tif
     NEDPATH=$NED13_DIR/$FILE
 
     if [ -f $NEDPATH ] ; then
