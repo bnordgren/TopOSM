@@ -8,6 +8,8 @@ export DB_NAME="osm"
 export DB_PORT=5432 # local postgres port
 export DB_PREFIX="planet_osm" # prefix for all tables
 export DB_USER="mapnik" # username
+export DB_PASS="mapnik"
+export CONTOURS_DB="ned"
 export CONTOURS_TABLE="contours"
 export NHD_TABLE_PREFIX=""
 
