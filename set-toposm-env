@@ -27,10 +27,6 @@ export HYPSORELIEF_DIR="/srv/tiles/hypsorelief" # Hillshade with hypsometric tin
 export BASE_TILE_DIR="/srv/tiles" # output directory
 export TEMP_DIR="/srv/usgs/NED/13-processed" # preprocessed data and temporary files
 
-# Program locations
-export HILLSHADE="$HOME/bin/hillshade"
-export COLORRELIEF="$HOME/bin/color-relief"
-
 # Misc files
 export OSM2PGSQL_STYLE_FILE="/home/mapnik/default.style"
 export COLORFILE="$HOME/srv/toposm-new/colors.txt" # elevation-to-color mapping
