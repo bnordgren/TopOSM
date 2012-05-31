@@ -29,7 +29,7 @@ export TEMP_DIR="/srv/usgs/NED/13-processed" # preprocessed data and temporary f
 
 # Misc files
 export OSM2PGSQL_STYLE_FILE="/home/mapnik/default.style"
-export COLORFILE="$HOME/srv/toposm-new/colors.txt" # elevation-to-color mapping
+export COLORFILE="$HOME/src/toposm-new/colors.txt" # elevation-to-color mapping
 
 # Extra TrueType fonts directory (for Mapnik)
 export EXTRA_FONTS_DIR="/usr/share/fonts/truetype"
