@@ -35,7 +35,8 @@ EXTRA_FONTS_DIR = os.environ['EXTRA_FONTS_DIR']
 
 #CONTOUR_INTERVAL = 15.24 # 50 ft in meters
 #CONTOUR_INTERVAL = 7.62 # 25 ft in meters
-CONTOUR_INTERVAL = 12.192 # 40 ft in meters
+#CONTOUR_INTERVAL = 12.192 # 40 ft in meters
+CONTOUR_INTERVAL = 5
 
 MAPNIK_LAYERS = ['hypsorelief', 'landcoverrelief', 'areas', 'ocean', 'contours', 'features']
 
