@@ -237,7 +237,7 @@
 <!-- Layers -->
 
 <!-- NHD features at z1-9 -->
-<Layer name="nhdarea-major-outline" status="on">
+<!--Layer name="nhdarea-major-outline" status="on">
 	<StyleName>water-outline-lowzoom</StyleName>
 	<Datasource>
 		&dbsettings; &extents;
@@ -271,10 +271,10 @@
 		&dbsettings; &extents;
 		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm as size FROM ${NHD_TABLE_PREFIX}_waterbody_major) AS nhdwaterbody</Parameter>
 	</Datasource>
-</Layer>
+</Layer-->
 
 <!-- NHD features at z10+ -->
-<Layer name="nhdwaterbody-lower" status="on" srs="&srs900913;">
+<!--Layer name="nhdwaterbody-lower" status="on" srs="&srs900913;">
 	<StyleName>water-outline</StyleName>
 	<StyleName>playas</StyleName>
 	<StyleName>wetlands</StyleName>
@@ -311,7 +311,7 @@
 		&dbsettings; &extents;
 		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm FROM ${NHD_TABLE_PREFIX}_area) AS nhdarea</Parameter>
 	</Datasource>
-</Layer>
+</Layer-->
 
 <Layer name="nature-areas" status="on">
   <StyleName>nature-areas</StyleName>
@@ -583,7 +583,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="nhdflowlinenames" status="on">
+<!--Layer name="nhdflowlinenames" status="on">
     <StyleName>water-line-labels</StyleName>
 	<Datasource>
 		&dbsettings; &extents;
@@ -606,7 +606,7 @@
 		<Parameter name="table">
 		(SELECT way, fcode, ftype, areasqkm, gnis_name FROM ${NHD_TABLE_PREFIX}_area) AS nhdarea</Parameter>
 	</Datasource>
-</Layer>
+</Layer-->
 
 <Layer name="pointfeaturenames" status="on">
     <StyleName>featurenames</StyleName>
