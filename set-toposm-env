@@ -4,6 +4,7 @@
 # Change these settings to match your setup.
 
 # Postgres settings
+export DB_HOST="elros"
 export DB_NAME="osm"
 export DB_PORT=5432 # local postgres port
 export DB_PREFIX="planet_osm" # prefix for all tables
