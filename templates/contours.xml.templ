@@ -105,7 +105,7 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="8" fill="&contourcolor;" placement="line" halo-fill="transparent"
         halo-radius="4" minimum-distance="100" max-char-angle-delta="30"
-	>[height_ft]</TextSymbolizer>
+	>[height]</TextSymbolizer>
    </Rule>
    <Rule>
      &minz12; &maxz12;
@@ -113,7 +113,7 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
         halo-radius="5" minimum-distance="100" max-char-angle-delta="30"
-	>[height_ft]</TextSymbolizer>
+	>[height]</TextSymbolizer>
    </Rule>
    <Rule>
      &minz13; &maxz14;
@@ -122,7 +122,7 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="550"
         halo-radius="5" minimum-distance="150" max-char-angle-delta="30"
-	>[height_ft]</TextSymbolizer>
+	>[height]</TextSymbolizer>
    </Rule>
    <Rule>
      &minz15;
@@ -131,7 +131,7 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="550"
         halo-radius="5" minimum-distance="150" max-char-angle-delta="30"
-	>[height_ft]</TextSymbolizer>
+	>[height]</TextSymbolizer>
    </Rule>
 
 
@@ -143,22 +143,24 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
         size="8" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="750"
         halo-radius="4" minimum-distance="150" max-char-angle-delta="30"
-	>[height_ft]</TextSymbolizer>
+	>[height]</TextSymbolizer>
    </Rule>
    
 </Style>
 
 <!-- LAYERS -->
 
-<Layer name="contours" status="on" srs="&srs900913;">
+<Layer name="contours" status="on" srs="&srsLatLongNAD83;">
   <StyleName>contourlines</StyleName>
   <StyleName>contourlabels</StyleName>
   <Datasource>
-    &dbsettings; &extents;
+    &dbsettings;
+    <Parameter name="estimate_extent">false</Parameter>
+    <Parameter name="extent">${EXTENTS_LATLON}</Parameter>
     <Parameter name="table">
-    (SELECT way, height_ft, CASE
-        WHEN (height_ft % 1000) = 0 THEN 3
-        WHEN (height_ft % 200) = 0 THEN 2
+    (SELECT way, height, CASE
+        WHEN (CAST(height AS int) % 100) = 0 THEN 3
+        WHEN (CAST(height AS int) % 10) = 0 THEN 2
         ELSE 1 END AS class
     FROM ${CONTOURS_TABLE}) AS contours
     </Parameter>
