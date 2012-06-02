@@ -91,6 +91,7 @@ UTM19 = [UTM19R, UTM19S, UTM19T, UTM19U]
 
 # Cities / Metro areas
 Boston = Box2d(-71.36, 42.13, -70.70, 42.60)
+Baltimore = Box2d(-76.95, 39.05, -76.25, 39.51)
 NewYorkCity = Box2d(-74.39, 40.50, -73.56, 41.11)
 Philadelphia = Box2d(-75.43, 39.81, -74.88, 40.19)
 WashingtonDC = Box2d(-77.33, 38.66, -76.79, 39.10)
@@ -121,12 +122,12 @@ Jacksonville = Box2d(-81.80, 30.11, -81.32, 30.48)
 OrlandoTitusville = Box2d(-81.75, 27.96, -80.38, 28.91)
 FloridaSE = Box2d(-80.65, 24.90, -79.99, 27.96)
 
-Cities = [Boston, NewYorkCity, Philadelphia, WashingtonDC, Detroit,
-    Chicago, Indianapolis, MinneapolisStPaul, DenverBoulderCoSprings,
-    SaltLakeCityOgdenProvo, SeattlePugetOlympics, Portland,
-    SanFranciscoBay, LosAngeles, SanDiego, Phoenix, LasVegas, SantaFe,
-    Albuquerque, Houston, DallasFortWorth, SanAntonio, NewOrleans,
-    Atlanta, Jacksonville, OrlandoTitusville, FloridaSE]
+Cities = [Boston, Baltimore, NewYorkCity, Philadelphia, WashingtonDC,
+    Detroit, Chicago, Indianapolis, MinneapolisStPaul,
+    DenverBoulderCoSprings, SaltLakeCityOgdenProvo, SeattlePugetOlympics,
+    Portland, SanFranciscoBay, LosAngeles, SanDiego, Phoenix, LasVegas,
+    SantaFe, Albuquerque, Houston, DallasFortWorth, SanAntonio,
+    NewOrleans, Atlanta, Jacksonville, OrlandoTitusville, FloridaSE]
 
 
 # Nature Areas
