@@ -91,7 +91,7 @@ UTM19 = [UTM19R, UTM19S, UTM19T, UTM19U]
 
 # Cities / Metro areas
 Boston = Box2d(-71.36, 42.13, -70.70, 42.60)
-Baltimore = Box2d(-76.95, 39.05, -76.25, 39.51)
+Baltimore = Box2d(-76.95, 39.05, -76.37, 39.51)
 NewYorkCity = Box2d(-74.39, 40.50, -73.56, 41.11)
 Philadelphia = Box2d(-75.43, 39.81, -74.88, 40.19)
 WashingtonDC = Box2d(-77.33, 38.66, -76.79, 39.10)
