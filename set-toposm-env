@@ -23,6 +23,7 @@ export NED13_DIR="/srv/usgs/NED/13" # NED 1/3" GeoTIFFs
 export HILLSHADE_DIR="/srv/usgs/NED/hillshade" # Hillshade GeoTIFFs
 export COLORMAP_DIR="/srv/usgs/NED/colormap" # Colormap GeoTIFFs
 export HYPSORELIEF_DIR="/srv/usgs/NED/hypsorelief" # Hillshade with hypsometric tinting
+export SHIELDS_DIR="/srv/shields" # generated route shield images
 
 # Output directories
 export BASE_TILE_DIR="/srv/tiles" # output directory

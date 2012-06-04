@@ -4,6 +4,7 @@
     <!ENTITY % colors SYSTEM "include/colors.inc">
     <!ENTITY symbolsdir "symbols">
 	<!ENTITY customsymbolsdir "custom-symbols">
+        <!ENTITY shieldsdir "${SHIELDS_DIR}">
 	<!ENTITY dbsettings SYSTEM "include/dbsettings.inc">
 	<!ENTITY extents SYSTEM "include/extents.inc">
 	<!ENTITY extentsLatLon SYSTEM "include/extentsLatLon.inc">
@@ -539,38 +540,73 @@
     </Datasource>
 </Layer>
 
-<!--Layer name="interstateshields" status="on">
-    <StyleName>interstateshields</StyleName>
+<Layer name="shields-very-low-zoom" status="on">
+    <StyleName>shields-very-low-zoom</StyleName>
     <Datasource>
     	&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, highway, roadnumber, char_length(roadnumber) as textlen FROM ${DB_PREFIX}_roads
-		WHERE (highway = 'motorway' OR highway = 'trunk') AND roadtype = 'I')
-		AS interstateshields</Parameter>
+	<Parameter name="table">
+	    (SELECT way, shields_get_single_filename(network, ref, 'cutouts', 20) AS route_shield
+               FROM ${DB_PREFIX}_line
+	       WHERE osm_id &lt; 0
+                 AND route = 'road'
+                 AND (network = 'US:I' AND char_length(ref) BETWEEN 1 AND 2)
+               ORDER BY ST_Length(way) DESC
+	    ) AS shields
+        </Parameter>
     </Datasource>
 </Layer>
 
-<Layer name="usshields" status="on">
-    <StyleName>usshields</StyleName>
+<Layer name="shields-low-zoom" status="on">
+    <StyleName>shields-low-zoom</StyleName>
     <Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, highway, roadnumber FROM ${DB_PREFIX}_roads
-		WHERE (highway &lt;&gt; '' AND highway IS NOT NULL) AND roadtype = 'U')
-		AS usshields</Parameter>
+	&dbsettings; &extents;
+	<Parameter name="table">
+	    (SELECT way, highway, ref, char_length(ref) AS length,
+                    shields_get_filename(osm_id, way, 'cutouts', 20) AS route_shield
+               FROM ${DB_PREFIX}_roads
+	       WHERE highway IN ('motorway', 'trunk', 'primary', 'secondary')
+                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
+                      shields_get_route_memberships(osm_id) IS NOT NULL)
+            ) AS shields
+        </Parameter>
     </Datasource>
 </Layer>
 
-<Layer name="stateshields" status="on">
-    <StyleName>stateshields</StyleName>
+<Layer name="shields-20px" status="on">
+    <StyleName>shields-20px</StyleName>
     <Datasource>
     	&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT * FROM ${DB_PREFIX}_roads
-		WHERE (highway &lt;&gt; '' AND highway IS NOT NULL) AND roadtype = 'S')
-		AS stateshields</Parameter>
+	<Parameter name="table">
+            (SELECT way, highway, aeroway, ref, char_length(ref) as length,
+                    CASE WHEN bridge IN ('yes','true','1') THEN 'yes'::text
+                         ELSE bridge END AS bridge,
+                    shields_get_filename(osm_id, way, 'cutouts', 20) route_shield
+               FROM ${DB_PREFIX}_line
+               WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
+                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
+                      shields_get_route_memberships(osm_id) IS NOT NULL)
+            ) AS shields
+        </Parameter>
     </Datasource>
-</Layer-->
+</Layer>
+
+<Layer name="shields-24px" status="on">
+    <StyleName>shields-24px</StyleName>
+    <Datasource>
+        &dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, highway, aeroway, ref, char_length(ref) as length,
+                    CASE WHEN bridge IN ('yes','true','1') THEN 'yes'::text
+                         ELSE bridge END AS bridge,
+                    shields_get_filename(osm_id, way, 'cutouts', 24) route_shield
+               FROM ${DB_PREFIX}_line
+               WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
+                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
+                      shields_get_route_memberships(osm_id) IS NOT NULL)
+            ) AS shields
+        </Parameter>
+    </Datasource>
+</Layer>
 
 <Layer name="streetnames" status="on">
     <StyleName>streetnames</StyleName>
