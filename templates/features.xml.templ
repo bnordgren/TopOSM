@@ -651,11 +651,6 @@
     <StyleName>featurenames</StyleName>
     <Datasource>
 		&dbsettings; &extents;
-		<!--
-		HACK: postgres converts elevation m -> ft, and appends unit
-		NOTE: The CASE is a workaround for when 'm' is explicitly specified
-		as the unit.
-		-->
 		<Parameter name="table">
 		(SELECT way, name, "natural", aeroway, railway, landuse, leisure,
 		    boundary, 0 as way_area,
