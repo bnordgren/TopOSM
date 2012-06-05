@@ -14,6 +14,7 @@
 	<!ENTITY highway SYSTEM "include/highway.inc">
 	<!ENTITY rail SYSTEM "include/rail.inc">
 	<!ENTITY aeroway SYSTEM "include/aeroway.inc">
+        <!ENTITY bridge SYSTEM "include/bridge.inc">
 	<!ENTITY water SYSTEM "include/water.inc">
 	<!ENTITY label SYSTEM "include/labels.inc">
 	<!ENTITY shield SYSTEM "include/shields.inc">
@@ -140,6 +141,7 @@
 &highway;
 &rail;
 &aeroway;
+&bridge;
 &label;
 &shield;
 &symbol;
@@ -678,6 +680,26 @@
       <Parameter name="table">
       	(SELECT way, aeroway FROM ${DB_PREFIX}_polygon WHERE aeroway IS NOT NULL ORDER BY z_order) AS areas
       </Parameter>
+    </Datasource>
+</Layer>
+
+<Layer name="bridges" status="on">
+    <StyleName>bridges</StyleName>
+    <Datasource>
+        &dbsettings; &extents;
+        <Parameter name="table">
+            (SELECT way, highway, bicycle, waterway, railway, tunnel,
+                    CASE WHEN highway LIKE '%_link' THEN true
+                         ELSE false
+                         END AS link,
+                    GENERATE_SERIES(1,2) AS pass
+               FROM ${DB_PREFIX}_line
+               WHERE (highway IS NOT NULL OR railway IS NOT NULL OR waterway IS NOT NULL)
+                 AND bridge IS NOT NULL
+                 AND NOT bridge = 'no'
+               ORDER BY FLOOR(z_order / 10.0), pass, link DESC, z_order
+            ) AS bridges
+        </Parameter>
     </Datasource>
 </Layer>
 
