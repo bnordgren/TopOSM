@@ -240,7 +240,6 @@
 <Layer name="water-lines" status="on" srs="&srs900913;">
     <StyleName>water-tunnels</StyleName>
     <StyleName>water-lines</StyleName>
-    <StyleName>water-line-fills</StyleName>
     <Datasource>
 	&dbsettings; &extents;
 	<Parameter name="table">
@@ -314,6 +313,19 @@
                WHERE landuse IN ('basin')
                ORDER BY z_order, way_area DESC
             ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-line-fills" status="on" srs="&srs900913;">
+    <StyleName>water-line-fills</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, waterway, disused
+               FROM ${DB_PREFIX}_line
+               WHERE waterway IS NOT NULL
+               ORDER BY z_order, ST_Length(way) DESC
+            ) AS water_lines
         </Parameter>
     </Datasource>
 </Layer>
