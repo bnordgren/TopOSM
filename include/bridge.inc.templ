@@ -1,0 +1,134 @@
+<Style name="bridges">
+  <!-- All bridge outlines (z14 and up) -->
+  <!-- NOTE: These must be in the same style as highway fills, since
+  they are often drawn "inbetween" different level roads.
+  Outlines at the same level will draw before fills, however, thanks to "pass".
+  -->
+  
+  <!-- highways -->
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>([highway] = 'motorway' or [highway] = 'trunk') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="9.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>([highway] = 'motorway' or [highway] = 'trunk') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="16.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>([highway] = 'primary') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="7.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>([highway] = 'primary') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="13.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz15;
+      <Filter>([highway] = 'secondary' or [highway] = 'tertiary') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="7.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz16;
+      <Filter>([highway] = 'secondary' or [highway] = 'tertiary') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="13.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz15;
+      <Filter>
+          ([highway] = 'motorway_link' or
+           [highway] = 'trunk_link' or
+           [highway] = 'primary_link' or
+           [highway] = 'secondary_link' or
+           [highway] = 'residential' or
+           [highway] = 'unclassified' or
+           [highway] = 'service')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="6.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz16;
+      <Filter>
+          ([highway] = 'motorway_link' or
+           [highway] = 'trunk_link' or
+           [highway] = 'primary_link' or
+           [highway] = 'secondary_link' or
+           [highway] = 'residential' or
+           [highway] = 'unclassified' or
+           [highway] = 'service')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="10.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>
+          ([highway] = 'cycleway' or
+           [highway] = 'bikeway' or
+           [highway] = 'path' or
+           [highway] = 'trail' or
+           [highway] = 'footway' or
+           [highway] = 'steps' or
+           [highway] = 'pedestrian')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="2.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>
+          ([highway] = 'cycleway' or
+           [highway] = 'bikeway' or
+           [highway] = 'path' or
+           [highway] = 'trail' or
+           [highway] = 'footway' or
+           [highway] = 'steps' or
+           [highway] = 'pedestrian')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="4.0" stroke="black" stroke-opacity="0.6" stroke-linecap="square" />
+  </Rule>
+
+  <!-- railways -->
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>[railway] = 'rail' and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="3.7" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>[railway] = 'rail' and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="7.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>
+          ([railway] = 'light_rail' or
+           [railway] = 'tram' or
+           [railway] = 'subway' or
+           [railway] = 'monorail' or
+           [railway] = 'funicular')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="3.3" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>
+          ([railway] = 'light_rail' or
+           [railway] = 'tram' or
+           [railway] = 'subway' or
+           [railway] = 'monorail' or
+           [railway] = 'funicular')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="5.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+
+  &highway-highzoom-fill-rules;
+  &railway-rules;
+</Style>
