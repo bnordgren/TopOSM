@@ -296,10 +296,10 @@
                WHERE (waterway IN ('riverbank')
                       OR landuse IN ('reservoir')
                       OR "natural" IN ('water'))
+                 AND NOT ST_IsValid(way)
                ORDER BY z_order, way_area DESC
             ) AS water_areas
         </Parameter>
-                 <!--AND NOT ST_IsValid(way)-->
     </Datasource>
 </Layer>
 <Layer name="intermittent-water-areas" status="on" srs="&srs900913;">
