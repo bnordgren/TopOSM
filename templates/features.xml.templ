@@ -610,16 +610,13 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, highway, bridge, tunnel, bicycle,
-                    CASE WHEN bridge = 'yes' THEN UNNEST(ARRAY[1,2])
-                        ELSE 2
-                    END AS pass,
+            (SELECT way, highway, tunnel, bicycle,
                     CASE WHEN highway LIKE '%_link' THEN true
                         ELSE false
                     END AS link
                FROM ${DB_PREFIX}_line
                WHERE highway IS NOT NULL
-               ORDER BY FLOOR(z_order / 10.0), link DESC, z_order, pass) AS lines
+               ORDER BY FLOOR(z_order / 10.0), link DESC, z_order) AS lines
         </Parameter>
     </Datasource>
 </Layer>
@@ -637,7 +634,7 @@
     <Datasource>
 	  &dbsettings; &extents;
       <Parameter name="table">
-      	(SELECT way, railway, bridge, tunnel FROM ${DB_PREFIX}_line
+      	(SELECT way, railway, tunnel FROM ${DB_PREFIX}_line
       	WHERE railway IS NOT NULL
       	ORDER BY z_order) AS lines
       </Parameter>
@@ -800,8 +797,6 @@
     	&dbsettings; &extents;
 	<Parameter name="table">
             (SELECT way, highway, aeroway, ref, char_length(ref) as length,
-                    CASE WHEN bridge IN ('yes','true','1') THEN 'yes'::text
-                         ELSE bridge END AS bridge,
                     shields_get_filename(osm_id, way, 'cutouts', 20) route_shield
                FROM ${DB_PREFIX}_line
                WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
@@ -818,8 +813,6 @@
         &dbsettings; &extents;
 	<Parameter name="table">
             (SELECT way, highway, aeroway, ref, char_length(ref) as length,
-                    CASE WHEN bridge IN ('yes','true','1') THEN 'yes'::text
-                         ELSE bridge END AS bridge,
                     shields_get_filename(osm_id, way, 'cutouts', 24) route_shield
                FROM ${DB_PREFIX}_line
                WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
