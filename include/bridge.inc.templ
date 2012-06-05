@@ -4,7 +4,37 @@
   they are often drawn "inbetween" different level roads.
   Outlines at the same level will draw before fills, however, thanks to "pass".
   -->
-  
+
+  <!-- waterways -->
+  <Rule>
+      &minz14;
+      <Filter>
+          ([waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes'))
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="8.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14;
+      <Filter>
+          (([waterway] = 'canal' and [disused] = 'yes')
+           or [waterway] = 'derelict_canal')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="5.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14;
+      <Filter>[waterway] = 'stream' and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="4.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14;
+      <Filter>([waterway] = 'ditch' or [waterway] = 'drain') and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="2.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+
+
   <!-- highways -->
   <Rule>
       &minz14; &maxz14;
@@ -129,6 +159,7 @@
       <LineSymbolizer stroke-width="5.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
   </Rule>
 
+  &water-line-rules;
   &highway-highzoom-fill-rules;
   &railway-rules;
 </Style>
