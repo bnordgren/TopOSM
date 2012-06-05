@@ -170,3 +170,5 @@ Nature = [YellowstoneTetons, OregonCascades, SierraNevN,
     BlackHills, GreatSandDunes, WhiteSands, GreenMountains,
     WhiteMountains, Adirondacks, EvergladesKeys, NiagaraFalls]
 
+# Maryland things
+Cumberland = Box2d(-78.81, 39.58, -78.72, 39.68)
