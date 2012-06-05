@@ -1,0 +1,184 @@
+<!--
+NHD FEATURE CODES
+
+Perennial lakes and ponds (39000, 39003, 39004, 39009-39012)
+Intermittent lakes and ponds (39001, 39002, 39005, 39006)
+Perennial rivers/streams (46000, 46004, 46005, 46006)
+Ephemeral rivers/streams (46007)
+Intermittent rivers/streams (46001, 46002, 46003)
+Reservoirs (Reservoir) (436xx)
+Canals and ditches (CanalDitch) (336xx)
+Artificial Path (55800)
+(NOTE: Is this correct? Merced River through Yosemite valley has fcode 55800)
+-->
+
+
+<Style name="water-area-outlines">
+    <!-- NOTE: Size (the area or length of a feature) is a very crude
+         filter, but it's better than nothing. -->
+    <Rule>
+        &minz7; &maxz8;
+        <Filter>[way_area] &gt; 8000000</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.4" />
+    </Rule>
+    <Rule>
+        &minz9; &maxz10;
+        <Filter>[way_area] &gt; 4000000</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" />
+    </Rule>
+    <Rule>
+  	&minz11; &maxz13;
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" />
+    </Rule>
+    <Rule>
+  	&minz14;
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+</Style>
+
+<Style name="water-areas">
+    <Rule>
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+    </Rule>
+</Style>
+
+<Style name="water-area-outlines-intermittent">
+    <Rule>
+        &minz12; &maxz13;
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" stroke-dasharray="4,2" />
+    </Rule>
+    <Rule>
+  	&minz14;
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.5" stroke-dasharray="8,4" />
+    </Rule>
+</Style>
+
+<Style name="wetlands">
+    <Rule>
+  	&minz13;
+        <Filter>[natural] = 'wetland'</Filter>
+        <PolygonPatternSymbolizer file="symbols/marsh.png" />
+    </Rule>
+</Style>
+
+<Style name="ice">
+    <Rule>
+  	&minz10;
+        <Filter>[natural] = 'glacier'</Filter>
+	<LineSymbolizer stroke="#888" stroke-width="0.7" stroke-dasharray="5,5" />
+        <PolygonSymbolizer fill="#ffe0c0" />
+    </Rule>
+</Style>
+
+<Style name="water-lines">
+    <!-- rivers/canals -->
+    <Rule>
+        &minz7; &maxz9;
+        <Filter>
+            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    <Rule>
+        &minz10; &maxz13;
+        <Filter>
+            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    <Rule>
+        &minz14;
+        <Filter>
+            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+
+    <!-- derelict canals -->
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>
+            [waterway] = 'derelict_canal' or
+            ([waterway] = 'canal' and [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="2" stroke-dasharray="15,5" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>
+            [waterway] = 'derelict_canal' or
+            ([waterway] = 'canal' and [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="2" stroke-dasharray="30,10" />
+    </Rule>
+    
+    <!-- streams -->
+    <Rule>
+        &minz10; &maxz13;
+        <Filter>[waterway] = 'stream'</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    <Rule>
+        &minz14;
+        <Filter>[waterway] = 'stream'</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    
+    <!-- drains/ditches -->
+    <Rule>
+        &minz14;
+        <Filter>
+            [waterway] = 'drain' or [waterway] = 'ditch'
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+</Style>
+            
+<Style name="water-tunnels">
+    <!-- rivers/canals -->
+    <Rule>
+  	&minz11; &maxz13;
+        <Filter>
+            ([waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes'))
+            and [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.6" stroke-dasharray="1.6,10" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    <Rule>
+  	&minz14;
+        <Filter>
+            ([waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes'))
+            and [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="8" stroke-dasharray="8,30" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+
+    <!-- streams -->
+    <Rule>
+  	&minz11; &maxz13;
+        <Filter>[waterway] = 'stream' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1" stroke-dasharray="2,15" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+    <Rule>
+  	&minz14;
+        <Filter>[waterway] = 'stream' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="3" stroke-dasharray="3,20" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+
+    <!-- drains/ditches -->
+    <Rule>
+  	&minz14;
+        <Filter>[waterway] = 'stream' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.6" stroke-dasharray="1.6,10" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+</Style>
+
+<Style name="water-line-fills">
+    <Rule>
+        &minz14;
+        <Filter>
+            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
+        </Filter>
+        <LineSymbolizer stroke="&waterfillcolor;" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+    </Rule>
+</Style>
