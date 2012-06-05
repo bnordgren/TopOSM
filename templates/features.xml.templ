@@ -684,7 +684,7 @@
     <Datasource>
 	&dbsettings; &extents;
 	<Parameter name="table">
-            (SELECT way, waterway, landuse, "natural", name
+            (SELECT way, waterway, landuse, "natural", name, way_area
                FROM ${DB_PREFIX}_polygon
                WHERE (landuse IN ('reservoir', 'basin')
                       OR "natural" IN ('water', 'wetland', 'glacier'))
