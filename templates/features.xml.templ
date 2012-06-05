@@ -329,19 +329,6 @@
         </Parameter>
     </Datasource>
 </Layer>
-<!--Layer name="pipelines" status="on" srs="&srs900913;">
-    <StyleName>pipelines</StyleName>
-    <Datasource>
-	&dbsettings; &extents;
-	<Parameter name="table">
-            (SELECT way
-               FROM ${DB_PREFIX}_line
-               WHERE man_made = 'pipeline'
-               ORDER BY z_order, ST_Length(way) DESC
-            ) AS pipelines
-        </Parameter>
-    </Datasource>
-</Layer-->
 <Layer name="water-features" status="on" srs="&srs900913;">
     <StyleName>wetlands</StyleName>
     <StyleName>ice</StyleName>
@@ -356,7 +343,19 @@
         </Parameter>
     </Datasource>
 </Layer>
-        
+<Layer name="pipelines" status="on" srs="&srs900913;">
+    <StyleName>pipelines</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, location
+               FROM ${DB_PREFIX}_line
+               WHERE man_made = 'pipeline'
+               ORDER BY z_order, ST_Length(way) DESC
+            ) AS pipelines
+        </Parameter>
+    </Datasource>
+</Layer>
 
 <Layer name="nature-areas" status="on">
   <StyleName>nature-areas</StyleName>

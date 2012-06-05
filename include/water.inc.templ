@@ -188,3 +188,51 @@ Artificial Path (55800)
         <LineSymbolizer stroke="&waterfillcolor;" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
     </Rule>
 </Style>
+
+<Style name="pipelines">
+    <Rule>
+        &minz13; &maxz13;
+        <Filter>
+            [location] = 'underground' or
+            [location] = 'underwater' or
+            not [location] &lt;&gt; ''
+        </Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="1" />
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="2" stroke-dasharray="2,15" />
+    </Rule>
+    <Rule>
+        &minz13; &maxz13;
+        <Filter>[location] = 'overground'</Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="1" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>
+            [location] = 'underground' or
+            [location] = 'underwater' or
+            not [location] &lt;&gt; ''
+        </Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="1.5" />
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="3" stroke-dasharray="3,20" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[location] = 'overground'</Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="1.5" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>
+            [location] = 'underground' or
+            [location] = 'underwater' or
+            not [location] &lt;&gt; ''
+        </Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="2" />
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="4" stroke-dasharray="4,28" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[location] = 'overground'</Filter>
+        <LineSymbolizer stroke="&pipelinecolor;" stroke-width="2" />
+    </Rule>
+</Style>
