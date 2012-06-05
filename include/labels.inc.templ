@@ -1,92 +1,76 @@
 <Style name="water-line-labels">
-   <Rule>
-      &minz12; &maxz13;
-      <Filter>
-          ([ftype] = 460 or [ftype] = 336 or [ftype] = 428)
-            and [lengthkm] &gt; 3
-      </Filter>
-      <TextSymbolizer face-name="DejaVu Sans Book" size="9"
-          fill="&waterlinecolor;" placement="line" max-char-angle-delta="35"
-          halo-fill="transparent" halo-radius="4"
-          >[gnis_name]</TextSymbolizer>
-   </Rule>
-   <Rule>
-      &minz14;
-      <Filter>
-         [ftype] = 460 or [ftype] = 336 or [ftype] = 428
-      </Filter>
-      <TextSymbolizer face-name="DejaVu Sans Book" size="10"
-          fill="&waterlinecolor;" placement="line" max-char-angle-delta="35"
-          halo-fill="transparent" halo-radius="4"
-          >[gnis_name]</TextSymbolizer>
-   </Rule>
+    <Rule>
+        &minz12; &maxz13;
+        <Filter>
+            ([waterway] = 'river' or ([waterway] = 'canal' and [disused] &lt;&gt; 'yes'))
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Book" size="9"
+            fill="&waterlinecolor;" placement="line" max-char-angle-delta="35"
+            halo-fill="transparent" halo-radius="4"
+            >[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+        &minz14;
+        <Filter>
+            ([waterway] = 'river' or ([waterway] = 'canal' and [disused] &lt;&gt; 'yes'))
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Book" size="10"
+            fill="&waterlinecolor;" placement="line" max-char-angle-delta="35"
+            halo-fill="&waterfillcolor;" halo-radius="4"
+            >[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+        &minz14;
+        <Filter>
+            ([waterway] = 'canal' and [disused] = 'yes') or
+            [waterway] = 'derelict_canal' or
+            [waterway] = 'stream' or
+            [waterway] = 'drain' or
+            [waterway] = 'ditch'
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Book" size="10"
+            fill="&waterlinecolor;" placement="line" max-char-angle-delta="35"
+            halo-fill="transparent" halo-radius="4"
+            >[name]</TextSymbolizer>
+    </Rule>
 </Style>
 
 <Style name="water-area-labels">
-
-    <!-- test
     <Rule>
-       <TextSymbolizer face-name="DejaVu Sans Oblique" size="11"
-          fill="&waterlinecolor;"
-          >[gnis_name]</TextSymbolizer>
+        &minz10; &maxz11;
+        <Filter>
+            ([natural] = 'water' or [landuse] = 'reservoir')
+            and (not [waterway] = 'riverbank')
+            and [way_area] &gt; 4000000
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Oblique" size="10"
+            fill="&waterlinecolor;" dy="0" wrap-width="0"
+            halo-fill="&waterfillcolor;" halo-radius="3"
+            >[name]</TextSymbolizer>
     </Rule>
-    -->
-
     <Rule>
-      &minz10; &maxz11;
-       <Filter>
-         ([fcode] = 39000 or [fcode] = 39003 or [fcode] = 39004 or
-         ([fcode] &gt;= 39009 and [fcode] &lt;= 39012) or
-         [fcode] = 46000 or [fcode] = 46004 or [fcode] = 46005 or
-         [fcode] = 46006 or
-         ([fcode] &gt;= 43600 and [fcode] &lt;= 43699) or
-         ([fcode] &gt;= 33600 and [fcode] &lt;= 33699) or
-         [fcode] = 39001 or [fcode] = 39002 or [fcode] = 39005 or
-         [fcode] = 39006 or
-         [fcode] = 46001 or [fcode] = 46002 or [fcode] = 46003)
-         and [areasqkm] &gt; 4
-      </Filter>
-      <TextSymbolizer face-name="DejaVu Sans Oblique" size="10"
-          fill="&waterlinecolor;" dy="0" wrap-width="0"
-          halo-fill="&waterfillcolor;" halo-radius="3"
-          >[gnis_name]</TextSymbolizer>
-   </Rule>
-   <Rule>
-      &minz12; &maxz13;
-      <Filter>
-         ([fcode] = 39000 or [fcode] = 39003 or [fcode] = 39004 or
-         ([fcode] &gt;= 39009 and [fcode] &lt;= 39012) or
-         [fcode] = 46000 or [fcode] = 46004 or [fcode] = 46005 or
-         [fcode] = 46006 or ([fcode] &gt;= 43600 and [fcode] &lt;= 43699) or
-         ([fcode] &gt;= 33600 and [fcode] &lt;= 33699) or
-         [fcode] = 39001 or [fcode] = 39002 or [fcode] = 39005 or
-         [fcode] = 39006 or
-         [fcode] = 46001 or [fcode] = 46002 or [fcode] = 46003)
-         and [areasqkm] &gt; 1
-      </Filter>
-      <TextSymbolizer face-name="DejaVu Sans Oblique" size="10"
-          fill="&waterlinecolor;" dy="0" wrap-width="0"
-          halo-fill="&waterfillcolor;" halo-radius="3"
-          >[gnis_name]</TextSymbolizer>
-   </Rule>
-   <Rule>
-      &minz14;
-      <Filter>
-         [fcode] = 39000 or [fcode] = 39003 or [fcode] = 39004 or
-         ([fcode] &gt;= 39009 and [fcode] &lt;= 39012) or
-         [fcode] = 46000 or [fcode] = 46004 or [fcode] = 46005 or
-         [fcode] = 46006 or ([fcode] &gt;= 43600 and [fcode] &lt;= 43699) or
-         ([fcode] &gt;= 33600 and [fcode] &lt;= 33699) or
-         [fcode] = 39001 or [fcode] = 39002 or [fcode] = 39005 or
-         [fcode] = 39006 or
-         [fcode] = 46001 or [fcode] = 46002 or [fcode] = 46003
-      </Filter>
-      <TextSymbolizer face-name="DejaVu Sans Oblique" size="11"
-          fill="&waterlinecolor;" dy="0" wrap-width="0"
-          halo-fill="&waterfillcolor;" halo-radius="3"
-          >[gnis_name]</TextSymbolizer>
-   </Rule>
-
+        &minz12; &maxz13;
+        <Filter>
+            ([natural] = 'water' or [landuse] = 'reservoir')
+            and (not [waterway] = 'riverbank')
+            and [way_area] &gt; 1000000
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Oblique" size="10"
+            fill="&waterlinecolor;" dy="0" wrap-width="0"
+            halo-fill="&waterfillcolor;" halo-radius="3"
+            >[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+        &minz14;
+        <Filter>
+            ([natural] = 'water' or [landuse] = 'reservoir' or [landuse] = 'basin')
+            and (not [waterway] = 'riverbank')
+        </Filter>
+        <TextSymbolizer face-name="DejaVu Sans Oblique" size="11"
+            fill="&waterlinecolor;" dy="0" wrap-width="0"
+            halo-fill="&waterfillcolor;" halo-radius="3"
+            >[name]</TextSymbolizer>
+    </Rule>
 </Style>
 
 <Style name="statenames">
