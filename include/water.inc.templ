@@ -102,67 +102,7 @@ Artificial Path (55800)
 </Style>
 
 <Style name="water-lines">
-    <!-- rivers/canals -->
-    <Rule>
-        &minz7; &maxz9;
-        <Filter>
-            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-    <Rule>
-        &minz10; &maxz13;
-        <Filter>
-            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-    <Rule>
-        &minz14;
-        <Filter>
-            [waterway] = 'river' or ([waterway] = 'canal' and not [disused] = 'yes')
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-
-    <!-- derelict canals -->
-    <Rule>
-        &minz14; &maxz14;
-        <Filter>
-            [waterway] = 'derelict_canal' or
-            ([waterway] = 'canal' and [disused] = 'yes')
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="2" stroke-dasharray="15,5" />
-    </Rule>
-    <Rule>
-        &minz15;
-        <Filter>
-            [waterway] = 'derelict_canal' or
-            ([waterway] = 'canal' and [disused] = 'yes')
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="2" stroke-dasharray="30,10" />
-    </Rule>
-    
-    <!-- streams -->
-    <Rule>
-        &minz10; &maxz13;
-        <Filter>[waterway] = 'stream'</Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-    <Rule>
-        &minz14;
-        <Filter>[waterway] = 'stream'</Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-    
-    <!-- drains/ditches -->
-    <Rule>
-        &minz14;
-        <Filter>
-            [waterway] = 'drain' or [waterway] = 'ditch'
-        </Filter>
-        <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
+    &water-line-rules;
 </Style>
             
 <Style name="water-tunnels">

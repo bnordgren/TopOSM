@@ -19,6 +19,7 @@
 	<!ENTITY label SYSTEM "include/labels.inc">
 	<!ENTITY shield SYSTEM "include/shields.inc">
 	<!ENTITY symbol SYSTEM "include/symbols.inc">
+        <!ENTITY water-line-rules SYSTEM "include/water-line-rules.inc">
         <!ENTITY highway-highzoom-fill-rules SYSTEM "include/highway-highzoom-fill-rules.inc">
         <!ENTITY railway-rules SYSTEM "include/railway-rules.inc">
 	%utils;
@@ -690,7 +691,7 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, highway, bicycle, waterway, railway, tunnel,
+            (SELECT way, highway, bicycle, waterway, railway, tunnel, disused,
                     CASE WHEN highway LIKE '%_link' THEN true
                          ELSE false
                          END AS link,
