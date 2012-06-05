@@ -13,6 +13,7 @@
 	<!ENTITY bridgeoutline SYSTEM "include/bridgeoutline.inc">
 	<!ENTITY highway SYSTEM "include/highway.inc">
 	<!ENTITY rail SYSTEM "include/rail.inc">
+	<!ENTITY power-lines SYSTEM "include/power-lines.inc">
 	<!ENTITY aeroway SYSTEM "include/aeroway.inc">
         <!ENTITY bridge SYSTEM "include/bridge.inc">
 	<!ENTITY water SYSTEM "include/water.inc">
@@ -169,23 +170,7 @@
   </Rule>
 </Style>
 
-<Style name="power-lines">
-    <Rule>
-        &minz14; &maxz14;
-        <Filter>[power] = 'line'</Filter>
-        <LineSymbolizer stroke="black" stroke-width="0.5" />
-    </Rule>
-    <Rule>
-        &minz15; &maxz15;
-        <Filter>[power] = 'line'</Filter>
-        <LineSymbolizer stroke="black" stroke-width="0.7" />
-    </Rule>
-    <Rule>
-        &minz16;
-        <Filter>[power] = 'line'</Filter>
-        <LineSymbolizer  stroke="black" stroke-width="1.0" />
-    </Rule>
-</Style>
+&power-lines;
 
 <Style name="county-borders">
 	<Rule>
