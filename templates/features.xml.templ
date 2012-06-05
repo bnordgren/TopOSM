@@ -594,6 +594,18 @@
     </Datasource>
 </Layer>
 
+<Layer name="railway" status="on">
+    <StyleName>railway</StyleName>
+    <Datasource>
+	  &dbsettings; &extents;
+      <Parameter name="table">
+      	(SELECT way, railway, tunnel FROM ${DB_PREFIX}_line
+      	WHERE railway IS NOT NULL
+      	ORDER BY z_order) AS lines
+      </Parameter>
+    </Datasource>
+</Layer>
+
 <!-- Roads at z1-z8 (major roads only) -->
 <Layer name="highway-lowzoom" status="on">
     <StyleName>highway-lowzoom</StyleName>
@@ -631,18 +643,6 @@
     <Datasource>
 		&dbsettings; &extents;
 		<Parameter name="table">(SELECT way, amenity, access FROM ${DB_PREFIX}_polygon ORDER BY z_order, way_area DESC) AS parking</Parameter>
-    </Datasource>
-</Layer>
-
-<Layer name="railway" status="on">
-    <StyleName>railway</StyleName>
-    <Datasource>
-	  &dbsettings; &extents;
-      <Parameter name="table">
-      	(SELECT way, railway, tunnel FROM ${DB_PREFIX}_line
-      	WHERE railway IS NOT NULL
-      	ORDER BY z_order) AS lines
-      </Parameter>
     </Datasource>
 </Layer>
 
