@@ -706,7 +706,10 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, power FROM ${DB_PREFIX}_line WHERE power IS NOT NULL) AS power
+            (SELECT way, power, cables, wires, voltage
+               FROM ${DB_PREFIX}_line
+               WHERE power IS NOT NULL
+            ) AS power
         </Parameter>
     </Datasource>
 </Layer>
