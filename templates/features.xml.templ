@@ -14,7 +14,7 @@
 	<!ENTITY highway SYSTEM "include/highway.inc">
 	<!ENTITY rail SYSTEM "include/rail.inc">
 	<!ENTITY aeroway SYSTEM "include/aeroway.inc">
-	<!ENTITY nhd SYSTEM "include/nhd.inc">
+	<!ENTITY water SYSTEM "include/water.inc">
 	<!ENTITY label SYSTEM "include/labels.inc">
 	<!ENTITY shield SYSTEM "include/shields.inc">
 	<!ENTITY symbol SYSTEM "include/symbols.inc">
@@ -24,7 +24,7 @@
 
 <Map background-color="transparent" srs="&srs900913;">
 
-&nhd;
+&water;
 
 <Style name="nature-areas">
     <Rule>
@@ -237,82 +237,125 @@
 
 <!-- Layers -->
 
-<!-- NHD features at z1-9 -->
-<!--Layer name="nhdarea-major-outline" status="on">
-	<StyleName>water-outline-lowzoom</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm as size FROM ${NHD_TABLE_PREFIX}_area_major) AS nhdarea</Parameter>
-	</Datasource>
+<Layer name="water-lines" status="on" srs="&srs900913;">
+    <StyleName>water-tunnels</StyleName>
+    <StyleName>water-lines</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, waterway, disused, lock,
+                    CASE WHEN tunnel IN ('yes','true','1') THEN 'yes'::text ELSE tunnel END AS tunnel
+               FROM ${DB_PREFIX}_line
+               WHERE waterway IS NOT NULL
+               ORDER BY z_order, ST_Length(way) DESC
+            ) AS water_lines
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdwaterbody-major-outline" status="on">
-	<StyleName>water-outline-lowzoom</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm as size FROM ${NHD_TABLE_PREFIX}_waterbody_major) AS nhdwaterbody</Parameter>
-	</Datasource>
+<Layer name="water-areas" status="on" srs="&srs900913;">
+    <StyleName>water-areas</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE waterway IN ('riverbank')
+                  OR landuse IN ('reservoir')
+                  OR "natural" IN ('water')
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdflowline-major-outline" status="on">
-	<StyleName>water-outline-lowzoom</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, lengthkm as size FROM ${NHD_TABLE_PREFIX}_flowline_major) AS nhdarea</Parameter>
-	</Datasource>
+<Layer name="water-area-outlines" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT (ST_Dump(ST_Union(way))).geom AS way
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND ST_IsValid(way)
+                 AND way &amp;&amp; !bbox!
+               GROUP BY z_order
+               ORDER BY z_order, SUM(way_area) DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdarea-major-fill" status="on">
-	<StyleName>water-fill-lowzoom</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm as size FROM ${NHD_TABLE_PREFIX}_area_major) AS nhdarea</Parameter>
-	</Datasource>
+<Layer name="water-area-outlines-invalid" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines</StyleName>
+    <StyleName>ice</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, "natural"
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND NOT ST_IsValid(way)
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdwaterbody-major-fill" status="on">
-	<StyleName>water-fill-lowzoom</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm as size FROM ${NHD_TABLE_PREFIX}_waterbody_major) AS nhdwaterbody</Parameter>
-	</Datasource>
-</Layer-->
-
-<!-- NHD features at z10+ -->
-<!--Layer name="nhdwaterbody-lower" status="on" srs="&srs900913;">
-	<StyleName>water-outline</StyleName>
-	<StyleName>playas</StyleName>
-	<StyleName>wetlands</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm FROM ${NHD_TABLE_PREFIX}_waterbody) AS nhdwaterbody</Parameter>
-	</Datasource>
+<Layer name="intermittent-water-areas" status="on" srs="&srs900913;">
+    <StyleName>water-areas</StyleName>
+    <StyleName>water-area-outlines-intermittent</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE landuse IN ('basin')
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdarea-outline" status="on" srs="&srs900913;">
-	<StyleName>water-outline</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm FROM ${NHD_TABLE_PREFIX}_area) AS nhdarea</Parameter>
-	</Datasource>
+<Layer name="water-line-fills" status="on" srs="&srs900913;">
+    <StyleName>water-line-fills</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, waterway, disused
+               FROM ${DB_PREFIX}_line
+               WHERE waterway IS NOT NULL
+               ORDER BY z_order, ST_Length(way) DESC
+            ) AS water_lines
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdflowline" status="on" srs="&srs900913;">
-	<StyleName>water-outline</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, lengthkm FROM ${NHD_TABLE_PREFIX}_flowline) AS nhdflowline</Parameter>
-	</Datasource>
+<Layer name="water-features" status="on" srs="&srs900913;">
+    <StyleName>wetlands</StyleName>
+    <StyleName>ice</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, "natural"
+               FROM ${DB_PREFIX}_polygon
+               WHERE "natural" IN ('wetland', 'glacier')
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdwaterbody-upper" status="on" srs="&srs900913;">
-	<StyleName>water-fill</StyleName>
-	<StyleName>ice</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm FROM ${NHD_TABLE_PREFIX}_waterbody) AS nhdwaterbody</Parameter>
-	</Datasource>
+<Layer name="pipelines" status="on" srs="&srs900913;">
+    <StyleName>pipelines</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, location
+               FROM ${DB_PREFIX}_line
+               WHERE man_made = 'pipeline'
+               ORDER BY z_order, ST_Length(way) DESC
+            ) AS pipelines
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdarea-fill" status="on" srs="&srs900913;">
-	<StyleName>water-fill</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">(SELECT way, fcode, ftype, areasqkm FROM ${NHD_TABLE_PREFIX}_area) AS nhdarea</Parameter>
-	</Datasource>
-</Layer-->
 
 <Layer name="nature-areas" status="on">
   <StyleName>nature-areas</StyleName>
@@ -622,30 +665,35 @@
     </Datasource>
 </Layer>
 
-<!--Layer name="nhdflowlinenames" status="on">
+<Layer name="water-line-names" status="on">
     <StyleName>water-line-labels</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, fcode, ftype, lengthkm, gnis_name FROM ${NHD_TABLE_PREFIX}_flowline) AS nhdflowline</Parameter>
-	</Datasource>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, waterway, disused, name, ST_Length(way) length
+               FROM ${DB_PREFIX}_line
+               WHERE waterway IS NOT NULL
+                 AND name IS NOT NULL
+               ORDER BY z_order, length DESC
+            ) AS water_lines
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdwaterbodynames" status="on">
-	<StyleName>water-area-labels</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, fcode, ftype, areasqkm, gnis_name FROM ${NHD_TABLE_PREFIX}_waterbody) AS nhdwaterbody</Parameter>
-	</Datasource>
+<Layer name="water-area-names" status="on">
+    <StyleName>water-area-labels</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, waterway, landuse, "natural", name
+               FROM ${DB_PREFIX}_polygon
+               WHERE (landuse IN ('reservoir', 'basin')
+                      OR "natural" IN ('water', 'wetland', 'glacier'))
+                 AND name IS NOT NULL
+               ORDER BY way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
 </Layer>
-<Layer name="nhdareanames" status="on">
-	<StyleName>water-area-labels</StyleName>
-	<Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, fcode, ftype, areasqkm, gnis_name FROM ${NHD_TABLE_PREFIX}_area) AS nhdarea</Parameter>
-	</Datasource>
-</Layer-->
 
 <Layer name="pointfeaturenames" status="on">
     <StyleName>featurenames</StyleName>
