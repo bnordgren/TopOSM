@@ -13,38 +13,63 @@ Artificial Path (55800)
 -->
 
 
-<Style name="water-area-outlines">
-    <!-- NOTE: Size (the area or length of a feature) is a very crude
-         filter, but it's better than nothing. -->
+<Style name="water-areas-z2">
+    <Rule>
+        &minz2; &maxz6;
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+    </Rule>
+</Style>
+<Style name="water-areas-z7">
+    <Rule>
+        &minz7; &maxz8;
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+    </Rule>
+</Style>
+<Style name="water-areas-z9">
+    <Rule>
+        &minz9; &maxz10;
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+    </Rule>
+</Style>
+<Style name="water-areas-z11">
+    <Rule>
+        &minz11; &maxz13;
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+        <LineSymbolizer stroke="&waterfillcolor;" stroke-width="0.7" />
+    </Rule>
+</Style>
+<Style name="water-areas-z14">
+    <Rule>
+        &minz14;
+        <PolygonSymbolizer fill="&waterfillcolor;" />
+        <LineSymbolizer stroke="&waterfillcolor;" stroke-width="0.7" />
+    </Rule>
+</Style>
+
+<Style name="water-area-outlines-z7">
     <Rule>
         &minz7; &maxz8;
         <Filter>[way_area] &gt; 8000000</Filter>
         <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.4" />
     </Rule>
+</Style>
+<Style name="water-area-outlines-z9">
     <Rule>
         &minz9; &maxz10;
         <Filter>[way_area] &gt; 4000000</Filter>
         <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.5" />
     </Rule>
+</Style>
+<Style name="water-area-outlines-z11">
     <Rule>
   	&minz11; &maxz13;
         <LineSymbolizer stroke="&waterlinecolor;" stroke-width="0.8" />
     </Rule>
+</Style>
+<Style name="water-area-outlines-z14">
     <Rule>
   	&minz14;
         <LineSymbolizer stroke="&waterlinecolor;" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
-    </Rule>
-</Style>
-
-<Style name="water-areas">
-    <Rule>
-        <PolygonSymbolizer fill="&waterfillcolor;" />
-    </Rule>
-    <!-- cover up the seams mapnik would otherwise leave between adjacent
-         water areas -->
-    <Rule>
-        &minz11;
-        <LineSymbolizer stroke="&waterfillcolor;" stroke-width="0.7" />
     </Rule>
 </Style>
 

@@ -252,27 +252,148 @@
         </Parameter>
     </Datasource>
 </Layer>
-<Layer name="water-areas" status="on" srs="&srs900913;">
-    <StyleName>water-areas</StyleName>
+<Layer name="water-areas-z2" status="on" srs="&srs900913;">
+    <StyleName>water-areas-z2</StyleName>
     <Datasource>
 	&dbsettings; &extents;
 	<Parameter name="table">
             (SELECT way
                FROM ${DB_PREFIX}_polygon
-               WHERE waterway IN ('riverbank')
-                  OR landuse IN ('reservoir')
-                  OR "natural" IN ('water')
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND way_area &gt; 5000000
                ORDER BY z_order, way_area DESC
             ) AS water_areas
         </Parameter>
     </Datasource>
 </Layer>
-<Layer name="water-area-outlines" status="on" srs="&srs900913;">
-    <StyleName>water-area-outlines</StyleName>
+<Layer name="water-areas-z7" status="on" srs="&srs900913;">
+    <StyleName>water-areas-z7</StyleName>
     <Datasource>
 	&dbsettings; &extents;
 	<Parameter name="table">
-            (SELECT (ST_Dump(ST_Union(way))).geom AS way
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND way_area &gt; 300000
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-areas-z9" status="on" srs="&srs900913;">
+    <StyleName>water-areas-z9</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND way_area &gt; 20000
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-areas-z11" status="on" srs="&srs900913;">
+    <StyleName>water-areas-z11</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND way_area &gt; 300
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-areas-z14" status="on" srs="&srs900913;">
+    <StyleName>water-areas-z14</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-z7" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z7</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND ST_IsValid(way)
+                 AND way_area &gt; 300000
+                 AND way &amp;&amp; !bbox!
+               GROUP BY z_order
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-z9" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z9</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND ST_IsValid(way)
+                 AND way_area &gt; 20000
+                 AND way &amp;&amp; !bbox!
+               GROUP BY z_order
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-z11" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z11</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND ST_IsValid(way)
+                 AND way_area &gt; 300
+                 AND way &amp;&amp; !bbox!
+               GROUP BY z_order
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-z14" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z14</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area
                FROM ${DB_PREFIX}_polygon
                WHERE (waterway IN ('riverbank')
                       OR landuse IN ('reservoir')
@@ -280,18 +401,72 @@
                  AND ST_IsValid(way)
                  AND way &amp;&amp; !bbox!
                GROUP BY z_order
-               ORDER BY z_order, SUM(way_area) DESC
+               ORDER BY z_order, way_area DESC
             ) AS water_areas
         </Parameter>
     </Datasource>
 </Layer>
-<Layer name="water-area-outlines-invalid" status="on" srs="&srs900913;">
-    <StyleName>water-area-outlines</StyleName>
+<Layer name="water-area-outlines-invalid-z7" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z7</StyleName>
     <StyleName>ice</StyleName>
     <Datasource>
 	&dbsettings; &extents;
 	<Parameter name="table">
-            (SELECT way, "natural"
+            (SELECT way, "natural", way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND NOT ST_IsValid(way)
+                 AND way_area &gt; 300000
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-invalid-z9" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z9</StyleName>
+    <StyleName>ice</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, "natural", way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND NOT ST_IsValid(way)
+                 AND way_area &gt; 20000
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-invalid-z11" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z11</StyleName>
+    <StyleName>ice</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, "natural", way_area
+               FROM ${DB_PREFIX}_polygon
+               WHERE (waterway IN ('riverbank')
+                      OR landuse IN ('reservoir')
+                      OR "natural" IN ('water'))
+                 AND NOT ST_IsValid(way)
+                 AND way_area &gt; 300
+               ORDER BY z_order, way_area DESC
+            ) AS water_areas
+        </Parameter>
+    </Datasource>
+</Layer>
+<Layer name="water-area-outlines-invalid-z14" status="on" srs="&srs900913;">
+    <StyleName>water-area-outlines-z14</StyleName>
+    <StyleName>ice</StyleName>
+    <Datasource>
+	&dbsettings; &extents;
+	<Parameter name="table">
+            (SELECT way, "natural", way_area
                FROM ${DB_PREFIX}_polygon
                WHERE (waterway IN ('riverbank')
                       OR landuse IN ('reservoir')
@@ -303,7 +478,8 @@
     </Datasource>
 </Layer>
 <Layer name="intermittent-water-areas" status="on" srs="&srs900913;">
-    <StyleName>water-areas</StyleName>
+    <StyleName>water-areas-z11</StyleName>
+    <StyleName>water-areas-z14</StyleName>
     <StyleName>water-area-outlines-intermittent</StyleName>
     <Datasource>
 	&dbsettings; &extents;
