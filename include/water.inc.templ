@@ -40,6 +40,12 @@ Artificial Path (55800)
     <Rule>
         <PolygonSymbolizer fill="&waterfillcolor;" />
     </Rule>
+    <!-- cover up the seams mapnik would otherwise leave between adjacent
+         water areas -->
+    <Rule>
+        &minz11;
+        <LineSymbolizer stroke="&waterfillcolor;" stroke-width="0.7" />
+    </Rule>
 </Style>
 
 <Style name="water-area-outlines-intermittent">
