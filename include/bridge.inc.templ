@@ -93,5 +93,41 @@
       <LineSymbolizer stroke-width="4.0" stroke="black" stroke-opacity="0.6" stroke-linecap="square" />
   </Rule>
 
+  <!-- railways -->
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>[railway] = 'rail' and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="3.7" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>[railway] = 'rail' and [pass] = 1</Filter>
+      <LineSymbolizer stroke-width="7.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz14; &maxz14;
+      <Filter>
+          ([railway] = 'light_rail' or
+           [railway] = 'tram' or
+           [railway] = 'subway' or
+           [railway] = 'monorail' or
+           [railway] = 'funicular')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="3.3" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+  <Rule>
+      &minz15;
+      <Filter>
+          ([railway] = 'light_rail' or
+           [railway] = 'tram' or
+           [railway] = 'subway' or
+           [railway] = 'monorail' or
+           [railway] = 'funicular')
+          and [pass] = 1
+      </Filter>
+      <LineSymbolizer stroke-width="5.5" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
+  </Rule>
+
   &highway-highzoom-fill-rules;
 </Style>
