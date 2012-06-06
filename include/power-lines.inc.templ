@@ -570,3 +570,74 @@
         <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
     </Rule>
 </Style>
+
+<Style name="power-busbar-voltage">
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar' and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="3.4" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar' and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="3.4" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar' and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="3.4" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar' and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="3.4" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar' and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ccc" stroke-width="3.4" />
+    </Rule>
+
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar' and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="4" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar' and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="4" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar' and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="4" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar' and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="4" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar' and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ccc" stroke-width="4" />
+    </Rule>
+</Style>
+<Style name="power-busbar">
+    <Rule>
+        &minz13; &maxz13;
+        <Filter>[power] = 'busbar'</Filter>
+        <LineSymbolizer stroke="#ccc" stroke-width="1.0" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'busbar'</Filter>
+        <LineSymbolizer stroke="#ccc" stroke-width="1.4" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz16;
+        <Filter>[power] = 'busbar'</Filter>
+        <LineSymbolizer stroke="#ddd" stroke-width="2.0" />
+    </Rule>
+</Style>
