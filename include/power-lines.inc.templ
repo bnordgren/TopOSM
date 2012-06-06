@@ -1,17 +1,572 @@
 <Style name="power-lines">
+    <!-- at zoom 13, only the lines' existence is shown -->
     <Rule>
         &minz13; &maxz13;
         <Filter>[power] = 'line'</Filter>
         <LineSymbolizer stroke="black" stroke-width="0.5" />
     </Rule>
+
+    <!-- at zoom 14 and 15, the lines' voltage and wire count are shown -->
+    <!-- voltage -->
     <Rule>
         &minz14; &maxz14;
-        <Filter>[power] = 'line'</Filter>
+        <Filter>[power] = 'line' and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="2.1" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="2.1" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="2.1" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="2.1" />
+    </Rule>
+    <!-- wire count -->
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and not [wires] &lt;&gt; ''</Filter>
         <LineSymbolizer stroke="black" stroke-width="0.7" />
     </Rule>
     <Rule>
-        &minz15;
-        <Filter>[power] = 'line'</Filter>
-        <LineSymbolizer  stroke="black" stroke-width="1.0" />
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="0.7" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="0.7" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="0.7" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz14; &maxz14;
+        <Filter>[power] = 'line' and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="0.7" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+
+    <!-- voltage -->
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="3.0" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="3.0" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="3.0" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="3.0" />
+    </Rule>
+    <!-- wire count -->
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1.0" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1.0" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1.0" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1.0" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz15; &maxz15;
+        <Filter>[power] = 'line' and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1.0" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    
+    <!-- at zoom 16, voltage, circuit count, and wire count are all shown -->
+
+    <!-- first, even numbers of circuits -->
+    <!-- six circuits, outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="18" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="18" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="18" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="18" />
+    </Rule>
+    <!-- six circuits, outer wires -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="16" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="16" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="16" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="16" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="16" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    <!-- six circuits, first fill -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="14" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="14" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="14" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="14" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[89]|20$') and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ffffff" stroke-width="14" />
+    </Rule>
+    <!-- four circuits, outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[234]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="12" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[234]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="12" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[234]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="12" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[234]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="12" />
+    </Rule>
+    <!-- six or four circuit wires -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="10" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="10" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="10" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="10" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="10" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    <!-- six or four circuit fill -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="8" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="8" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="8" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="8" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[23489]|20$') and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ffffff" stroke-width="8" />
+    </Rule>
+    <!-- two circuit outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="6" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="6" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="6" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="6" />
+    </Rule>
+    <!-- six, four, and two circuit inner wires -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="4" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="4" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="4" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="4" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="4" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    <!-- six, four, and two circuit inner fill -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[678]|1[23489]|20$') and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ffffff" stroke-width="2" />
+    </Rule>
+
+    <!-- next, odd numbers of circuits -->
+    <!-- five circuits, outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="15" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="15" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="15" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="15" />
+    </Rule>
+    <!-- five circuits, outer wires -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="13" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="13" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="13" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="13" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="13" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    <!-- five circuits, first fill -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="11" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="11" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="11" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="11" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^1[567]$') and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ffffff" stroke-width="11" />
+    </Rule>
+    <!-- three circuits, outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="9" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="9" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="9" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="9" />
+    </Rule>
+    <!-- five and three circuit wires -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="7" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="7" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="7" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="7" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="7" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+    <!-- five and three circuit fill -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="5" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="5" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="5" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="5" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^9|1[01567]$') and (115000 &gt; [voltage] or not [voltage] &lt;&gt; 0)</Filter>
+        <LineSymbolizer stroke="#ffffff" stroke-width="5" />
+    </Rule>
+    <!-- single circuit, outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[345]$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[345]$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[345]$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[345]$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="3" />
+    </Rule>
+    <!-- five, three, one circuit inner wire -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[3459]|1[01567]$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[3459]|1[01567]$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[3459]|1[01567]$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[3459]|1[01567]$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and [cables].match('^[3459]|1[01567]$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
+    </Rule>
+
+    <!-- unknown number of circuits -->
+    <!-- outer color -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and [voltage] &gt;= 768000</Filter>
+        <LineSymbolizer stroke="#ff0000" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and 768000 &gt; [voltage] and [voltage] &gt;= 500000</Filter>
+        <LineSymbolizer stroke="#b22222" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and 500000 &gt; [voltage] and [voltage] &gt;= 230000</Filter>
+        <LineSymbolizer stroke="#ffa500" stroke-width="3" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and 230000 &gt; [voltage] and [voltage] &gt;= 115000</Filter>
+        <LineSymbolizer stroke="#ffff00" stroke-width="3" />
+    </Rule>
+    <!-- wire -->
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and not [wires] &lt;&gt; ''</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and [wires] = 'single'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="93,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and [wires] = 'double'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="86,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and [wires] = 'triple'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="79,2,5,2,5,2,5,2" />
+    </Rule>
+    <Rule>
+        &minz16; &maxz16;
+        <Filter>[power] = 'line' and not [cables].match('^[3456789]|1[0123456789]|20$') and [wires] = 'quad'</Filter>
+        <LineSymbolizer stroke="black" stroke-width="1" stroke-dasharray="72,2,5,2,5,2,5,2,5,2" />
     </Rule>
 </Style>
