@@ -586,9 +586,11 @@
         &dbsettings; &extents;
         <Parameter name="table">
             (SELECT way, tunnel,
-                    CASE WHEN railway = 'rail' AND service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
-                         ELSE railway
-                    END AS railway
+                    CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway,
+                    CASE WHEN railway = 'spur' THEN 'spur'
+                         WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
+                         ELSE service
+                    END AS service
                FROM ${DB_PREFIX}_line
                WHERE railway IS NOT NULL
                ORDER BY z_order, ST_Length(way)

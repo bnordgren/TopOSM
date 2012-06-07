@@ -1,23 +1,23 @@
     <Rule>
         &minz10; &maxz14;
-        <Filter>[railway] = 'rail' and not [tunnel] = 'yes'</Filter>
+        <Filter>[railway] = 'rail' and not [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="0.9" stroke="white" stroke-dasharray="4,4" />
     </Rule>
     <Rule>
         &minz15;
-        <Filter>[railway] = 'rail' and not [tunnel] = 'yes'</Filter>
+        <Filter>[railway] = 'rail' and not [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="2" stroke="white" stroke-dasharray="10,10" />
     </Rule>
 
     <!-- minor tracks -->
     <Rule>
         &minz13; &maxz14;
-        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <Filter>[railway] = 'rail' and [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="0.5" stroke="white" stroke-dasharray="4,4" />
     </Rule>
     <Rule>
         &minz15;
-        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <Filter>[railway] = 'rail' and [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="1.5" stroke="white" stroke-dasharray="10,10" />
     </Rule>
 
