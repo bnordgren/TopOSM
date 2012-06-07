@@ -126,12 +126,24 @@
   <!-- railways -->
   <Rule>
       &minz14; &maxz14;
-      <Filter>([railway] = 'rail' or [railway] = 'preserved') and [pass] = 1</Filter>
+      <Filter>
+          ([railway] = 'rail' or
+           [railway] = 'preserved' or
+           [railway] = 'disused' or
+           [railway] = 'abandoned')
+          and [pass] = 1
+      </Filter>
       <LineSymbolizer stroke-width="3.7" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
   </Rule>
   <Rule>
       &minz15;
-      <Filter>([railway] = 'rail' or [railway] = 'preserved') and [pass] = 1</Filter>
+      <Filter>
+          ([railway] = 'rail' or
+           [railway] = 'preserved' or
+           [railway] = 'disused' or
+           [railway] = 'abandoned')
+          and [pass] = 1
+      </Filter>
       <LineSymbolizer stroke-width="7.0" stroke="black" stroke-opacity="0.6" stroke-linecap="butt" />
   </Rule>
   <Rule>
