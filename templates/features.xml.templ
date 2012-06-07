@@ -22,7 +22,8 @@
 	<!ENTITY symbol SYSTEM "include/symbols.inc">
         <!ENTITY water-line-rules SYSTEM "include/water-line-rules.inc">
         <!ENTITY highway-highzoom-fill-rules SYSTEM "include/highway-highzoom-fill-rules.inc">
-        <!ENTITY railway-rules SYSTEM "include/railway-rules.inc">
+        <!ENTITY railway-outline-rules SYSTEM "include/railway-outline-rules.inc">
+        <!ENTITY railway-fill-rules SYSTEM "include/railway-fill-rules.inc">
 	%utils;
 	%colors;
 ]>
@@ -580,14 +581,22 @@
 </Layer>
 
 <Layer name="railway" status="on">
-    <StyleName>railway</StyleName>
+    <StyleName>railway-outline</StyleName>
+    <StyleName>railway-fill</StyleName>
     <Datasource>
-	  &dbsettings; &extents;
-      <Parameter name="table">
-      	(SELECT way, railway, tunnel FROM ${DB_PREFIX}_line
-      	WHERE railway IS NOT NULL
-      	ORDER BY z_order) AS lines
-      </Parameter>
+        &dbsettings; &extents;
+        <Parameter name="table">
+            (SELECT way, tunnel,
+                    CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway,
+                    CASE WHEN railway = 'spur' THEN 'spur'
+                         WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
+                         ELSE service
+                    END AS service
+               FROM ${DB_PREFIX}_line
+               WHERE railway IS NOT NULL
+               ORDER BY z_order, ST_Length(way)
+            ) AS lines
+        </Parameter>
     </Datasource>
 </Layer>
 
@@ -676,7 +685,12 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, highway, bicycle, waterway, railway, tunnel, disused,
+            (SELECT way, highway, bicycle, waterway, tunnel, disused,
+                    CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway,
+                    CASE WHEN railway = 'spur' THEN 'spur'
+                         WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
+                         ELSE service
+                    END AS service,
                     CASE WHEN highway LIKE '%_link' THEN true
                          ELSE false
                          END AS link,
