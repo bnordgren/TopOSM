@@ -10,6 +10,14 @@
         <LineSymbolizer stroke-width="0.9" stroke="white" stroke-dasharray="4,1" />
     </Rule>
     <Rule>
+        &minz10; &maxz14;
+        <Filter>
+            ([railway] = 'disused' or [railway] = 'abandoned')
+            and not [service] = 'spur' and not [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke-width="0.9" stroke="#999" stroke-dasharray="4,4" />
+    </Rule>
+    <Rule>
         &minz15;
         <Filter>[railway] = 'rail' and not [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="2" stroke="white" stroke-dasharray="10,10" />
@@ -18,6 +26,14 @@
         &minz15;
         <Filter>[railway] = 'preserved' and not [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="2" stroke="white" stroke-dasharray="0,1,8,1" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>
+            ([railway] = 'disused' or [railway] = 'abandoned')
+            and not [service] = 'spur' and not [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke-width="2" stroke="#999" stroke-dasharray="10,10" />
     </Rule>
 
     <!-- major tunnels -->
@@ -44,6 +60,14 @@
         <LineSymbolizer stroke-width="0.5" stroke="white" stroke-dasharray="4,1" />
     </Rule>
     <Rule>
+        &minz13; &maxz14;
+        <Filter>
+            ([railway] = 'disused' or [railway] = 'abandoned')
+            and [service] = 'spur' and not [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke-width="0.5" stroke="#999" stroke-dasharray="4,4" />
+    </Rule>
+    <Rule>
         &minz15;
         <Filter>[railway] = 'rail' and [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="1.5" stroke="white" stroke-dasharray="10,10" />
@@ -52,6 +76,14 @@
         &minz15;
         <Filter>[railway] = 'preserved' and [service] = 'spur' and not [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="1.5" stroke="white" stroke-dasharray="0,1,8,1" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>
+            ([railway] = 'disused' or [railway] = 'abandoned')
+            and [service] = 'spur' and not [tunnel] = 'yes'
+        </Filter>
+        <LineSymbolizer stroke-width="1.5" stroke="#999" stroke-dasharray="10,10" />
     </Rule>
 
     <!-- minor tunnels -->
