@@ -21,6 +21,30 @@
         <Filter>[railway] = 'rail' and [tunnel] = 'yes'</Filter>
         <LineSymbolizer stroke-width="4.0" stroke="black" stroke-dasharray="10,10" />
     </Rule>
+
+    <!-- minor tracks -->
+    <Rule>
+        &minz13; &maxz14;
+        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="1.0" stroke="black" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="2.0" stroke="black" />
+    </Rule>
+
+    <!-- minor tunnels -->
+    <Rule>
+        &minz13; &maxz14;
+        <Filter>[railway] = 'spur' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="1.0" stroke="black" stroke-dasharray="4,4" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>[railway] = 'spur' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="2.0" stroke="black" stroke-dasharray="10,10" />
+    </Rule>
 </Style>
 
 <Style name="railway-fill">

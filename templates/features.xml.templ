@@ -585,10 +585,13 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, railway, tunnel
+            (SELECT way, tunnel,
+                    CASE WHEN railway = 'rail' AND service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
+                         ELSE railway
+                    END AS railway
                FROM ${DB_PREFIX}_line
                WHERE railway IS NOT NULL
-               ORDER BY z_order
+               ORDER BY z_order, ST_Length(way)
             ) AS lines
         </Parameter>
     </Datasource>

@@ -9,6 +9,18 @@
         <LineSymbolizer stroke-width="2" stroke="white" stroke-dasharray="10,10" />
     </Rule>
 
+    <!-- minor tracks -->
+    <Rule>
+        &minz13; &maxz14;
+        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="0.5" stroke="white" stroke-dasharray="4,4" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>[railway] = 'spur' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="1.5" stroke="white" stroke-dasharray="10,10" />
+    </Rule>
+
     <!-- Light rail, subways etc -->
     <Rule>
         &minz11; &maxz14;
