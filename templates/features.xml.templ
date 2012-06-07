@@ -580,14 +580,17 @@
 </Layer>
 
 <Layer name="railway" status="on">
-    <StyleName>railway</StyleName>
+    <StyleName>railway-outline</StyleName>
+    <StyleName>railway-fill</StyleName>
     <Datasource>
-	  &dbsettings; &extents;
-      <Parameter name="table">
-      	(SELECT way, railway, tunnel FROM ${DB_PREFIX}_line
-      	WHERE railway IS NOT NULL
-      	ORDER BY z_order) AS lines
-      </Parameter>
+        &dbsettings; &extents;
+        <Parameter name="table">
+            (SELECT way, railway, tunnel
+               FROM ${DB_PREFIX}_line
+               WHERE railway IS NOT NULL
+               ORDER BY z_order
+            ) AS lines
+        </Parameter>
     </Datasource>
 </Layer>
 

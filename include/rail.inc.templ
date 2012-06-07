@@ -1,6 +1,29 @@
-<!-- Railroads -->
+<Style name="railway-outline">
+    <Rule>
+        &minz10; &maxz14;
+        <Filter>[railway] = 'rail' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="1.7" stroke="black" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>[railway] = 'rail' and not [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="3.5" stroke="black" />
+    </Rule>
 
-<Style name="railway">
+    <!-- Railroad tunnels -->
+    <Rule>
+        &minz10; &maxz14;
+        <Filter>[railway] = 'rail' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="1.7" stroke="black" stroke-dasharray="4,4" />
+    </Rule>
+    <Rule>
+        &minz15;
+        <Filter>[railway] = 'rail' and [tunnel] = 'yes'</Filter>
+        <LineSymbolizer stroke-width="4.0" stroke="black" stroke-dasharray="10,10" />
+    </Rule>
+</Style>
+
+<Style name="railway-fill">
     &railway-rules;
 </Style>
 
