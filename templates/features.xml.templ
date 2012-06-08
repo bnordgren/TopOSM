@@ -586,7 +586,7 @@
     <Datasource>
         &dbsettings; &extents;
         <Parameter name="table">
-            (SELECT way, tunnel,
+            (SELECT way, tunnel, highway,
                     CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway,
                     CASE WHEN railway = 'spur' THEN 'spur'
                          WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur'
