@@ -11,7 +11,7 @@
     <Rule>
         &minz10; &maxz14;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and not [service] = 'spur' and not [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="1.7" stroke="#333" />
@@ -29,7 +29,7 @@
     <Rule>
         &minz15;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and not [service] = 'spur' and not [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="3.5" stroke="#333" />
@@ -49,7 +49,7 @@
     <Rule>
         &minz10; &maxz14;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and not [service] = 'spur' and [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="1.7" stroke="#333" stroke-dasharray="4,4" />
@@ -67,7 +67,7 @@
     <Rule>
         &minz15;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and not [service] = 'spur' and [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="3.5" stroke="#333" stroke-dasharray="10,10" />
@@ -87,7 +87,7 @@
     <Rule>
         &minz13; &maxz14;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and [service] = 'spur' and not [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="1.0" stroke="#333" />
@@ -105,7 +105,7 @@
     <Rule>
         &minz15;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and [service] = 'spur' and not [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="2.0" stroke="#333" />
@@ -125,7 +125,7 @@
     <Rule>
         &minz13; &maxz14;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and [service] = 'spur' and [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="1.0" stroke="#333" stroke-dasharray="4,4" />
@@ -143,7 +143,7 @@
     <Rule>
         &minz15;
         <Filter>
-            [railway] = 'abandoned'
+            ([railway] = 'abandoned' and not [highway] &lt;&gt; '')
             and [service] = 'spur' and [tunnel] = 'yes'
         </Filter>
         <LineSymbolizer stroke-width="2.0" stroke="#333" stroke-dasharray="10,10" />
