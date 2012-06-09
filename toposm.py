@@ -54,7 +54,7 @@ if not mapnik.has_cairo():
 
 # Set to true to save intermediate layers that are normally
 # merged. Primarily useful for debugging and style editing.
-SAVE_INTERMEDIATE_TILES = True
+SAVE_INTERMEDIATE_TILES = False
 
 # If true, a composite JPEG layer is saved along with
 # the standard PNG.
