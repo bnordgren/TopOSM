@@ -27,7 +27,7 @@ export SHIELDS_DIR="/srv/shields" # generated route shield images
 
 # Output directories
 export BASE_TILE_DIR="/srv/tiles" # output directory
-export TEMP_DIR="/srv/usgs/NED/13-processed" # preprocessed data and temporary files
+export TEMP_DIR="/srv/usgs/cache" # preprocessed data and temporary files
 
 # Misc files
 export OSM2PGSQL_STYLE_FILE="/home/mapnik/default.style"
@@ -43,6 +43,7 @@ export RENDER_THREADS=1 # typically equal to # of cores
 export TILE_SIZE=256
 export BORDER_WIDTH=128
 export ERROR_LOG="errors.log"
+export CACHE_LAYERS="contours"
 
 # Quality setting for combined JPEG layer
 export JPEG_QUALITY=90
