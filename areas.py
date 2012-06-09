@@ -171,6 +171,7 @@ Nature = [YellowstoneTetons, OregonCascades, SierraNevN,
     WhiteMountains, Adirondacks, EvergladesKeys, NiagaraFalls]
 
 # Maryland things
-Maryland = [Box2d(-79.4833, 39.2000, -77.5333, 39.7167),
-            Box2d(-77.5333, 37.8833, -75.0500, 39.7167)]
+WesternMaryland = Box2d(-79.4833, 39.2000, -77.5333, 39.7167)
+CentralAndEasternMaryland = Box2d(-77.5333, 37.8833, -75.0500, 39.7167)
+Maryland = [WesternMaryland, CentralAndEasternMaryland]
 Cumberland = Box2d(-78.81, 39.58, -78.72, 39.68)
