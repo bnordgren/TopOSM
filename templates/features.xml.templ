@@ -825,10 +825,10 @@
     <Datasource>
     	&dbsettings; &extents;
 	<Parameter name="table">
-            (SELECT way, highway, aeroway, ref, char_length(ref) as length,
+            (SELECT way, highway, ref, char_length(ref) as length,
                     shields_get_filename(osm_id, way, 'cutouts', 20) route_shield
                FROM ${DB_PREFIX}_line
-               WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
+               WHERE highway IS NOT NULL
                  AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
                       shields_get_route_memberships(osm_id) IS NOT NULL)
             ) AS shields
@@ -841,10 +841,10 @@
     <Datasource>
         &dbsettings; &extents;
 	<Parameter name="table">
-            (SELECT way, highway, aeroway, ref, char_length(ref) as length,
+            (SELECT way, highway, ref, char_length(ref) as length,
                     shields_get_filename(osm_id, way, 'cutouts', 24) route_shield
                FROM ${DB_PREFIX}_line
-               WHERE (highway IS NOT NULL OR aeroway IS NOT NULL)
+               WHERE highway IS NOT NULL
                  AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
                       shields_get_route_memberships(osm_id) IS NOT NULL)
             ) AS shields
