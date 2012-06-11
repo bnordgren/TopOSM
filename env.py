@@ -48,7 +48,7 @@ MAPNIK_LAYERS = AGG_LAYERS | CAIRO_LAYERS
 # A too low number is inefficient. A too high number uses
 # large amounts of memory and sometimes breaks the gdal tools.
 NTILES = {
-    1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 7:1, 8:1, 9:1, 10:1,
+    0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 7:1, 8:1, 9:1, 10:1,
     11:2, 12:4, 13:6, 14:8, 15:10, 16:12, 17:12, 18:12,
     19:12, 20:12 }
 

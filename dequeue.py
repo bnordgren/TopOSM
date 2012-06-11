@@ -4,11 +4,12 @@ from renderd import *
 
 
 class DequeueByPctStrategy:
-    def __init__(self, thread_number, amqp_channel):
+    def __init__(self, thread_number, maxz, amqp_channel):
         self.thread_number = thread_number
+        self.maxz = maxz
         self.chan = amqp_channel
-        self.render_count = [ 0 for z in range(0, MAXZ + 1) ]
-        self.render_time = [ 0 for z in range(0, MAXZ + 1) ]
+        self.render_count = [ 0 for z in range(0, maxz + 1) ]
+        self.render_time = [ 0 for z in range(0, maxz + 1) ]
         self.chan.basic_recover(requeue=True)
 
     def recordRender(self, zoom, time):
@@ -26,12 +27,12 @@ class DequeueByPctStrategy:
         # Rendering performance is based on how much time has been spent on each
         # queue.  We try to make the time-spent-rendering percentages match the
         # weighted queue percentages.
-        weighted_queues = [ self.chan.queue_declare(queue='toposm_z{0}'.format(z), passive=True)[1] * pow(4, z) / pow(NTILES[z], 2) for z in range(0, MAXZ + 1) ]
+        weighted_queues = [ self.chan.queue_declare(queue='toposm_z{0}'.format(z), passive=True)[1] * pow(4, z) / pow(NTILES[z], 2) for z in range(0, self.maxz + 1) ]
         queue_pcts = [ float(t) / sum(weighted_queues) for t in weighted_queues ]
         render_sum = sum(self.render_time) if sum(self.render_time) > 0 else 1
         render_pcts = [ float(t) / render_sum for t in self.render_time ]
         # Seed choice with the last queue that has stuff in it.
-        for z in range(0, MAXZ + 1):
+        for z in range(0, self.maxz + 1):
             if weighted_queues[z] > 0:
                 chosen_queue = z
                 pct_diff = queue_pcts[z] - render_pcts[z]
@@ -54,14 +55,15 @@ class DequeueByPctStrategy:
             return self.getMessage()
 
 class DequeueByZoomStrategy:
-    def __init__(self, thread_number, amqp_channel):
+    def __init__(self, thread_number, maxz, amqp_channel):
         self.thread_number = thread_number
+        self.maxz = maxz
         self.chan = amqp_channel
 
-        self.render_count = [ 0 for z in range(0, MAXZ + 1) ]
-        self.render_time = [ 0 for z in range(0, MAXZ + 1) ]
+        self.render_count = [ 0 for z in range(0, maxz + 1) ]
+        self.render_time = [ 0 for z in range(0, maxz + 1) ]
 
-        self.z = MAXZ + 1
+        self.z = maxz + 1
         self.msgs = []
 
         self.chan.basic_recover(requeue=True)
@@ -87,7 +89,7 @@ class DequeueByZoomStrategy:
     def nextZoom(self):
         self.z -= 1
         if self.z == 0:
-            self.z = MAXZ
+            self.z = self.maxz
         msg = self.chan.basic_get('toposm_z{0}'.format(self.z))
         while msg:
             self.msgs.append(msg)

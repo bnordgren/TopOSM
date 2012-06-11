@@ -7,10 +7,8 @@ from os import path
 from amqplib import client_0_8 as amqp
 
 from toposm import *
+from renderd import *
 from tileexpire import OSMTileExpire
-
-REFERENCE_FILE = '/srv/tiles/tirex/planet-import-complete'
-REFERENCE_MTIME = path.getmtime(REFERENCE_FILE)
 
 
 def read_tile_file(f, e):
@@ -34,25 +32,25 @@ def expire_tile(z, x, y, args):
         if args.force_render:
             queue_tile_render(z, x, y)
         return
-    
+
+seen_payloads = set()
 def queue_for_render(z, mx, my, chan):
+    render_payload = '{0}/{1}/{2}'.format(z, mx, my)
+    if render_payload in seen_payloads:
+        return
+    seen_payloads.add(render_payload)
+    console.printMessage('queueing for render: ' + render_payload)
     ntiles = NTILES[z]
     for x in xrange(mx*ntiles, (mx+1)*ntiles):
         for y in xrange(my*ntiles, (my+1)*ntiles):
             tile_path = getTilePath('composite_h', z, x, y)
             if path.isfile(tile_path):
                 os.utime(tile_path, (0, 0))
-    render_payload = '{0}/{1}/{2}'.format(z, mx, my)
-    console.printMessage('queueing for render: ' + render_payload)
     chan.basic_publish(amqp.Message(render_payload, delivery_mode=2),
                        exchange="osm", routing_key='toposm.render.{0}'.format(z))
 
-def is_old_tile(a, x, y):
-    tile_path = getTilePath('composite_h', z, x, y)
-    return path.isfile(tile_path) and path.getmtime(tile_path) > REFERENCE_MTIME
-
 def queue_tile_if_needed(z, x, y, chan, args):
-    if not is_old_tile(z, x, y) and not args.force_render:
+    if not tileNeedsRendering(z, x, y) and not args.force_render:
         return
     ntiles = NTILES[z]
     queue_for_render(z, x/ntiles, y/ntiles, chan)
