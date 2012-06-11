@@ -20,12 +20,7 @@ class ContinuousRenderThread:
         self.chan = amqp_channel
         self.threadNumber = threadNumber
         self.tilesizes = [ getTileSize(NTILES[z], True) for z in range(0, self.maxz + 1) ]
-        self.maps = [ {} for z in range(0, self.maxz + 1) ]
-        for z in range(0, self.maxz + 1):
-            for mapname in MAPNIK_LAYERS:
-                console.debugMessage('Loading mapnik.Map: {0}/{1}'.format(z, mapname))
-                self.maps[z][mapname] = mapnik.Map(self.tilesizes[z], self.tilesizes[z])
-                mapnik.load_map(self.maps[z][mapname], mapname + ".xml")
+        self.loadMaps()
 
         self.dequeueStrategy = dequeue.DequeueByPctStrategy(threadNumber, maxz, amqp_channel)
         self.keepRendering = True
@@ -39,6 +34,14 @@ class ContinuousRenderThread:
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command.toposm.render.{0}.{1}'.format(os.uname()[1], os.getpid()))
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command.toposm.render.{0}.{1}.{2}'.format(os.uname()[1], os.getpid(), threadNumber + 1))
         self.printMessage("Created thread")
+
+    def loadMaps(self):
+        self.maps = [ {} for z in range(0, self.maxz + 1) ]
+        for z in range(0, self.maxz + 1):
+            for mapname in MAPNIK_LAYERS:
+                console.debugMessage('Loading mapnik.Map: {0}/{1}'.format(z, mapname))
+                self.maps[z][mapname] = mapnik.Map(self.tilesizes[z], self.tilesizes[z])
+                mapnik.load_map(self.maps[z][mapname], mapname + ".xml")
 
     def printMessage(self, message):
         message = '[%02d] %s' % (self.threadNumber+1,  message)
@@ -82,7 +85,7 @@ class ContinuousRenderThread:
                     self.printMessage('Unknown dequeue strategy: ' + parts[1])
                     self.dequeueStrategy = dequeue.DequeueByPctStrategy(self.threadNumber, self.maxz, self.chan)
             elif parts[0] == 'newmaps':
-                self.maps = [ {} for z in range(0, self.maxz + 1) ]
+                self.loadMaps()
             elif parts[0] == 'reload':
                 reload(globals()[parts[1]])
             else:
