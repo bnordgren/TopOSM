@@ -4,7 +4,7 @@
 # Change these settings to match your setup.
 
 # Postgres settings
-export DB_HOST="elros"
+export DB_HOST="localhost"
 export DB_NAME="osm"
 export DB_PORT=5432 # local postgres port
 export DB_PREFIX="planet_osm" # prefix for all tables
@@ -16,7 +16,7 @@ export NHD_DB="nhd"
 export NHD_TABLE_PREFIX=""
 
 # Data directories
-export WORLD_BOUNDARIES_DIR="/home/phil/tmp/osm/world_boundaries"
+export WORLD_BOUNDARIES_DIR="/home/mapnik/world_boundaries"
 export NHD_DIR="/srv/usgs/NHD" # NHD shapefiles
 export NLCD_DIR="/srv/usgs/NLCD"
 export NED13_DIR="/srv/usgs/NED/13" # NED 1/3" GeoTIFFs
