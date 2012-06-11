@@ -15,7 +15,7 @@ conn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
 chan = conn.channel()
 chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
 chan.queue_declare(queue=args.queue, durable=True, exclusive=False, auto_delete=False)
-chan.queue_bind(queue=args.queue, exchange="osm", routing_key="expire")
+chan.queue_bind(queue="expire_toposm", exchange="osm", routing_key="expire")
 
 msg = chan.basic_get(args.queue)
 while msg:
