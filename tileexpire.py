@@ -44,14 +44,14 @@ class OSMTileExpire:
     def expire(self, targetz, targetx, targety):
         """Mark the supplied tile as expired."""
         if targetz < self.z:
-            return
+            return False
+        elif self.full:
+            return True
         elif targetz == self.z:
             self.markFull()
-            return
-        elif self.isFull():
-            return
-        xoff = (targetx >> (targetz - self.z)) - (self.x << 1)
-        yoff = (targety >> (targetz - self.z)) - (self.y << 1)
+            return True
+        xoff = (targetx >> (targetz - self.z - 1)) - (self.x << 1)
+        yoff = (targety >> (targetz - self.z - 1)) - (self.y << 1)
         if xoff > 1 or 0 > xoff:
             raise Exception(
                 'z:{0}, x:{1} out of bounds for tile z:{2}, x:{3}, y{4}'.format(
@@ -61,19 +61,17 @@ class OSMTileExpire:
                 'z:{0}, y:{1} out of bounds for tile z:{2}, x:{3}, y{4}'.format(
                     targetz, targety, self.z, self.x, self.y))
         i = 2*yoff + xoff
-        if self.children[i]:
-            self.children[i].expire(targetz, targetx, targety)
-        else:
+        if not self.children[i]:
             self.children[i] = OSMTileExpire(
                 self.z + 1, self.x * 2 + xoff, self.y * 2 + yoff)
-            self.children[i].expire(targetz, targetx, targety)
-
-    def isFull(self):
-        if self.full:
-            return True
-        if all(self.children) and all([c.isFull() for c in self.children]):
+        child_full = self.children[i].expire(targetz, targetx, targety)
+        if child_full and self.checkFull():
             self.markFull()
-        return self.full
+            return True
+        return False
+
+    def checkFull(self):
+        return self.full or (all(self.children) and all([c.full for c in self.children]))
                 
     def markFull(self):
         self.full = True
@@ -85,7 +83,7 @@ class OSMTileExpire:
             raise Exception('zoom {0} is lower than this zoom, {1}'.format(targetz, self.z))
         elif targetz == self.z:
             yield (self.x, self.y)
-        elif self.isFull():
+        elif self.full:
             exp = 2**(targetz - self.z)
             for t in hilbert(self.x*exp, self.y*exp, exp, 0, 0, exp, targetz - self.z):
                 yield t
