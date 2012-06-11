@@ -95,3 +95,35 @@ class DequeueByZoomStrategy:
             self.msgs.append(msg)
             msg = self.chan.basic_get('toposm_z{0}'.format(self.z))
         self.msgs.reverse()
+
+class DequeueShortestFirstStrategy:
+    def __init__(self, thread_number, maxz, amqp_channel):
+        self.thread_number = thread_number
+        self.maxz = maxz
+        self.chan = amqp_channel
+        self.render_count = [ 0 for z in range(0, maxz + 1) ]
+        self.render_time = [ 0 for z in range(0, maxz + 1) ]
+        self.chan.basic_recover(requeue=True)
+
+    def recordRender(self, zoom, time):
+        self.render_count[zoom] += 1
+        self.render_time[zoom] += time
+        
+    def getMessage(self):
+        queue_lengths = [ self.chan.queue_declare(queue='toposm_z{0}'.format(z), passive=True)[1] for z in range(0, self.maxz + 1) ]
+        # Seed choice with the last queue that has stuff in it.
+        for z in range(0, self.maxz + 1):
+            if queue_lengths[z] > 0:
+                chosen_queue = z
+                chosen_length = queue_lengths[z]
+        for z in range(0, chosen_queue):
+            if 0 < queue_lengths[z] and queue_lengths[z] < chosen_length:
+                chosen_queue = z
+                chosen_length = queue_lengths[z]
+        console.printMessage('c: ' + ' '.join([ '%d:%d' % (i, self.render_count[i]) for i in range(len(self.render_count)) ]))
+        console.printMessage('t/c: ' + ' '.join([ '%d:%.1f' % (i, self.render_time[i] / self.render_count[i] if self.render_count[i] > 0 else 0) for i in range(len(self.render_time)) ]))
+        msg = self.chan.basic_get('toposm_z{0}'.format(chosen_queue))
+        if msg:
+            return msg
+        else:
+            return self.getMessage()
