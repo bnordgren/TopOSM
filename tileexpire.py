@@ -9,6 +9,23 @@ __author__      = "Phil! Gold <phil_g@pobox.com>"
 __copyright__   = "waived; see license"
 __license__     = "CC0: http://creativecommons.org/publicdomain/zero/1.0/"
 
+# Mapping from hilbert subcurve to child subscripts in order of processing.
+hilbert_order = {
+    0: [0, 2, 3, 1],
+    1: [3, 2, 0, 1],
+    2: [3, 1, 0, 2],
+    3: [0, 1, 3, 2]
+}
+# For each hilbert subcurve, gives the subcurve of the next level down for each
+# child.  Order of next subcurve number matches child subscripts, so
+# [ul, ur, ll, lr].
+hilbert_next = {
+    0: [3, 1, 0, 0],
+    1: [1, 0, 1, 2],
+    2: [2, 2, 3, 1],
+    3: [0, 3, 2, 3]
+}
+
 class OSMTileExpire:
 
     """
@@ -79,29 +96,29 @@ class OSMTileExpire:
 
     def expiredAt(self, targetz):
         """Yield (as a generator) all the expired tiles at the given zoom."""
+        return self._expiredAt(targetz, 0)
+    
+    def _expiredAt(self, targetz, hilbert_curve):
         if targetz < self.z:
             raise Exception('zoom {0} is lower than this zoom, {1}'.format(targetz, self.z))
         elif targetz == self.z:
             yield (self.x, self.y)
         elif self.full:
-            exp = 2**(targetz - self.z)
-            for t in hilbert(self.x*exp, self.y*exp, exp, 0, 0, exp, targetz - self.z):
+            for t in enumeratePoints(self.x, self.y, targetz - self.z, hilbert_curve):
                 yield t
         else:
-            for c in self.children:
-                if c:
-                    for t in c.expiredAt(targetz):
+            for hi in hilbert_order[hilbert_curve]:
+                if self.children[hi]:
+                    for t in self.children[hi]._expiredAt(targetz, hilbert_next[hilbert_curve][hi]):
                         yield t
+        
 
-def hilbert(x, y, xi, xj, yi, yj, n):
-    if n <= 0:
-        yield (x + (xi+yi)/2, y + (xj+yj)/2)
+def enumeratePoints(x, y, n, hilbert_curve):
+    if n == 0:
+        yield (x, y)
     else:
-        for h in hilbert(x, y, yi/2, yj/2, xi/2, xj/2, n-1):
-            yield h
-        for h in hilbert(x+xi/2, y+xj/2, xi/2, xj/2, yi/2, yj/2, n-1):
-            yield h
-        for h in hilbert(x+xi/2+yi/2, y+xj/2+yj/2, xi/2, xj/2, yi/2, yj/2, n-1):
-            yield h
-        for h in hilbert(x+xi/2+yi, y+xj/2+yj, -yi/2, -yj/2, -xi/2, -xj/2, n-1):
-            yield h
+        for hi in hilbert_order[hilbert_curve]:
+            x1 = 2 * x + hi % 2
+            y1 = 2 * y + hi / 2
+            for t in enumeratePoints(x1, y1, n - 1, hilbert_next[hilbert_curve][hi]):
+                yield t
