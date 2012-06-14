@@ -6,6 +6,7 @@ from amqplib import client_0_8 as amqp
 
 from env import *
 from toposm import *
+from stats import *
 import dequeue
 
 REFERENCE_FILE = '/srv/tiles/tirex/planet-import-complete'
@@ -51,7 +52,7 @@ class ContinuousRenderThread:
         message = '[%02d] %s' % (self.threadNumber+1,  message)
         console.printMessage(message)
         try:
-            function(*args)        
+            return function(*args)        
         except Exception as ex:
             console.printMessage('Failed: ' + message)
             errorLog.log('Failed: ' + message, ex)
@@ -65,9 +66,10 @@ class ContinuousRenderThread:
         z, metax, metay = [int(n) for n in msg.body.split('/')]
         if metaTileNeedsRendering(z, metax, metay):
             message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
-            self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
+            layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         self.chan.basic_ack(msg.delivery_tag)
         self.dequeueStrategy.recordRender(z, time.time() - start_time)
+        stats.recordRender(z, time.time() - start_time, layerTimes)
 
     # There's got to be a better way to do this...
     def processCommands(self):
