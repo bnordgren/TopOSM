@@ -164,8 +164,11 @@ def renderMetaTile(z, x, y, ntiles, maps):
     """Renders the specified map tile and saves the result (including the
     composite) as individual tiles."""
     images = {}
+    layerTimes = {}
     for layer in MAPNIK_LAYERS:
+        startTime = time.time()
         images[layer] = renderLayer(layer, z, x, y, ntiles, maps[layer], 'png')
+        layerTimes[layer] = time.time() - startTime
     console.debugMessage(' Combining tiles')
     base_h = getComposite((images['hypsorelief'], images['areas'], images['ocean']))
     base_l = getComposite((images['landcoverrelief'], images['ocean']))
@@ -183,6 +186,7 @@ def renderMetaTile(z, x, y, ntiles, maps):
         saveTiles(z, x, y, ntiles, 'base_l', base_l)
         for layer in MAPNIK_LAYERS:
             saveTiles(z, x, y, ntiles, layer, images['layer'])
+    return layerTimes
     
 def renderLayer(name, z, x, y, ntiles, map, suffix = 'png'):
     """Renders the specified map tile (layer) as a mapnik.Image."""
