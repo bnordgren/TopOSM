@@ -2,14 +2,17 @@
 
 import os.path, pickle
 
+import lockfile
+
 from threading import Lock
 
 class StatsManager:
-    lock = Lock()
+    lock = lockfile.FileLock('stats')
     def __init__(self):
-        if not os.path.isfile('stats'):
-            with open('stats', 'w') as f:
-                pickle.dump({}, f)
+        with self.lock:
+            if not os.path.isfile('stats'):
+                with open('stats', 'w') as f:
+                    pickle.dump({}, f)
 
     def recordRender(self, zoom, totalTime, layerTimes):
         with self.lock:
