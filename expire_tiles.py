@@ -50,16 +50,20 @@ def queue_for_render(z, mx, my, chan):
                        exchange="osm", routing_key='toposm.render.{0}'.format(z))
 
 def queue_tile_if_needed(z, x, y, chan, args):
-    if not tileNeedsRendering(z, x, y) and not args.force_render:
-        return
     ntiles = NTILES[z]
-    queue_for_render(z, x/ntiles, y/ntiles, chan)
+    if tileExists(REFERENCE_TILESET, z, x, y):
+        if args.render_queued or path.getmtime(getTilePath(REFERENCE_TILESET, z, x, y)) > REFERENCE_MTIME:
+            queue_for_render(z, x/ntiles, y/ntiles, chan)
+    elif args.render_missing:
+        queue_for_render(z, x/ntiles, y/ntiles, chan)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Processes a tile expiration list and queues existing tiles for rerendering.')
-    parser.add_argument('-f', '--force-render', action='store_true',
-                        help='Forces rendering of supplied tiles, even if they don\'t exist in the filesystem.')
+    parser.add_argument('-m', '--render-missing', action='store_true',
+                        help='Queues tiles for rendering even if they don\'t exist in the filesystem')
+    parser.add_argument('-q', '--render-queued', action='store_true',
+                        help='Queues tiles even if it appears they\'ve already been queued.')
     parser.add_argument('--min-zoom', type=int, default=2,
                         help='The lowest zoom level to expire.')
     parser.add_argument('--max-zoom', type=int, default=16,
