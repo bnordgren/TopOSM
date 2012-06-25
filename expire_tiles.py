@@ -34,7 +34,7 @@ def expire_tile(z, x, y, args):
         return
 
 seen_payloads = set()
-def queue_for_render(z, mx, my, chan):
+def queue_for_render(z, mx, my, chan, args):
     render_payload = '{0}/{1}/{2}'.format(z, mx, my)
     if render_payload in seen_payloads:
         return
@@ -46,16 +46,22 @@ def queue_for_render(z, mx, my, chan):
             tile_path = getTilePath('composite_h', z, x, y)
             if path.isfile(tile_path):
                 os.utime(tile_path, (0, 0))
+    if args.missing:
+        key = 'toposm.render.missing'
+    elif args.important:
+        key = 'toposm.render.important'
+    else:
+        key = 'toposm.render.{0}'.format(z)
     chan.basic_publish(amqp.Message(render_payload, delivery_mode=2),
-                       exchange="osm", routing_key='toposm.render.{0}'.format(z))
+                       exchange="osm", routing_key=key)
 
 def queue_tile_if_needed(z, x, y, chan, args):
     ntiles = NTILES[z]
     if tileExists(REFERENCE_TILESET, z, x, y):
         if args.render_queued or path.getmtime(getTilePath(REFERENCE_TILESET, z, x, y)) > REFERENCE_MTIME:
-            queue_for_render(z, x/ntiles, y/ntiles, chan)
+            queue_for_render(z, x/ntiles, y/ntiles, chan, args)
     elif args.render_missing:
-        queue_for_render(z, x/ntiles, y/ntiles, chan)
+        queue_for_render(z, x/ntiles, y/ntiles, chan, args)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -68,6 +74,10 @@ if __name__ == "__main__":
                         help='The lowest zoom level to expire.')
     parser.add_argument('--max-zoom', type=int, default=16,
                         help='The highest zoom level to expire.')
+    parser.add_argument('--important', action='store_true',
+                        help='If set, puts all messages into the "important" queue instead of the usual -er-zoom-level queues.')
+    parser.add_argument('--missing', action='store_true',
+                        help='If set, puts all messages into the "missing" queue instead of the usual -er-zoom-level queues.')
     parser.add_argument('file', nargs='*',
                         help='The file(s) from which to read the expire list.  If no files are given, standard input is used.')
     args = parser.parse_args()

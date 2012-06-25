@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os
+import sys, os, time
 
 from amqplib import client_0_8 as amqp
 
@@ -64,12 +64,14 @@ class ContinuousRenderThread:
         start_time = time.time()
         self.printMessage("Received message %s" % (msg.body))
         z, metax, metay = [int(n) for n in msg.body.split('/')]
+        layerTimes = None
         if metaTileNeedsRendering(z, metax, metay):
             message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
             layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         self.chan.basic_ack(msg.delivery_tag)
         self.dequeueStrategy.recordRender(z, time.time() - start_time)
-        stats.recordRender(z, time.time() - start_time, layerTimes)
+        if layerTimes:
+            stats.recordRender(z, time.time() - start_time, layerTimes)
 
     # There's got to be a better way to do this...
     def processCommands(self):
@@ -96,7 +98,15 @@ class ContinuousRenderThread:
 
     def renderLoop(self):
         while self.keepRendering:
-            self.renderMetaTileFromMsg(self.dequeueStrategy.getMessage())
+            msg = self.chan.basic_get('toposm_missing')
+            if not msg:
+                msg = self.chan.basic_get('toposm_important')
+            if not msg:
+                msg = self.dequeueStrategy.getMessage()
+            if msg:
+                self.renderMetaTileFromMsg(msg)
+            else:
+                time.sleep(30)
             self.processCommands()
 
 
@@ -123,6 +133,10 @@ if __name__ == "__main__":
     conn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
     chan = conn.channel()
     chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
+    chan.queue_declare(queue='toposm_important', durable=True, exclusive=False, auto_delete=False)
+    chan.queue_bind(queue='toposm_important', exchange='osm', routing_key='toposm.render.important')
+    chan.queue_declare(queue='toposm_missing', durable=True, exclusive=False, auto_delete=False)
+    chan.queue_bind(queue='toposm_missing', exchange='osm', routing_key='toposm.render.missing')
     for z in range(0, maxz + 1):
         chan.queue_declare(queue='toposm_z{0}'.format(z), durable=True,
                            exclusive=False, auto_delete=False)
