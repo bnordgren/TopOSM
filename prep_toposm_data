@@ -95,11 +95,12 @@ for y in `seq $BOTTOM $TOP`; do
 done; done
 
 # generate overviews and VRT layers
-for d in $HILLSHADE_DIR $HYPSORELIEF_DIR ; do
-    pushd . ; cd $d
-    gdalbuildvrt all.vrt *.tif
-    popd
-done
+pushd . ; cd $HILLSHADE_DIR
+gdalbuildvrt -overwrite all.vrt *.tif
+popd
+pushd . ; cd $HYPSORELIEF_DIR
+gdalbuildvrt -vrtnodata "128 128 128" -overwrite all.vrt *.tif
+popd
 
 # reproject NLCD data, add overviews, and copy VRT file (with
 # the custom color table).
