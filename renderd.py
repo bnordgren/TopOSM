@@ -69,8 +69,8 @@ class ContinuousRenderThread:
             message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
             layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         self.chan.basic_ack(msg.delivery_tag)
-        self.dequeueStrategy.recordRender(z, time.time() - start_time)
         if layerTimes:
+            self.dequeueStrategy.recordRender(z, time.time() - start_time)
             stats.recordRender(z, time.time() - start_time, layerTimes)
 
     # There's got to be a better way to do this...
