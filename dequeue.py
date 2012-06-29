@@ -79,9 +79,12 @@ class DequeueByFixedPctStrategy:
             render_sum = 1
         render_pcts = [ float(c) / render_sum for c in self.render_count ]
         # Seed choice with the last queue that has stuff in it.
+        chosen_queue = -1
         for z in range(0, self.maxz + 1):
             if queues[z] > 0:
                 chosen_queue = z
+        if chosen_queue == -1:
+            return None
         scale = 2**(self.maxz - chosen_queue)
         pct_diff = self.queue_pcts[chosen_queue] * scale - render_pcts[chosen_queue]
         # See if there's a more-neglected queue.
