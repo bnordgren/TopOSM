@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd $(dirname $0)
+. ./set-toposm-env
+
+# Danger Will Robinson!
+PATH=$PATH:.
+
+exec "$@"
