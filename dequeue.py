@@ -28,6 +28,8 @@ class DequeueByPctStrategy:
         # queue.  We try to make the time-spent-rendering percentages match the
         # weighted queue percentages.
         weighted_queues = [ self.chan.queue_declare(queue='toposm_z{0}'.format(z), passive=True)[1] * pow(4, z) / pow(NTILES[z], 2) for z in range(0, self.maxz + 1) ]
+        if sum(weighted_queues) == 0:
+            return None
         queue_pcts = [ float(t) / sum(weighted_queues) for t in weighted_queues ]
         render_sum = sum(self.render_time) if sum(self.render_time) > 0 else 1
         render_pcts = [ float(t) / render_sum for t in self.render_time ]
