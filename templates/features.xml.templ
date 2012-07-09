@@ -2,30 +2,31 @@
 <!DOCTYPE Map[
     <!ENTITY % utils SYSTEM "include/utils.inc">
     <!ENTITY % colors SYSTEM "include/colors.inc">
+    <!ENTITY % nhdfcodes SYSTEM "include/nhdfcodes.inc">
     <!ENTITY symbolsdir "symbols">
-	<!ENTITY customsymbolsdir "custom-symbols">
-        <!ENTITY shieldsdir "${SHIELDS_DIR}">
-	<!ENTITY dbsettings SYSTEM "include/dbsettings.inc">
-	<!ENTITY extents SYSTEM "include/extents.inc">
-	<!ENTITY extentsLatLon SYSTEM "include/extentsLatLon.inc">
-	<!ENTITY rounded SYSTEM "include/rounded.inc">
-	<!ENTITY roadoutline SYSTEM "include/roadoutline.inc">
-	<!ENTITY bridgeoutline SYSTEM "include/bridgeoutline.inc">
-	<!ENTITY highway SYSTEM "include/highway.inc">
-	<!ENTITY rail SYSTEM "include/rail.inc">
-	<!ENTITY power-lines SYSTEM "include/power-lines.inc">
-	<!ENTITY aeroway SYSTEM "include/aeroway.inc">
-        <!ENTITY bridge SYSTEM "include/bridge.inc">
-	<!ENTITY water SYSTEM "include/water.inc">
-	<!ENTITY label SYSTEM "include/labels.inc">
-	<!ENTITY shield SYSTEM "include/shields.inc">
-	<!ENTITY symbol SYSTEM "include/symbols.inc">
-        <!ENTITY water-line-rules SYSTEM "include/water-line-rules.inc">
-        <!ENTITY highway-highzoom-fill-rules SYSTEM "include/highway-highzoom-fill-rules.inc">
-        <!ENTITY railway-outline-rules SYSTEM "include/railway-outline-rules.inc">
-        <!ENTITY railway-fill-rules SYSTEM "include/railway-fill-rules.inc">
-	%utils;
-	%colors;
+    <!ENTITY customsymbolsdir "custom-symbols">
+    <!ENTITY shieldsdir "${SHIELDS_DIR}">
+    <!ENTITY dbsettings SYSTEM "include/dbsettings.inc">
+    <!ENTITY extents SYSTEM "include/extents.inc">
+    <!ENTITY extentsLatLon SYSTEM "include/extentsLatLon.inc">
+    <!ENTITY rounded SYSTEM "include/rounded.inc">
+    <!ENTITY roadoutline SYSTEM "include/roadoutline.inc">
+    <!ENTITY bridgeoutline SYSTEM "include/bridgeoutline.inc">
+    <!ENTITY highway SYSTEM "include/highway.inc">
+    <!ENTITY rail SYSTEM "include/rail.inc">
+    <!ENTITY power-lines SYSTEM "include/power-lines.inc">
+    <!ENTITY aeroway SYSTEM "include/aeroway.inc">
+    <!ENTITY bridge SYSTEM "include/bridge.inc">
+    <!ENTITY water SYSTEM "include/water.inc">
+    <!ENTITY label SYSTEM "include/labels.inc">
+    <!ENTITY shield SYSTEM "include/shields.inc">
+    <!ENTITY symbol SYSTEM "include/symbols.inc">
+    <!ENTITY water-line-rules SYSTEM "include/water-line-rules.inc">
+    <!ENTITY highway-highzoom-fill-rules SYSTEM "include/highway-highzoom-fill-rules.inc">
+    <!ENTITY railway-outline-rules SYSTEM "include/railway-outline-rules.inc">
+    <!ENTITY railway-fill-rules SYSTEM "include/railway-fill-rules.inc">
+    %utils;
+    %colors;
 ]>
 
 <Map background-color="transparent" srs="&srs900913;">
@@ -524,6 +525,7 @@
     </Datasource>
 </Layer>
 
+
 <Layer name="nature-areas" status="on">
   <StyleName>nature-areas</StyleName>
     <Datasource>
@@ -560,6 +562,17 @@
       	(SELECT way, route FROM ${DB_PREFIX}_line WHERE route IS NOT NULL) AS routes
       </Parameter>
     </Datasource>
+</Layer>
+
+<Layer name="NHDpoint" status="on">
+  <StyleName>nhd-point</StyleName>
+  <Datasource>
+    &dbsettings; &extents;
+    <Parameter name="table">
+        (SELECT way, fcode, gnis_name FROM ${NHD_TABLE_PREFIX}_point)
+        AS pointfeature      
+    </Parameter>
+  </Datasource>
 </Layer>
 
 <Layer name="buildings" status="on">
