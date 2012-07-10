@@ -2,7 +2,6 @@
 <!DOCTYPE Map[
     <!ENTITY % utils SYSTEM "include/utils.inc">
     <!ENTITY % colors SYSTEM "include/colors.inc">
-    <!ENTITY % nhdfcodes SYSTEM "include/nhdfcodes.inc">
     <!ENTITY symbolsdir "symbols">
     <!ENTITY customsymbolsdir "custom-symbols">
     <!ENTITY shieldsdir "${SHIELDS_DIR}">
@@ -562,17 +561,6 @@
       	(SELECT way, route FROM ${DB_PREFIX}_line WHERE route IS NOT NULL) AS routes
       </Parameter>
     </Datasource>
-</Layer>
-
-<Layer name="NHDpoint" status="on">
-  <StyleName>nhd-point</StyleName>
-  <Datasource>
-    &dbsettings; &extents;
-    <Parameter name="table">
-        (SELECT way, fcode, gnis_name FROM ${NHD_TABLE_PREFIX}_point)
-        AS pointfeature      
-    </Parameter>
-  </Datasource>
 </Layer>
 
 <Layer name="buildings" status="on">
