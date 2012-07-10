@@ -594,7 +594,7 @@
                          ELSE service
                     END AS service
                FROM ${DB_PREFIX}_line
-               WHERE railway IS NOT NULL
+               WHERE railway IS NOT NULL AND route IS NULL
                ORDER BY z_order, ST_Length(way)
             ) AS lines
         </Parameter>
