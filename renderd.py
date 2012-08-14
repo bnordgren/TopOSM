@@ -15,7 +15,7 @@ REFERENCE_TILESET = 'composite_h'
 
 
 class ContinuousRenderThread:
-    def __init__(self, maxz, amqp_channel, threadNumber):
+    def __init__(self, dequeueStrategy, maxz, amqp_channel, threadNumber):
         console.printMessage("Creating thread %d" % (threadNumber))
         self.maxz = maxz
         self.chan = amqp_channel
@@ -23,7 +23,7 @@ class ContinuousRenderThread:
         self.tilesizes = [ getTileSize(NTILES[z], True) for z in range(0, self.maxz + 1) ]
         self.maps = [ None for z in range(0, self.maxz + 1) ]
 
-        self.dequeueStrategy = dequeue.DequeueByPctStrategy(threadNumber, maxz, amqp_channel)
+        self.dequeueStrategy = dequeueStrategy(threadNumber, maxz, amqp_channel)
         self.keepRendering = True
 
         self.commandQueue = self.chan.queue_declare(durable=False, exclusive=True, auto_delete=True)[0]
@@ -130,6 +130,10 @@ def metaTileNeedsRendering(z, x, y):
 
 if __name__ == "__main__":
     maxz = int(sys.argv[1])
+    if len(sys.argv) > 2:
+        dequeueStrategy = getattr(globals()['dequeue'], sys.argv[2])
+    else:
+        dequeueStrategy = dequeue.DequeueByPctStrategy
 
     conn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
     chan = conn.channel()
@@ -150,7 +154,7 @@ if __name__ == "__main__":
     for i in range(NUM_THREADS):
         rconn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
         rchan = rconn.channel()
-        renderer = ContinuousRenderThread(maxz, rchan, i)
+        renderer = ContinuousRenderThread(dequeueStrategy, maxz, rchan, i)
         render_thread = threading.Thread(target=renderer.renderLoop)
         render_thread.start()
         renderers[i] = (render_thread, rconn, rchan)
