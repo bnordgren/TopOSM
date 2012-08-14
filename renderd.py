@@ -21,7 +21,7 @@ class ContinuousRenderThread:
         self.chan = amqp_channel
         self.threadNumber = threadNumber
         self.tilesizes = [ getTileSize(NTILES[z], True) for z in range(0, self.maxz + 1) ]
-        self.loadMaps()
+        self.maps = [ None for z in range(0, self.maxz + 1) ]
 
         self.dequeueStrategy = dequeue.DequeueByPctStrategy(threadNumber, maxz, amqp_channel)
         self.keepRendering = True
@@ -36,13 +36,12 @@ class ContinuousRenderThread:
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command.toposm.render.{0}.{1}.{2}'.format(os.uname()[1], os.getpid(), threadNumber + 1))
         self.printMessage("Created thread")
 
-    def loadMaps(self):
-        self.maps = [ {} for z in range(0, self.maxz + 1) ]
-        for z in range(0, self.maxz + 1):
-            for mapname in MAPNIK_LAYERS:
-                console.debugMessage('Loading mapnik.Map: {0}/{1}'.format(z, mapname))
-                self.maps[z][mapname] = mapnik.Map(self.tilesizes[z], self.tilesizes[z])
-                mapnik.load_map(self.maps[z][mapname], mapname + ".xml")
+    def loadMaps(self, zoom):
+        self.maps[zoom] = {}
+        for mapname in MAPNIK_LAYERS:
+            console.debugMessage('Loading mapnik.Map: {0}/{1}'.format(zoom, mapname))
+            self.maps[zoom][mapname] = mapnik.Map(self.tilesizes[zoom], self.tilesizes[zoom])
+            mapnik.load_map(self.maps[zoom][mapname], mapname + ".xml")
 
     def printMessage(self, message):
         message = '[%02d] %s' % (self.threadNumber+1,  message)
@@ -67,6 +66,8 @@ class ContinuousRenderThread:
         layerTimes = None
         if metaTileNeedsRendering(z, metax, metay):
             message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
+            if not self.maps[z]:
+                self.loadMaps(z)
             layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         self.chan.basic_ack(msg.delivery_tag)
         if layerTimes:
