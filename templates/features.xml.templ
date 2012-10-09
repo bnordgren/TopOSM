@@ -615,6 +615,23 @@
     </Datasource>
 </Layer>
 
+<Layer name="turning-circles-outline" status="on" srs="&srs900913;">
+    <StyleName>turning-circles-outline</StyleName>
+    <Datasource>
+        &dbsettings;
+        &extents;
+        <Parameter name="table">
+            (SELECT p.way as way, l.highway AS int_tc_type
+               FROM ${DB_PREFIX}_point p
+                 JOIN ${DB_PREFIX}_line l
+                   ON ST_DWithin(p.way, l.way, 0.1)
+               WHERE p.highway = 'turning_circle'
+                     AND l.highway in ('tertiary', 'unclassified', 'residential', 'service')
+            ) as turning_circle
+        </Parameter>
+    </Datasource>
+</Layer>
+
 <!-- Roads at z9+ (all roads) -->
 <Layer name="highway-highzoom" status="on">
     <StyleName>highway-highzoom-outline</StyleName>
@@ -638,6 +655,23 @@
                FROM ${DB_PREFIX}_line
                WHERE highway IS NOT NULL
                ORDER BY FLOOR(z_order / 10.0), link DESC, z_order) AS lines
+        </Parameter>
+    </Datasource>
+</Layer>
+
+<Layer name="turning-circles-fill" status="on" srs="&srs900913;">
+    <StyleName>turning-circles-fill</StyleName>
+    <Datasource>
+        &dbsettings;
+        &extents;
+        <Parameter name="table">
+            (SELECT p.way as way, l.highway AS int_tc_type
+               FROM ${DB_PREFIX}_point p
+                 JOIN ${DB_PREFIX}_line l
+                   ON ST_DWithin(p.way, l.way, 0.1)
+               WHERE p.highway = 'turning_circle'
+                     AND l.highway in ('tertiary', 'unclassified', 'residential', 'service')
+            ) as turning_circle
         </Parameter>
     </Datasource>
 </Layer>

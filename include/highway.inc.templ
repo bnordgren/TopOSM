@@ -466,8 +466,84 @@
     
 </Style>
 
+<Style name="turning-circles-outline">
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'tertiary'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-tertiary-z15-casing.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'tertiary'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-tertiary-z16-casing.png" allow-overlap="true" />
+    </Rule>
+
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'unclassified' or [int_tc_type] = 'residential'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-minor-z15-casing.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'unclassified' or [int_tc_type] = 'residential'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-minor-z16-casing.png" allow-overlap="true" />
+    </Rule>
+
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'service'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-service-z15-casing.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'service'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-service-z16-casing.png" allow-overlap="true" />
+    </Rule>
+</Style>
+
 <Style name="highway-highzoom-fill">  
     &highway-highzoom-fill-rules;
+</Style>
+
+<Style name="turning-circles-fill">
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'tertiary'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-tertiary-z15-fill.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'tertiary'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-tertiary-z16-fill.png" allow-overlap="true" />
+    </Rule>
+
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'unclassified' or [int_tc_type] = 'residential'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-minor-z15-fill.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'unclassified' or [int_tc_type] = 'residential'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-minor-z16-fill.png" allow-overlap="true" />
+    </Rule>
+
+    <Rule>
+        &minz15;
+        &maxz15;
+        <Filter>[int_tc_type] = 'service'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-service-z15-fill.png" allow-overlap="true" />
+    </Rule>
+    <Rule>
+        &minz16;
+        <Filter>[int_tc_type] = 'service'</Filter>
+        <PointSymbolizer file="&customsymbolsdir;/turning_circle-service-z16-fill.png" allow-overlap="true" />
+    </Rule>
 </Style>
 
 <!-- parking lots are rendered (outline+fill) just like roads -->

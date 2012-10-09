@@ -105,6 +105,11 @@ Generate hillshade and colormaps:
 ```
 $ ./prep_toposm_data
 ```
+Generate turning circle images:
+```
+$ ./generate_turning_circles.py
+```
+
 
 Add a shortcut for your area(s) of interest to areas.py.
 
