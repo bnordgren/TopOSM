@@ -90,7 +90,7 @@ class ContinuousRenderThread:
                     self.printMessage('Unknown dequeue strategy: ' + parts[1])
                     self.dequeueStrategy = dequeue.DequeueByPctStrategy(self.threadNumber, self.maxz, self.chan)
             elif parts[0] == 'newmaps':
-                self.loadMaps()
+                self.maps = [ None for z in range(0, self.maxz + 1) ]
             elif parts[0] == 'reload':
                 reload(globals()[parts[1]])
             else:
