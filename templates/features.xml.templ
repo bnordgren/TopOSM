@@ -938,27 +938,30 @@
 </Layer>
 
 <Layer name="pointfeaturenames" status="on">
-    <StyleName>featurenames</StyleName>
-    <Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, name, "natural", aeroway, railway, landuse, leisure,
-		    boundary, 0 as way_area,
-                    (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit
-		 FROM ${DB_PREFIX}_point) AS featurenames
-		</Parameter>
-    </Datasource>
+  <StyleName>featurenames</StyleName>
+  <Datasource>
+    &dbsettings; &extents;
+    <Parameter name="table">
+      (SELECT way, name, "natural", aeroway, railway, landuse, leisure,
+              boundary, 0 as way_area,
+              (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit
+         FROM ${DB_PREFIX}_point) AS featurenames
+    </Parameter>
+    <Parameter name="geometry_field">way</Parameter>
+  </Datasource>
 </Layer>
 
 <Layer name="areafeaturenames" status="on">
     <StyleName>featurenames</StyleName>
     <Datasource>
-		&dbsettings; &extents;
-		<Parameter name="table">
-		(SELECT way, name, "natural", aeroway, railway, landuse, leisure,
-		 boundary, way_area, '' AS ele_w_unit
-		 FROM ${DB_PREFIX}_polygon ORDER BY z_order, way_area DESC)
-		 AS areafeaturenames</Parameter>
+      &dbsettings; &extents;
+      <Parameter name="table">
+	(SELECT way, name, "natural", aeroway, railway, landuse, leisure,
+	boundary, way_area, 0 AS ele_ft
+	FROM ${DB_PREFIX}_polygon ORDER BY z_order, way_area DESC)
+	AS featurenames
+      </Parameter>
+      <Parameter name="geometry_field">way</Parameter>
     </Datasource>
 </Layer>
 
