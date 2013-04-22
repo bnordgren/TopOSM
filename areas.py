@@ -32,6 +32,7 @@ oakland = Box2d(-122.34, 37.75, -122.12, 37.89)
 yosdetail = Box2d(-119.67, 37.70, -119.52, 37.76)
 
 AbandonedRailwayRelation = Box2d(-76.660, 39.196, -76.652, 39.207)
+TurningCircles = Box2d(-76.945, 39.190, -76.918, 39.212)
 
 # Main US zones
 US = Box2d(-126, 24, -66, 56)
