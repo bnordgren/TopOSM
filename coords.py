@@ -5,15 +5,8 @@
 from math import pi, cos, sin, log, exp, atan, ceil, floor
 from env import *;
 
-# Use mapnik2 if available, mapnik otherwise.
-try:
-    import mapnik2 as mapnik
-    from mapnik2 import Coord, Box2d, Projection
-except ImportError:
-    import mapnik
-    from mapnik import Coord
-    from mapnik import Projection
-    from mapnik import Envelope as Box2d
+import mapnik
+from mapnik import Coord, Box2d, Projection
 
 __author__      = "Lars Ahlzen"
 __copyright__   = "(c) Lars Ahlzen 2008-2011"

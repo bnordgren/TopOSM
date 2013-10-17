@@ -9,11 +9,7 @@ from math import floor, ceil
 from env import *
 from common import *
 
-# Use mapnik2 if available, mapnik otherwise.
-try:
-    from mapnik2 import Box2d
-except ImportError:
-    from mapnik import Envelope as Box2d
+from mapnik import Box2d
 
 
 __author__      = "Lars Ahlzen"

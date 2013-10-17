@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-try:
-    from mapnik2 import Box2d
-except ImportError:
-    from mapnik import Envelope as Box2d
+from mapnik import Box2d
     
 # Misc test areas
 WA = Box2d(-125.3, 45.4, -116.8, 49.1)

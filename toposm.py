@@ -17,14 +17,8 @@ try:
 except ImportError:
     print "WARNING: PyPdf not found. Render to PDF will not work."
 
-# Use mapnik2 if available
-try:
-    import mapnik2 as mapnik
-    from mapnik2 import Coord, Box2d
-except ImportError:
-    import mapnik
-    from mapnik import Coord
-    from mapnik import Envelope as Box2d
+import mapnik
+from mapnik import Coord, Box2d
 
 from env import *
 from coords import *
