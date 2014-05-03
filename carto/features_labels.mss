@@ -443,7 +443,7 @@ Map {
         }
     }
 
-    [feature = 'amenity_parking'][access != 'destination'][access != 'private'][access != 'no'] {
+    [feature = 'amenity_parking'][access != 'destination'][access != 'private'][access != 'no'][access != 'unknown'] {
         [zoom >= 13] {
             point-file: url('custom-symbols/black-svg/parking.svg');
             [zoom >= 13][zoom < 14] { point-transform: scale(0.4, 0.4); }
