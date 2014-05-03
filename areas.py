@@ -176,3 +176,4 @@ CentralAndEasternMaryland = Box2d(-77.5333, 37.8833, -75.0500, 39.7167)
 Maryland = [WesternMaryland, CentralAndEasternMaryland]
 Cumberland = Box2d(-78.81, 39.58, -78.72, 39.68)
 HowardCounty = Box2d(-77.19, 39.10, -76.69, 39.37)
+US29Top = Box2d(-76.956, 39.073, -76.817, 39.303)
