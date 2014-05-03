@@ -125,29 +125,36 @@ def renderMetaTile(z, x, y, ntiles, maps):
     layerTimes = {}
     for layer in MAPNIK_LAYERS:
         startTime = time.time()
-        images[layer] = renderLayer(layer, z, x, y, ntiles, maps[layer], 'png')
+        images[layer] = renderMetatileLayer(layer, z, x, y, ntiles, maps[layer])
         layerTimes[layer] = time.time() - startTime
-    console.debugMessage(' Combining tiles')
-    base_h = getComposite((images['hypsorelief'], images['areas'], images['ocean']))
-    base_l = getComposite((images['landcoverrelief'], images['ocean']))
-    composite_h = getComposite((base_h, images['contours'], images['features']))
-    composite_l = getComposite((base_l, images['contours'], images['features']))
+    composite_h = combineLayers(images)
     console.debugMessage(' Saving tiles')
     if SAVE_PNG_COMPOSITE:
         saveTiles(z, x, y, ntiles, 'composite_h', composite_h)
-        saveTiles(z, x, y, ntiles, 'composite_l', composite_l)
     if SAVE_JPEG_COMPOSITE:
         basename = 'jpeg' + str(JPEG_COMPOSITE_QUALITY)
         saveTiles(z, x, y, ntiles, basename+'_h', composite_h, 'jpg', basename)
-        saveTiles(z, x, y, ntiles, basename+'_l', composite_l, 'jpg', basename)
     if SAVE_INTERMEDIATE_TILES:
-        saveTiles(z, x, y, ntiles, 'base_h', base_h)
-        saveTiles(z, x, y, ntiles, 'base_l', base_l)
         for layer in MAPNIK_LAYERS:
             saveTiles(z, x, y, ntiles, layer, images[layer])
     return layerTimes
-    
-def renderLayer(name, z, x, y, ntiles, map, suffix = 'png'):
+
+def combineLayers(images):
+    console.debugMessage(' Combining layers')
+    images['contour-mask'].set_grayscale_to_alpha()
+    images['features_mask'].set_grayscale_to_alpha()
+    return getComposite((
+        images['hypsorelief'],
+        images['areas'],
+        images['ocean'],
+        getMask(images['contours'], images['contour-mask']),
+        images['contour-labels'],
+        getMask(images['features_outlines'], images['features_mask']),
+        images['features_fills'],
+        getMask(images['features_top'], images['features_mask']),
+        images['features_labels']))
+
+def renderMetatileLayer(name, z, x, y, ntiles, map):
     """Renders the specified map tile (layer) as a mapnik.Image."""
     if name in CACHE_LAYERS and cachedMetaTileExists(name, z, x, y, 'png'):
         console.debugMessage(' Using cached:    ' + name)
@@ -155,19 +162,28 @@ def renderLayer(name, z, x, y, ntiles, map, suffix = 'png'):
     console.debugMessage(' Rendering layer: ' + name)
     env = getMercTileEnv(z, x, y, ntiles, True)
     tilesize = getTileSize(ntiles, True)
-    map.zoom_to_box(env)
-    if USE_CAIRO and name in CAIRO_LAYERS:
-        assert mapnik.has_cairo()
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, tilesize, tilesize)
-        mapnik.render(map, surface)
-        image = mapnik.Image.from_cairo(surface)
-    else:            
-        image = mapnik.Image(tilesize, tilesize)
-        mapnik.render(map, image)
+    image = renderLayerMerc(name, env, tilesize, tilesize, map)
     if name in CACHE_LAYERS:
         ensureDirExists(getCachedMetaTileDir(name, z, x))
         image.save(getCachedMetaTilePath(name, z, x, y, 'png'))
     return image
+
+def renderLayerMerc(name, env, xsize, ysize, map):
+    """Renders the specified layer to an image.  ENV must be in spherical
+    mercator projection."""
+    map.zoom_to_box(env)
+    if USE_CAIRO and name in CAIRO_LAYERS:
+        assert mapnik.has_cairo()
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, xsize, ysize)
+        mapnik.render(map, surface)
+        image = mapnik.Image.from_cairo(surface)
+    else:            
+        image = mapnik.Image(xsize, ysize)
+        mapnik.render(map, image)
+    return image
+
+def renderLayerLL(name, env, xsize, ysize, map):
+    return renderLayerMerc(name, LLToMerc(env), xsize, ysize, map)
 
 def saveTiles(z, x, y, ntiles, mapname, image, suffix = 'png', imgtype = None):
     """Saves the individual tiles from a metatile image."""
@@ -191,7 +207,14 @@ def getComposite(images):
         composite.blend(0, 0, image, 1.0)
     return composite
 
+def getMask(image, mask):
+    """Returns only the parts of IMAGE that are allowed by MASK."""
+    result = mapnik.Image(image.width(), image.height())
+    result.composite(image)
+    result.composite(mask, mapnik.CompositeOp.dst_in)
+    return result
 
+    
 ##### Public methods
 
 def toposmInfo():
@@ -248,31 +271,19 @@ def renderToPdf(envLL, filename, sizex, sizey):
     mergedpdf.write(output)
     output.close()
 
-def renderToPng(envLL, filename, sizex, sizey, base='hypsorelief'):
+def renderToPng(envLL, filename, sizex, sizey):
     """Renders the specified Box2d and zoom level as a PNG"""
-    layers = [base, 'areas', 'ocean', 'contours', 'features']
-    if base == 'landcoverrelief':
-        layers.remove('areas')
     images = {}
-    for mapname in layers:
+    for mapname in MAPNIK_LAYERS:
         console.debugMessage(' Rendering layer: ' + mapname)
         map = mapnik.Map(sizex, sizey)
         mapnik.load_map(map, mapname + ".xml")
-        map.zoom_to_box(LLToMerc(envLL))
-        if USE_CAIRO and mapname in ['ocean', 'contours', 'features']:
-            assert mapnik.has_cairo()
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, sizex, sizey)
-            mapnik.render(map, surface)
-            images[mapname] = mapnik.Image.from_cairo(surface)
-        else:
-            images[mapname] = mapnik.Image(sizex, sizey)
-            mapnik.render(map, images[mapname])
-    image = getComposite([images[m] for m in layers])
+        images[mapname] = renderLayerLL(mapname, envLL, sizex, sizey, map)
+    image = combineLayers(images)
     image.save(filename, 'png')
 
 def printSyntax():
     print "Syntax:"
-    print " toposm.py render <area(s)> <minZoom> <maxZoom>"
     print " toposm.py pdf <area> <filename> <sizeX> <sizeY>"
     print " toposm.py png <area> <filename> <sizeX> <sizeY>"
     print " toposm.py prep <area(s)>"
