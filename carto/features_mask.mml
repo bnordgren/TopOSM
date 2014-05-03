@@ -1,0 +1,153 @@
+{
+    "bounds": [
+        -180,
+        -85.05112877980659,
+        180,
+        85.05112877980659
+    ],
+    "center": [
+        0,
+        0,
+        4
+    ],
+    "format": "png",
+    "interactivity": false,
+    "minzoom": 0,
+    "maxzoom": 22,
+    "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+    "Stylesheet": [
+        "halo-colors.mss",
+        "fonts.mss",
+        "features_labels.mss"
+    ],
+    "Layer": [
+        {
+            "id": "statenames",
+            "name": "statenames",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, place, name, ref FROM planet_osm_point WHERE place = 'state') AS statenames",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "placenames",
+            "name": "placenames",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, name, place, CASE WHEN place = 'city' THEN 2 WHEN place = 'town' THEN 4 WHEN place = 'suburb' THEN 5 WHEN place = 'village' THEN 6 WHEN place = 'hamlet' THEN 7 WHEN place = 'island' THEN 8 WHEN place = 'locality' THEN 9 ELSE 10 END AS place_order FROM planet_osm_point WHERE place IS NOT NULL AND name IS NOT NULL ORDER BY place_order) AS placenames",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "feature-area-names",
+            "name": "feature-area-names",
+            "class": "featurenames",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, way_area, 0 AS ele_w_unit FROM planet_osm_polygon WHERE name IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "feature-point-names",
+            "name": "feature-point-names",
+            "class": "featurenames",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, 0 AS way_area, (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit FROM planet_osm_point WHERE name IS NOT NULL OR ele IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "shields-very-low-zoom",
+            "name": "shields-very-low-zoom",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, shields_get_single_filename(network, ref, 'cutouts', 20) AS route_shield FROM planet_osm_line WHERE osm_id < 0 AND route = 'road' AND (network = 'US:I' AND char_length(ref) BETWEEN 1 AND 2) ORDER BY ST_Length(way) DESC) AS shields",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "shields-low-zoom",
+            "name": "shields-low-zoom",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, ref, char_length(ref) AS length, shields_get_filename(osm_id, way, 'cutouts', 20) AS route_shield FROM planet_osm_roads WHERE highway IN ('motorway', 'trunk', 'primary', 'secondary') AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR shields_get_route_memberships(osm_id) IS NOT NULL)) AS shields",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "shields-20px",
+            "name": "shields-20px",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, ref, char_length(ref) as length, shields_get_filename(osm_id, way, 'cutouts', 20) route_shield FROM planet_osm_line WHERE highway IS NOT NULL AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR shields_get_route_memberships(osm_id) IS NOT NULL)) AS shields",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "shields-24px",
+            "name": "shields-24px",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, ref, char_length(ref) as length, shields_get_filename(osm_id, way, 'cutouts', 24) route_shield FROM planet_osm_line WHERE highway IS NOT NULL AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR shields_get_route_memberships(osm_id) IS NOT NULL)) AS shields",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "streetnames",
+            "name": "streetnames",
+            "class": "streetnames trailnames",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, name, tunnel FROM planet_osm_line WHERE name IS NOT NULL ORDER BY z_order) AS streetnames",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "water-line-names",
+            "name": "water-line-names",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, waterway, disused, name, ST_Length(way) length FROM planet_osm_line WHERE waterway IS NOT NULL AND name IS NOT NULL ORDER BY z_order, length DESC) AS water_lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "water-area-names",
+            "name": "water-area-names",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, waterway, landuse, \"natural\", name, way_area FROM planet_osm_polygon WHERE (landuse IN ('reservoir', 'basin') OR \"natural\" IN ('water', 'wetland', 'glacier')) AND name IS NOT NULL ORDER BY way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        }
+    ],
+    "scale": 1,
+    "metatile": 2,
+    "name": "TopOSM Features Mask",
+    "description": "Features mask layer for TopOSM."
+}

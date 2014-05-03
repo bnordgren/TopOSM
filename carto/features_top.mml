@@ -1,0 +1,87 @@
+{
+    "bounds": [
+        -180,
+        -85.05112877980659,
+        180,
+        85.05112877980659
+    ],
+    "center": [
+        0,
+        0,
+        4
+    ],
+    "format": "png",
+    "interactivity": false,
+    "minzoom": 0,
+    "maxzoom": 22,
+    "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+    "Stylesheet": [
+        "colors.mss",
+        "fonts.mss",
+        "features_top.mss",
+        "features_borders.mss"
+    ],
+    "Layer": [
+        {
+            "id": "bridges",
+            "name": "bridges",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, bicycle, waterway, tunnel, disused, CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway, CASE WHEN railway = 'spur' THEN 'spur' WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur' ELSE service END AS service, CASE WHEN highway LIKE '%_link' THEN true ELSE false END AS link, GENERATE_SERIES(1,2) AS pass FROM planet_osm_line WHERE (highway IS NOT NULL OR railway IS NOT NULL OR waterway IS NOT NULL) AND bridge IS NOT NULL AND NOT bridge = 'no' ORDER BY FLOOR(z_order / 10.0), pass, link DESC, z_order) AS bridges",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "aerialways",
+            "name": "aerialways",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, aerialway from planet_osm_line WHERE aerialway IS NOT NULL) AS aerialway",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "power-lines",
+            "name": "power-lines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, power, cables, wires, voltage FROM planet_osm_line WHERE power IS NOT NULL) AS power",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "borders6",
+            "name": "borders6",
+            "class": "county-borders",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, boundary, admin_level FROM planet_osm_roads WHERE boundary = 'administrative' AND admin_level = '6') AS borders",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "borders24",
+            "name": "borders24",
+            "class": "state-borders country-borders",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, boundary, admin_level FROM planet_osm_roads WHERE boundary = 'administrative' AND admin_level IN ('2', '4')) AS borders",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        }
+     ],
+    "scale": 1,
+    "metatile": 2,
+    "name": "TopOSM Feature Top",
+    "description": "Feature top layer for TopOSM."
+}

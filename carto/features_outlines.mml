@@ -1,0 +1,380 @@
+{
+    "bounds": [
+        -180,
+        -85.05112877980659,
+        180,
+        85.05112877980659
+    ],
+    "center": [
+        0,
+        0,
+        4
+    ],
+    "format": "png",
+    "interactivity": false,
+    "minzoom": 0,
+    "maxzoom": 22,
+    "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+    "Stylesheet": [
+        "colors.mss",
+        "fonts.mss",
+        "ocean.mss",
+        "features_outlines.mss",
+        "features_water.mss",
+        "features_pipelines.mss",
+        "features_borders.mss",
+        "features_highways.mss",
+        "features_railways.mss",
+        "features_aeroways.mss"
+    ],
+    "Layer": [
+        {
+            "id": "waterlines",
+            "name": "waterlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, waterway, disused, lock, CASE WHEN tunnel IN ('yes','true','1') THEN 'yes'::text ELSE tunnel END AS tunnel FROM planet_osm_line WHERE waterway IS NOT NULL ORDER BY z_order, ST_Length(way) DESC) AS water_lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_z2",
+            "name": "waterareas_z2",
+            "class": "waterareas_z2",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND way_area > 5000000 ORDER BY z_order, way_area DESC) AS waterareas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_z7",
+            "name": "waterareas_z7",
+            "class": "waterareas_z7",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND way_area > 300000 ORDER BY z_order, way_area DESC) AS waterareas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_z9",
+            "name": "waterareas_z9",
+            "class": "waterareas_z9",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND way_area > 20000 ORDER BY z_order, way_area DESC) AS waterareas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_z11",
+            "name": "waterareas_z11",
+            "class": "waterareas_z11",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND way_area > 300 ORDER BY z_order, way_area DESC) AS waterareas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_z14",
+            "name": "waterareas_z14",
+            "class": "waterareas_z14",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) ORDER BY z_order, way_area DESC) AS waterareas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareas_intermittent",
+            "name": "waterareas_intermittent",
+            "class": "waterareas_z11 waterareas_z14 waterareaoutlines_intermittent",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE landuse IN ('basin') ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "ocean",
+            "name": "ocean",
+            "class": "coastlines",
+            "Datasource": {
+                "file": "/home/mapnik/world_boundaries/water-polygons-split-3857/water_polygons.shp"
+            },
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+        },
+        {
+            "id": "waterareaoutlines_z7",
+            "name": "waterareaoutlines_z7",
+            "class": "waterareaoutlines_z7",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND ST_IsValid(way) AND way_area > 300000 AND way && !bbox! GROUP BY z_order ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_invalid_z7",
+            "name": "waterareaoutlines_invalid_z7",
+            "class": "waterareaoutlines_z7",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND NOT ST_IsValid(way) AND way_area > 300000 ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_z9",
+            "name": "waterareaoutlines_z9",
+            "class": "waterareaoutlines_z9",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND ST_IsValid(way) AND way_area > 20000 AND way && !bbox! GROUP BY z_order ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_invalid_z9",
+            "name": "waterareaoutlines_invalid_z9",
+            "class": "waterareaoutlines_z9",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND NOT ST_IsValid(way) AND way_area > 20000 ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_z11",
+            "name": "waterareaoutlines_z11",
+            "class": "waterareaoutlines_z11",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND ST_IsValid(way) AND way_area > 300 AND way && !bbox! GROUP BY z_order ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_invalid_z11",
+            "name": "waterareaoutlines_invalid_z11",
+            "class": "waterareaoutlines_z11",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND NOT ST_IsValid(way) AND way_area > 300 ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_z14",
+            "name": "waterareaoutlines_z14",
+            "class": "waterareaoutlines_z14",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT (ST_Dump(ST_Union(way))).geom AS way, SUM(way_area) AS way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND ST_IsValid(way) AND way && !bbox! GROUP BY z_order ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterareaoutlines_invalid_z14",
+            "name": "waterareaoutlines_invalid_z14",
+            "class": "waterareaoutlines_z14",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area FROM planet_osm_polygon WHERE (waterway IN ('riverbank') OR landuse IN ('reservoir') OR \"natural\" IN ('water')) AND NOT ST_IsValid(way) ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "waterlinefills",
+            "name": "waterlinefills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, waterway, disused FROM planet_osm_line WHERE waterway IS NOT NULL ORDER BY z_order, ST_Length(way) DESC) AS water_lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "water-features",
+            "name": "water-features",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, \"natural\" FROM planet_osm_polygon WHERE \"natural\" IN ('wetland', 'glacier') ORDER BY z_order, way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "pipelines",
+            "name": "pipelines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, location FROM planet_osm_line WHERE man_made = 'pipeline' ORDER BY z_order, ST_Length(way) DESC) AS pipelines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "nature-borders",
+            "name": "nature-borders",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area, name, boundary, \"natural\" FROM planet_osm_polygon WHERE boundary='national_park' OR leisure IN ('park', 'nature_reserve', 'common', 'playground', 'garden', 'golf_course', 'recreation_ground') OR landuse IN ('forest', 'vineyard', 'conservation', 'recreation_ground', 'village_green', 'allotments') OR \"natural\" IN ('wood')) AS areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "misc-borders",
+            "name": "misc-borders",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, way_area, name, landuse, \"natural\", amenity FROM planet_osm_polygon WHERE landuse IS NOT NULL OR \"natural\" IS NOT NULL or amenity IS NOT NULL) AS areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "ferry-routes",
+            "name": "ferry-routes",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, route FROM planet_osm_line WHERE route IS NOT NULL) AS routes",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "buildings",
+            "name": "buildings",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_polygon WHERE building IS NOT NULL) as areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "parking-outlines",
+            "name": "parking-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, amenity, access FROM planet_osm_polygon ORDER BY z_order, way_area DESC) AS parking",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "railway-outlines",
+            "name": "railway-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, tunnel, highway, CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway, CASE WHEN railway = 'spur' THEN 'spur' WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur' ELSE service END AS service FROM planet_osm_line WHERE railway IS NOT NULL AND route IS NULL AND highway IS NULL ORDER BY z_order, ST_Length(way)) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "highway-lowzoom",
+            "name": "highway-lowzoom",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, tunnel FROM planet_osm_roads WHERE highway = 'motorway' OR highway = 'trunk' OR highway = 'primary' ORDER BY z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "turning-circles-outlines",
+            "name": "turning-circles-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT p.way as way, l.highway AS int_tc_type FROM planet_osm_point p JOIN planet_osm_line l ON ST_DWithin(p.way, l.way, 0.1) WHERE p.highway = 'turning_circle' AND l.highway in ('tertiary', 'unclassified', 'residential', 'service')) as turning_circle",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "highway-outlines",
+            "name": "highway-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, tunnel, bicycle, CASE WHEN highway LIKE '%_link' THEN true ELSE false END AS link FROM planet_osm_line WHERE highway IS NOT NULL ORDER BY FLOOR(z_order / 10.0), link DESC, z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "aeroway-line-outlines",
+            "name": "aeroway-line-outlines",
+            "class": "aeroway-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, aeroway FROM planet_osm_line WHERE aeroway IS NOT NULL ORDER BY z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "aeroway-area-outlines",
+            "name": "aeroway-area-outlines",
+            "class": "aeroway-outlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, aeroway FROM planet_osm_polygon WHERE aeroway IS NOT NULL ORDER BY z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        }
+     ],
+    "scale": 1,
+    "metatile": 2,
+    "name": "TopOSM Feature Outlines",
+    "description": "Feature outline layer for TopOSM."
+}

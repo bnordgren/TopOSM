@@ -1,0 +1,100 @@
+{
+    "bounds": [
+        -180,
+        -85.05112877980659,
+        180,
+        85.05112877980659
+    ],
+    "center": [
+        0,
+        0,
+        4
+    ],
+    "format": "png",
+    "interactivity": false,
+    "minzoom": 0,
+    "maxzoom": 22,
+    "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+    "Stylesheet": [
+        "colors.mss",
+        "fonts.mss",
+        "features_fills.mss",
+        "features_highways.mss",
+        "features_railways.mss",
+        "features_aeroways.mss"
+    ],
+    "Layer": [
+        {
+            "id": "railway-fills",
+            "name": "railway-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, tunnel, highway, CASE WHEN railway = 'spur' THEN 'rail' ELSE railway END AS railway, CASE WHEN railway = 'spur' THEN 'spur' WHEN service IN ('spur', 'yard', 'siding', 'crossover') THEN 'spur' ELSE service END AS service FROM planet_osm_line WHERE railway IS NOT NULL AND route IS NULL AND highway IS NULL ORDER BY z_order, ST_Length(way)) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "turning-circles-fills",
+            "name": "turning-circles-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT p.way as way, l.highway AS int_tc_type FROM planet_osm_point p JOIN planet_osm_line l ON ST_DWithin(p.way, l.way, 0.1) WHERE p.highway = 'turning_circle' AND l.highway in ('tertiary', 'unclassified', 'residential', 'service')) as turning_circle",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "parking-fills",
+            "name": "parking-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, amenity, access FROM planet_osm_polygon ORDER BY z_order, way_area DESC) AS parking",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "highway-fills",
+            "name": "highway-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, highway, tunnel, bicycle, CASE WHEN highway LIKE '%_link' THEN true ELSE false END AS link FROM planet_osm_line WHERE highway IS NOT NULL ORDER BY FLOOR(z_order / 10.0), link DESC, z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "aeroway-line-fills",
+            "name": "aeroway-line-fills",
+            "class": "aeroway-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, aeroway FROM planet_osm_line WHERE aeroway IS NOT NULL ORDER BY z_order) AS lines",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
+            "id": "aeroway-area-fills",
+            "name": "aeroway-area-fills",
+            "class": "aeroway-fills",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, aeroway FROM planet_osm_polygon WHERE aeroway IS NOT NULL ORDER BY z_order) AS areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        }
+     ],
+    "scale": 1,
+    "metatile": 2,
+    "name": "TopOSM Feature Fills",
+    "description": "Feature fill layer for TopOSM."
+}
