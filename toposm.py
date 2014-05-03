@@ -271,14 +271,36 @@ def renderToPdf(envLL, filename, sizex, sizey):
     mergedpdf.write(output)
     output.close()
 
+class RenderPngThread(threading.Thread):
+    def __init__(self, mapname, envLL, sizex, sizey, images, imagesLock):
+        threading.Thread.__init__(self)
+        self.mapname = mapname
+        self.envLL = envLL
+        self.sizex = sizex
+        self.sizey = sizey
+        self.images = images
+        self.imagesLock = imagesLock
+        
+    def run(self):
+        map = mapnik.Map(self.sizex, self.sizey)
+        mapnik.load_map(map, self.mapname + ".xml")
+        result = renderLayerLL(self.mapname, self.envLL, self.sizex, self.sizey, map)
+        console.debugMessage(' Rendered layer: ' + self.mapname)
+        self.imagesLock.acquire()
+        self.images[self.mapname] = result
+        self.imagesLock.release()
+        
 def renderToPng(envLL, filename, sizex, sizey):
-    """Renders the specified Box2d and zoom level as a PNG"""
+    """Renders the specified Box2d as a PNG"""
     images = {}
+    imageLock = threading.Lock()
+    threads = []
+    console.debugMessage(' Rendering layers')
     for mapname in MAPNIK_LAYERS:
-        console.debugMessage(' Rendering layer: ' + mapname)
-        map = mapnik.Map(sizex, sizey)
-        mapnik.load_map(map, mapname + ".xml")
-        images[mapname] = renderLayerLL(mapname, envLL, sizex, sizey, map)
+        threads.append(RenderPngThread(mapname, envLL, sizex, sizey, images, imageLock))
+        threads[-1].start()
+    for thread in threads:
+        thread.join()
     image = combineLayers(images)
     image.save(filename, 'png')
 
@@ -295,7 +317,7 @@ if __name__ == "__main__":
         printSyntax()
         sys.exit(1)
     cmd = sys.argv[1]
-    elif cmd == 'pdf' or cmd == 'png':
+    if cmd == 'pdf' or cmd == 'png':
         areaname = sys.argv[2]
         filename = sys.argv[3]
         sizex = int(sys.argv[4])
