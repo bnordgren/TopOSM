@@ -4,6 +4,7 @@
 import collections
 import os
 import os.path
+import random
 
 # addon modules
 import pika
@@ -79,14 +80,9 @@ class Queuemaster:
         if parts[0] != 'request':
             print timestr + ' bad command: ' + body
             return
-        for z in xrange(self.maxz, -1, -1):
-            try:
-                mt = self.expire_queues[z].popleft()
-                self.queued.remove(mt)
-                response = 'render ' + mt
-                break
-            except IndexError:
-                pass
+        mt = self.dequeue_by_pct()
+        self.queued.remove(mt)
+        response = 'render ' + mt
         print '%s %s -> %s @ %s' % (timestr, body, response, props.reply_to)
         print 'queue size: %s' % ' '.join([ '%s:%s' % (z, len(self.expire_queues[z])) for z in xrange(0, self.maxz + 1) ])
         chan.basic_publish(exchange='',
@@ -134,6 +130,50 @@ class Queuemaster:
             self.expire_queues[z].append(metatile)
         
 
+    ### Dequeueing strategies
+
+    def dequeue_by_pct(self):
+        # Queues are weighted according to how many messages they have and the
+        # likelihood of further updates invalidating the queue's tiles.  (At
+        # zoom level 0, every update invalidates the tile.  At zoom 1, an update
+        # has a one-in-four chance of invalidating the tile, and so on.  Thus,
+        # the higher the zoom level, the more weight they're given, so low-zoom
+        # tiles are not rendered as often as their queue length might otherwise
+        # dictate.)
+        # Rendering performance is based on how much time has been spent on each
+        # queue.  We try to make the time-spent-rendering percentages match the
+        # weighted queue percentages.
+        weighted_queues = [ len(self.expire_queues[z]) * pow(4, z) / pow(NTILES[z], 2) for z in range(0, self.maxz + 1) ]
+        if sum(weighted_queues) == 0:
+            return None
+        queue_pcts = [ float(t) / sum(weighted_queues) for t in weighted_queues ]
+        chosen_pct = random.random()
+        pct_sum = 0
+        chosen_queue = -1
+        for z in xrange(0, self.maxz + 1):
+            pct_sum += queue_pcts[z]
+            if chosen_pct < pct_sum and chosen_queue == -1:
+                chosen_queue = z
+        print 'q%: ' + ' '.join([ '%.2f' % (n * 100) for n in queue_pcts ])
+        return self.expire_queues[chosen_queue].popleft()
+
+    def dequeue_by_fixed_pct(self):
+        # Considers only the total number of tiles at each zoom level, not the
+        # number of tiles present.  (Exception: empty queues are not considered
+        # at all.)  Good for clearing out high-zoom queues that the by_pct
+        # strategy will neglect.
+        queues = [ 4**z if len(self.expire_queues[z]) > 0 else 0 for z in range(0, self.maxz + 1) ]
+        queue_pcts = [ float(t) / sum(weighted_queues) for t in weighted_queues ]
+        chosen_pct = random.random()
+        pct_sum = 0
+        chosen_queue = -1
+        for z in xrange(0, self.maxz + 1):
+            pct_sum += queue_pcts[z]
+            if chosen_pct < pct_sum and chosen_queue == -1:
+                chosen_queue = z
+        print 'q%: ' + ' '.join([ '%.2f' % (n * 100) for n in queue_pcts ])
+        return self.expire_queues[chosen_queue].popleft()
+    
 if __name__ == "__main__":
     qm = Queuemaster(16)
     qm.run()

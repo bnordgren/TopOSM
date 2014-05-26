@@ -25,8 +25,6 @@ class ContinuousRenderThread:
         self.tilesizes = [ getTileSize(NTILES[z], True) for z in range(0, self.maxz + 1) ]
         self.maps = [ None for z in range(0, self.maxz + 1) ]
 
-        self.queuemaster_available = True
-
         self.commandQueue = self.chan.queue_declare(exclusive=True).method.queue
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command')
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command.{0}'.format(os.uname()[1]))
@@ -84,11 +82,11 @@ class ContinuousRenderThread:
         elif parts[0] == 'reload':
             reload(globals()[parts[1]])
         elif parts[0] == 'render':
-            self.renderMetaTileFromMsg(parts[1])
-            self.request_rendering()
-        elif parts[0] == 'queuemaster_online':
-            if not self.queuemaster_available:
+            if props.correlation_id == self.request_id:
+                self.renderMetaTileFromMsg(parts[1])
                 self.request_rendering()
+        elif parts[0] == 'queuemaster_online':
+            self.request_rendering()
         else:
             self.printMessage('Unknown command: ' + body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
@@ -96,13 +94,12 @@ class ContinuousRenderThread:
     def request_rendering(self):
         self.request_id = str(uuid.uuid4())
         self.printMessage('Requesting metatile.  ID: ' + self.request_id)
-        self.queuemaster_available = self.chan.basic_publish(
+        self.chan.basic_publish(
             exchange='osm',
             routing_key='toposm.queuemaster',
             properties=pika.BasicProperties(reply_to=self.commandQueue,
                                             correlation_id=self.request_id),
-            body='request ' + self.dequeue_strategy,
-            mandatory=True)
+            body='request ' + self.dequeue_strategy)
 
     def renderLoop(self):
         self.request_rendering()
