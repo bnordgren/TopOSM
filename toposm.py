@@ -6,6 +6,7 @@ import sys, os, time, threading
 import numpy
 import multiprocessing
 import cairo
+import xattr
 
 from Queue import Queue
 from os import path
@@ -195,10 +196,14 @@ def saveTiles(z, x, y, ntiles, mapname, image, suffix = 'png', imgtype = None):
             offsetx = BORDER_WIDTH + dx*TILE_SIZE
             offsety = BORDER_WIDTH + dy*TILE_SIZE
             view = image.view(offsetx, offsety, TILE_SIZE, TILE_SIZE)
+            tile_path = getTilePath(mapname, z, tilex, tiley, suffix)
             if imgtype:
-                view.save(getTilePath(mapname, z, tilex, tiley, suffix), imgtype)
+                view.save(tile_path, imgtype)
             else:
-                view.save(getTilePath(mapname, z, tilex, tiley, suffix))
+                view.save(tile_path)
+            if 'user.toposm_dirty' in xattr.listxattr(tile_path):
+                xattr.removexattr(tile_path, 'user.toposm_dirty')
+
 
 def getComposite(images):
     """Composites (stacks) the specified images, in the given order."""
