@@ -2,9 +2,11 @@
 
 # standard modules
 import collections
+import json
 import os
 import os.path
 import random
+import threading
 
 # addon modules
 import pika
@@ -14,8 +16,42 @@ import pprint
 
 from toposm import *
 
-REFERENCE_TILESET='composite_h'
 
+REFERENCE_TILESET = 'composite_h'
+# How many seconds to wait after starting the queue filling thread to begin
+# processing messages.
+QUEUE_FILL_DELAY = 15
+
+def queue_tile(z, x, y, queued_set, queues, queue_lock):
+    metatile = '%s/%s/%s' % (z, x/NTILES[z], y/NTILES[z])
+    timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
+    queue_lock.acquire()
+    try:
+        if not metatile in queued_set:
+            queued_set.add(metatile)
+            queues[z].append(metatile)
+            console.printMessage('%s queue: %s' % (timestr, metatile))
+    finally:
+        queue_lock.release()
+
+class QueueFiller(threading.Thread):
+    def __init__(self, queues, queued, lock):
+        threading.Thread.__init__(self)
+        self.queues = queues
+        self.queued = queued
+        self.lock = lock
+        
+    def run(self):
+        console.printMessage('%s Initializing queue.' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+        for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET)):
+            for file in files:
+                if 'user.toposm_dirty' in xattr.listxattr(os.path.join(root, file)):
+                    cs = root.split('/')
+                    queue_tile(int(cs[-2]), int(cs[-1]), int(file.split('.')[0]),
+                               self.queued, self.queues, self.lock)
+        console.printMessage('%s Queue initialized.' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+
+        
 class Queuemaster:
 
     def __init__(self, maxz):
@@ -23,13 +59,14 @@ class Queuemaster:
         self.maxz = maxz
         self.expire_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
         self.queued = set()
+        self.queue_lock = threading.Lock()
 
     ### Startup sequence.
     
     def run(self):
-        connection = pika.SelectConnection(
+        self.connection = pika.SelectConnection(
             pika.ConnectionParameters(host=DB_HOST), self.on_connection_open)
-        connection.ioloop.start()
+        self.connection.ioloop.start()
         
     def on_connection_open(self, conn):
         conn.channel(self.on_channel_open)
@@ -52,7 +89,9 @@ class Queuemaster:
     def on_expire_bind(self,frame):
         self.channel.basic_consume(self.on_expire, queue='expire_toposm',
                                    exclusive=True)
-        self.load_expire_queue()
+        queue_filler = QueueFiller(self.expire_queues, self.queued, self.queue_lock)
+        queue_filler.start()
+        time.sleep(QUEUE_FILL_DELAY)
         self.channel.queue_declare(self.on_command_declare, exclusive=True)
     
     def on_command_declare(self, frame):
@@ -62,11 +101,11 @@ class Queuemaster:
             exchange='osm', routing_key='toposm.queuemaster')
 
     def on_command_bind(self, frame):
-        self.channel.basic_consume(self.on_request, queue=self.command_queue,
+        self.channel.basic_consume(self.on_command, queue=self.command_queue,
                                    exclusive=True)
         self.channel.basic_publish(exchange='osm',
                                    routing_key='command.toposm.render',
-                                   body='queuemaster_online')
+                                   body=json.dumps({'command': 'queuemaster online'}))
 
     ### AMQP commands.
     
@@ -74,34 +113,41 @@ class Queuemaster:
         self.expire_tile(body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
-    def on_request(self, chan, method, props, body):
+    def on_command(self, chan, method, props, body):
         timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
-        parts = body.split()
-        if parts[0] != 'request':
-            print timestr + ' bad command: ' + body
-            return
-        mt = self.dequeue_by_pct()
-        self.queued.remove(mt)
-        response = 'render ' + mt
-        print '%s %s -> %s @ %s' % (timestr, body, response, props.reply_to)
-        print 'queue size: %s' % ' '.join([ '%s:%s' % (z, len(self.expire_queues[z])) for z in xrange(0, self.maxz + 1) ])
-        chan.basic_publish(exchange='',
-                           routing_key=props.reply_to,
-                           properties=pika.BasicProperties(
-                               correlation_id=props.correlation_id),
-                           body=response)
+        message = json.loads(body)
+        command = message['command']
+        if command == 'dequeue':
+            response = self.handle_request(message['strategy'])
+        elif command == 'stats':
+            response = self.get_stats()
+        else:
+            response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
+        console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
+        chan.basic_publish(
+            exchange='',
+            routing_key=props.reply_to,
+            properties=pika.BasicProperties(
+                correlation_id=props.correlation_id,
+                content_type='application/json'),
+            body=response)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
-    ### Queue management.
+    def handle_request(self, dequeue_strategy):
+        if dequeue_strategy == 'by_pct':
+            mt = self.dequeue_by_pct()
+        elif dequeue_strategy == 'by_fixed_pct':
+            mt = self.dequeue_by_fixed_pct()
+        else:
+            return json.dumps({'result': 'error',
+                               'error': 'unknown dequeue strategy: ' + dequeue_strategy})
+        self.queued.remove(mt)
+        return json.dumps({'result': 'ok', 'value': mt})
 
-    def load_expire_queue(self):
-        print '%s Initializing queue.' % time.strftime('[%Y-%m-%d %H:%M:%S]')
-        for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET)):
-            for file in files:
-                if 'user.toposm_dirty' in xattr.listxattr(os.path.join(root, file)):
-                    cs = root.split('/')
-                    self.queue_tile(int(cs[-2]), int(cs[-1]), int(file.split('.')[0]))
-        print '%s Queue initialized.' % time.strftime('[%Y-%m-%d %H:%M:%S]')
+    def get_stats(self):
+        return json.dumps({'queues': {z: len(self.expire_queues[z]) for z in xrange(0, self.maxz + 1)}})
+
+    ### Queue management.
 
     def expire_tile(self, tile):
         (z, x, y) = [int(i) for i in tile.split('/') ]
@@ -116,19 +162,11 @@ class Queuemaster:
                 tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
                 if path.isfile(tile_path):
                     xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                self.queue_tile(z, x, y)
+                queue_tile(z, x, y, self.queued, self.expire_queues, self.queue_lock)
             z -= 1
             x /= 2
             y /= 2
 
-    def queue_tile(self, z, x, y):
-        metatile = '%s/%s/%s' % (z, x/NTILES[z], y/NTILES[z])
-        if not metatile in self.queued:
-            self.queued.add(metatile)
-            timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
-            print '%s queue: %s' % (timestr, metatile)
-            self.expire_queues[z].append(metatile)
-        
 
     ### Dequeueing strategies
 
@@ -140,9 +178,6 @@ class Queuemaster:
         # the higher the zoom level, the more weight they're given, so low-zoom
         # tiles are not rendered as often as their queue length might otherwise
         # dictate.)
-        # Rendering performance is based on how much time has been spent on each
-        # queue.  We try to make the time-spent-rendering percentages match the
-        # weighted queue percentages.
         weighted_queues = [ len(self.expire_queues[z]) * pow(4, z) / pow(NTILES[z], 2) for z in range(0, self.maxz + 1) ]
         if sum(weighted_queues) == 0:
             return None
@@ -154,7 +189,6 @@ class Queuemaster:
             pct_sum += queue_pcts[z]
             if chosen_pct < pct_sum and chosen_queue == -1:
                 chosen_queue = z
-        print 'q%: ' + ' '.join([ '%.2f' % (n * 100) for n in queue_pcts ])
         return self.expire_queues[chosen_queue].popleft()
 
     def dequeue_by_fixed_pct(self):
@@ -162,8 +196,8 @@ class Queuemaster:
         # number of tiles present.  (Exception: empty queues are not considered
         # at all.)  Good for clearing out high-zoom queues that the by_pct
         # strategy will neglect.
-        queues = [ 4**z if len(self.expire_queues[z]) > 0 else 0 for z in range(0, self.maxz + 1) ]
-        queue_pcts = [ float(t) / sum(weighted_queues) for t in weighted_queues ]
+        queues = [ 2**z if len(self.expire_queues[z]) > 0 else 0 for z in range(0, self.maxz + 1) ]
+        queue_pcts = [ float(t) / sum(queues) for t in queues ]
         chosen_pct = random.random()
         pct_sum = 0
         chosen_queue = -1
@@ -171,7 +205,6 @@ class Queuemaster:
             pct_sum += queue_pcts[z]
             if chosen_pct < pct_sum and chosen_queue == -1:
                 chosen_queue = z
-        print 'q%: ' + ' '.join([ '%.2f' % (n * 100) for n in queue_pcts ])
         return self.expire_queues[chosen_queue].popleft()
     
 if __name__ == "__main__":

@@ -1,0 +1,28 @@
+Messages are all JSON.
+
+Command:
+
+{ "command": <command-name>, <parameters> ... }
+
+Result:
+
+{ "result": "ok", "value": <value> }
+{ "result": "error", "error": <error string> }
+
+
+Commands understood by queuemaster:
+
+{ "command": "dequeue",
+  "strategy": <strategy name> }
+
+"strategy" one of:
+
+ * by_pct - distributes work based on current queue length at various zoom
+   levels.
+ * by_fixed_pct - distributes work based on total number of tiles at each
+   zoom level.
+
+
+Commands understood by renderd:
+
+{ "command": "queuemaster online" }

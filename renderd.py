@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-import sys, os, time
+import json
+import os
+import sys
+import time
 
 import pika
 import uuid
@@ -71,24 +74,32 @@ class ContinuousRenderThread:
         if layerTimes:
             stats.recordRender(z, time.time() - start_time, layerTimes)
 
-    # There's got to be a better way to do this...
     def on_command(self, chan, method, props, body):
         self.printMessage('Received message: ' + body)
-        parts = body.split()
-        if parts[0] == 'quit' or parts[0] == 'exit':
-            chan.stop_consuming()
-        elif parts[0] == 'newmaps':
-            self.maps = [ None for z in range(0, self.maxz + 1) ]
-        elif parts[0] == 'reload':
-            reload(globals()[parts[1]])
-        elif parts[0] == 'render':
-            if props.correlation_id == self.request_id:
-                self.renderMetaTileFromMsg(parts[1])
+        message = json.loads(body)
+        if 'command' in message:
+            command = message['command']
+            if command == 'quit' or command == 'exit':
+                chan.stop_consuming()
+            elif command == 'newmaps':
+                self.maps = [ None for z in range(0, self.maxz + 1) ]
+            elif command == 'reload':
+                reload(globals()[parts[1]])
+            elif command == 'queuemaster online':
                 self.request_rendering()
-        elif parts[0] == 'queuemaster_online':
-            self.request_rendering()
+            else:
+                self.printMessage('Unknown command: ' + body)
+        elif 'result' in message:
+            if props.correlation_id == self.request_id:
+                if message['result'] == 'ok':
+                    self.renderMetaTileFromMsg(message['value'])
+                    self.request_rendering()
+                else:
+                    self.printMessage('Failed request: ' + body)
+            else:
+                self.printMessage('Discarding message: ' + body)
         else:
-            self.printMessage('Unknown command: ' + body)
+            self.printMessage('Unrecognized message: ' + body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def request_rendering(self):
@@ -98,8 +109,10 @@ class ContinuousRenderThread:
             exchange='osm',
             routing_key='toposm.queuemaster',
             properties=pika.BasicProperties(reply_to=self.commandQueue,
-                                            correlation_id=self.request_id),
-            body='request ' + self.dequeue_strategy)
+                                            correlation_id=self.request_id,
+                                            content_type='application/json'),
+            body=json.dumps({'command': 'dequeue',
+                             'strategy': self.dequeue_strategy}))
 
     def renderLoop(self):
         self.request_rendering()
