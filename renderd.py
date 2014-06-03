@@ -150,15 +150,8 @@ if __name__ == "__main__":
     chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
     conn.close()
 
-    console.printMessage('Starting renderers.')
-    renderers = {}
-    for i in range(NUM_THREADS):
-        rconn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
-        rchan = rconn.channel()
-        renderer = ContinuousRenderThread(maxz, dequeue_strategy, rchan, i)
-        render_thread = threading.Thread(target=renderer.renderLoop)
-        render_thread.start()
-        renderers[i] = (render_thread, rconn, rchan)
-    for thread, conn, chan in renderers.values():
-        thread.join()
-        rconn.close()
+    console.printMessage('Starting renderer.')
+    rconn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
+    rchan = rconn.channel()
+    renderer = ContinuousRenderThread(maxz, dequeue_strategy, rchan, 0)
+    renderer.renderLoop()
