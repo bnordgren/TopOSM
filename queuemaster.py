@@ -72,6 +72,7 @@ class TileExpirer(threading.Thread):
         while self.keep_running:
             try:
                 if len(self.input_queue) > 0:
+                    console.printMessage('%s reading expiry input queue' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
                     expire = tileexpire.OSMTileExpire()
                     while True:
                         (z, x, y) = self.input_queue.popleft()
@@ -177,7 +178,8 @@ class Queuemaster:
                 response = self.get_stats()
             else:
                 response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
-            console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
+            if command != 'stats':
+                console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
             chan.basic_publish(
                 exchange='',
                 routing_key=props.reply_to,
