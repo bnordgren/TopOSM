@@ -83,13 +83,14 @@ class TileExpirer(threading.Thread):
             time.sleep(EXPIRE_SLEEP_INTERVAL)
 
     def process_expire(self, expire):
-        for z in xrange(2, self.maxz + 1):
+        for z in xrange(self.maxz, 2 - 1, -1):
             for (x, y) in expire.expiredAt(z):
                 tile_path = getTilePath(REFERENCE_TILESET, z, x, y)
                 if path.isfile(tile_path):
-                    xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
+                    if 'user.toposm_dirty' not in xattr.listxattr(tile_path):
+                        xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
                     tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
-                    if path.isfile(tile_path):
+                    if path.isfile(tile_path) and 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
                     queue_tile(z, x, y, self.queued, self.queues, self.queue_lock, 'expire')
 
