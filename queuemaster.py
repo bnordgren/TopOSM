@@ -15,24 +15,30 @@ import xattr
 import pprint
 
 from toposm import *
+import tileexpire
 
 
 REFERENCE_TILESET = 'composite_h'
 # How many seconds to wait after starting the queue filling thread to begin
 # processing messages.
 QUEUE_FILL_DELAY = 15
+# How often the tile expiry thread should wake up and see if it should process
+# the dequeued expirations.
+EXPIRE_SLEEP_INTERVAL = 10
 
-def queue_tile(z, x, y, queued_set, queues, queue_lock):
+
+def queue_tile(z, x, y, queued_set, queues, queue_lock, queue_from=None):
     metatile = '%s/%s/%s' % (z, x/NTILES[z], y/NTILES[z])
     timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
-    queue_lock.acquire()
-    try:
+    with queue_lock:
         if not metatile in queued_set:
             queued_set.add(metatile)
             queues[z].append(metatile)
-            console.printMessage('%s queue: %s' % (timestr, metatile))
-    finally:
-        queue_lock.release()
+            if queue_from:
+                console.printMessage('%s queue from %s: %s' % (timestr, queue_from, metatile))
+            else:
+                console.printMessage('%s queue: %s' % (timestr, metatile))
+
 
 class QueueFiller(threading.Thread):
     def __init__(self, queues, queued, lock):
@@ -48,9 +54,52 @@ class QueueFiller(threading.Thread):
                 if 'user.toposm_dirty' in xattr.listxattr(os.path.join(root, file)):
                     cs = root.split('/')
                     queue_tile(int(cs[-2]), int(cs[-1]), int(file.split('.')[0]),
-                               self.queued, self.queues, self.lock)
+                               self.queued, self.queues, self.lock, 'init')
         console.printMessage('%s Queue initialized.' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
 
+
+class TileExpirer(threading.Thread):
+    def __init__(self, maxz, queues, queued, lock):
+        threading.Thread.__init__(self)
+        self.maxz = maxz
+        self.queues = queues
+        self.queued = queued
+        self.queue_lock = lock
+        self.keep_running = True
+        self.input_queue = collections.deque()
+
+    def run(self):
+        while self.keep_running:
+            try:
+                if len(self.input_queue) > 0:
+                    expire = tileexpire.OSMTileExpire()
+                    while True:
+                        (z, x, y) = self.input_queue.popleft()
+                        expire.expire(z, x, y)
+            except IndexError:
+                console.printMessage('%s expiry input queue empty; expiring' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+                self.process_expire(expire)
+                console.printMessage('%s expiration pass finished' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+            time.sleep(EXPIRE_SLEEP_INTERVAL)
+
+    def process_expire(self, expire):
+        for z in xrange(2, self.maxz + 1):
+            for (x, y) in expire.expiredAt(z):
+                tile_path = getTilePath(REFERENCE_TILESET, z, x, y)
+                if path.isfile(tile_path):
+                    xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
+                    tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
+                    if path.isfile(tile_path):
+                        xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
+                    queue_tile(z, x, y, self.queued, self.queues, self.queue_lock, 'expire')
+
+    def add_expired(self, tile):
+        z, x, y = [ int(i) for i in tile.split('/') ]
+        self.input_queue.append((z, x, y))
+
+    def get_input_length(self):
+        return len(self.input_queue)
+    
         
 class Queuemaster:
 
@@ -60,6 +109,8 @@ class Queuemaster:
         self.expire_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
         self.queued = set()
         self.queue_lock = threading.Lock()
+        self.expirer = TileExpirer(self.maxz, self.expire_queues, self.queued, self.queue_lock)
+        self.expirer.start()
 
     ### Startup sequence.
     
@@ -107,30 +158,34 @@ class Queuemaster:
                                    routing_key='command.toposm.render',
                                    body=json.dumps({'command': 'queuemaster online'}))
 
+
     ### AMQP commands.
     
     def on_expire(self, chan, method, props, body):
-        self.expire_tile(body)
+        self.expirer.add_expired(body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_command(self, chan, method, props, body):
         timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
-        message = json.loads(body)
-        command = message['command']
-        if command == 'dequeue':
-            response = self.handle_request(message['strategy'])
-        elif command == 'stats':
-            response = self.get_stats()
-        else:
-            response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
-        console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
-        chan.basic_publish(
-            exchange='',
-            routing_key=props.reply_to,
-            properties=pika.BasicProperties(
-                correlation_id=props.correlation_id,
-                content_type='application/json'),
-            body=response)
+        try:
+            message = json.loads(body)
+            command = message['command']
+            if command == 'dequeue':
+                response = self.handle_request(message['strategy'])
+            elif command == 'stats':
+                response = self.get_stats()
+            else:
+                response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
+            console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
+            chan.basic_publish(
+                exchange='',
+                routing_key=props.reply_to,
+                properties=pika.BasicProperties(
+                    correlation_id=props.correlation_id,
+                    content_type='application/json'),
+                body=response)
+        except ValueError:
+            console.printMessage('%s Non-JSON message: %s' % (timestr, body))
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def handle_request(self, dequeue_strategy):
@@ -141,31 +196,13 @@ class Queuemaster:
         else:
             return json.dumps({'result': 'error',
                                'error': 'unknown dequeue strategy: ' + dequeue_strategy})
-        self.queued.remove(mt)
+        with self.queue_lock:
+            self.queued.remove(mt)
         return json.dumps({'result': 'ok', 'value': mt})
 
     def get_stats(self):
-        return json.dumps({'queues': {z: len(self.expire_queues[z]) for z in xrange(0, self.maxz + 1)}})
-
-    ### Queue management.
-
-    def expire_tile(self, tile):
-        (z, x, y) = [int(i) for i in tile.split('/') ]
-        if z < self.maxz:
-            x = x * 2**(maxz - z)
-            y = y * 2**(maxz - z)
-            z = maxz
-        while z >= 0:
-            tile_path = getTilePath(REFERENCE_TILESET, z, x, y)
-            if path.isfile(tile_path):
-                xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
-                if path.isfile(tile_path):
-                    xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                queue_tile(z, x, y, self.queued, self.expire_queues, self.queue_lock)
-            z -= 1
-            x /= 2
-            y /= 2
+        return json.dumps({'queues': {z: len(self.expire_queues[z]) for z in xrange(0, self.maxz + 1)},
+                           'expire': self.expirer.get_input_length()})
 
 
     ### Dequeueing strategies
