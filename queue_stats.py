@@ -29,13 +29,13 @@ def print_stats(s):
     total = sum(queues)
     total_w = sum(weighted_queues)
     total_fp = sum(fixed_pct_queues)
-    print 'zoom  count  weighted    fixed'
-    print '----  -----  --------    -----'
+    print 'zoom  count  by_work  by_zoom'
+    print '----  -----  -------  -------'
     for z in xrange(0, len(queues)):
         count = queues[z]
         count_w = weighted_queues[z]
         count_fp = fixed_pct_queues[z]
-        print '  {0:2}: {1:>5}  {2:8.2%}  {3:7.3%}'.format(z, str(count).rjust(q_width),
+        print '  {0:2}: {1:>5}  {2:7.2%}  {3:7.3%}'.format(z, str(count).rjust(q_width),
                                                        float(count_w) / float(total_w),
                                                        float(count_fp) / float(total_fp))
 
