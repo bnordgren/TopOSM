@@ -118,12 +118,18 @@ class QueueFiller(threading.Thread):
         
     def run(self):
         log_message('Initializing queue.')
-        for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET)):
-            for file in files:
-                if 'user.toposm_dirty' in xattr.listxattr(os.path.join(root, file)):
-                    cs = root.split('/')
-                    self.queue.queue_metatile_by_zoom(
-                        int(cs[-2]), int(cs[-1]), int(file.split('.')[0]), 'init')
+        for z in xrange(2, self.maxz + 1):
+            for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET, str(z))):
+                dirty_tiles = []
+                for file in files:
+                    full_path = os.path.join(root, file)
+                    if 'user.toposm_dirty' in xattr.listxattr(full_path):
+                        cs = root.split('/')
+                        dirty_tiles.append(
+                            (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
+                dirty_tiles.sort()
+                for t, z, x, y in dirty_tiles:
+                    self.queue.queue_metatile_by_zoom(z, x, y, 'init')
         log_message('Queue initialized.')
 
 
