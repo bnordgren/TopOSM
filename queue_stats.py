@@ -12,11 +12,11 @@ from toposm import *
 def print_stats(s):
     print 'expire queue: %s' % s['expire']
     print ''
-    queues = [0] * len(s['queues'])
-    weighted_queues = [0] * len(s['queues'])
-    fixed_pct_queues = [0] * len(s['queues'])
+    queues = [0] * len(s['queue'])
+    weighted_queues = [0] * len(s['queue'])
+    fixed_pct_queues = [0] * len(s['queue'])
     q_width = 1
-    for k, v in s['queues'].items():
+    for k, v in s['queue'].items():
         z = int(k)
         if v > 0:
             w = int(math.ceil(math.log(v, 10)))

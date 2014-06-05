@@ -143,7 +143,7 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         dequeue_strategy = sys.argv[2]
     else:
-        dequeue_strategy = 'by_pct'
+        dequeue_strategy = 'by_work_available'
     
     conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
     chan = conn.channel()
