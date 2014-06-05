@@ -117,14 +117,14 @@ class QueueFiller(threading.Thread):
         self.queue = queue
         
     def run(self):
-        console.printMessage('%s Initializing queue.' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+        log_message('Initializing queue.')
         for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET)):
             for file in files:
                 if 'user.toposm_dirty' in xattr.listxattr(os.path.join(root, file)):
                     cs = root.split('/')
                     self.queue.queue_metatile_by_zoom(
                         int(cs[-2]), int(cs[-1]), int(file.split('.')[0]), 'init')
-        console.printMessage('%s Queue initialized.' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+        log_message('Queue initialized.')
 
 
 class TileExpirer(threading.Thread):
@@ -139,15 +139,15 @@ class TileExpirer(threading.Thread):
         while self.keep_running:
             try:
                 if len(self.input_queue) > 0:
-                    console.printMessage('%s reading expiry input queue' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+                    log_message('reading expiry input queue')
                     expire = tileexpire.OSMTileExpire()
                     while True:
                         (z, x, y) = self.input_queue.popleft()
                         expire.expire(z, x, y)
             except IndexError:
-                console.printMessage('%s expiry input queue empty; expiring' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+                log_message('expiry input queue empty; expiring')
                 self.process_expire(expire)
-                console.printMessage('%s expiration pass finished' % time.strftime('[%Y-%m-%d %H:%M:%S]'))
+                log_message('expiration pass finished')
             time.sleep(EXPIRE_SLEEP_INTERVAL)
 
     def process_expire(self, expire):
@@ -232,7 +232,6 @@ class Queuemaster:
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_command(self, chan, method, props, body):
-        timestr = time.strftime('[%Y-%m-%d %H:%M:%S]')
         try:
             message = json.loads(body)
             command = message['command']
@@ -243,7 +242,7 @@ class Queuemaster:
             else:
                 response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
             if command != 'stats':
-                console.printMessage('%s %s -> %s @ %s' % (timestr, body, response, props.reply_to))
+                log_message('%s -> %s @ %s' % (body, response, props.reply_to))
             chan.basic_publish(
                 exchange='',
                 routing_key=props.reply_to,
@@ -252,7 +251,7 @@ class Queuemaster:
                     content_type='application/json'),
                 body=response)
         except ValueError:
-            console.printMessage('%s Non-JSON message: %s' % (timestr, body))
+            log_message('Non-JSON message: %s' % body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def handle_request(self, dequeue_strategy):
