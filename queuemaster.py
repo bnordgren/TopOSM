@@ -37,8 +37,8 @@ class Queue:
         self.queued_metatiles = {}
         self.zoom_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
 
-    def queue_metatile_by_zoom(self, z, x, y, source=None):
-        metatile = '%d/%d/%d' % (z, x, y)
+    def queue_tile_by_zoom(self, z, x, y, source=None):
+        metatile = '%d/%d/%d' % (z, x / NTILES[z], y / NTILES[z])
         with self.lock:
             if not metatile in self.queued_metatiles:
                 self.queued_metatiles[metatile] = 1
@@ -129,7 +129,7 @@ class QueueFiller(threading.Thread):
                             (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
-                    self.queue.queue_metatile_by_zoom(z, x, y, 'init')
+                    self.queue.queue_tile_by_zoom(z, x, y, 'init')
         log_message('Queue initialized.')
 
 
@@ -166,7 +166,7 @@ class TileExpirer(threading.Thread):
                     tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
                     if path.isfile(tile_path) and 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                    self.queue.queue_metatile_by_zoom(z, x, y, 'expire')
+                    self.queue.queue_tile_by_zoom(z, x, y, 'expire')
 
     def add_expired(self, tile):
         z, x, y = [ int(i) for i in tile.split('/') ]
