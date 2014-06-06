@@ -12,6 +12,9 @@ from toposm import *
 def print_stats(s):
     print 'expire queue: %s' % s['expire']
     print ''
+    for renderer, status in s['render'].items():
+        print '%s: %s' % (renderer, status)
+    print ''
     queues = [0] * len(s['queue'])
     weighted_queues = [0] * len(s['queue'])
     fixed_pct_queues = [0] * len(s['queue'])

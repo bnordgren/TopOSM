@@ -2,6 +2,7 @@
 
 import json
 import os
+import platform
 import sys
 import time
 
@@ -73,6 +74,14 @@ class ContinuousRenderThread:
             layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         if layerTimes:
             stats.recordRender(z, time.time() - start_time, layerTimes)
+        self.printMessage('Notifying queuemaster of completion.')
+        self.chan.basic_publish(
+            exchange='osm',
+            routing_key='toposm.queuemaster',
+            properties=pika.BasicProperties(reply_to=self.commandQueue,
+                                            content_type='application/json'),
+            body=json.dumps({'command': 'rendered',
+                             'metatile': msg}))
 
     def on_command(self, chan, method, props, body):
         self.printMessage('Received message: ' + body)
@@ -86,37 +95,41 @@ class ContinuousRenderThread:
             elif command == 'reload':
                 reload(globals()[parts[1]])
             elif command == 'queuemaster online':
-                self.request_rendering()
+                self.register()
+            elif command == 'render':
+                self.renderMetaTileFromMsg(message['metatile'])
             else:
                 self.printMessage('Unknown command: ' + body)
-        elif 'result' in message:
-            if props.correlation_id == self.request_id:
-                if message['result'] == 'ok':
-                    self.renderMetaTileFromMsg(message['value'])
-                    self.request_rendering()
-                else:
-                    self.printMessage('Failed request: ' + body)
-            else:
-                self.printMessage('Discarding message: ' + body)
         else:
             self.printMessage('Unrecognized message: ' + body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
-    def request_rendering(self):
-        self.request_id = str(uuid.uuid4())
-        self.printMessage('Requesting metatile.  ID: ' + self.request_id)
+    def register(self):
+        self.printMessage('Registering with queuemaster.')
         self.chan.basic_publish(
             exchange='osm',
             routing_key='toposm.queuemaster',
             properties=pika.BasicProperties(reply_to=self.commandQueue,
-                                            correlation_id=self.request_id,
                                             content_type='application/json'),
-            body=json.dumps({'command': 'dequeue',
-                             'strategy': self.dequeue_strategy}))
+            body=json.dumps({'command': 'register',
+                             'strategy': self.dequeue_strategy,
+                             'hostname': platform.node(),
+                             'pid': os.getpid(),
+                             'threadid': self.threadNumber}))
+
+    def unregister(self):
+        self.printMessage('Unregistering with queuemaster.')
+        self.chan.basic_publish(
+            exchange='osm',
+            routing_key='toposm.queuemaster',
+            properties=pika.BasicProperties(reply_to=self.commandQueue,
+                                            content_type='application/json'),
+            body=json.dumps({'command': 'unregister'}))
 
     def renderLoop(self):
-        self.request_rendering()
+        self.register()
         self.chan.start_consuming()
+        self.unregister()
 
 
 def isOldTile(z, x, y):

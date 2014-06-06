@@ -25,10 +25,68 @@ QUEUE_FILL_DELAY = 15
 # How often the tile expiry thread should wake up and see if it should process
 # the dequeued expirations.
 EXPIRE_SLEEP_INTERVAL = 10
+# How long we can go without hearing from a renderer before we consider it
+# stale.
+RENDERER_STALE_TIME = 3600
 
 def log_message(message):
     console.printMessage(time.strftime('[%Y-%m-%d %H:%M:%S]') + ' ' + message)
     
+
+class Renderer:
+    def __init__(self, registration, render_queue, amqp_queue, channel):
+        self.render_queue = render_queue
+        self.amqp_queue = amqp_queue
+        self.channel = channel
+        self.hostname = registration['hostname']
+        self.pid = registration['pid']
+        self.threadid = registration['threadid']
+        self.dequeue_strategy = registration['strategy']
+        self.working_on = None
+        self.last_activity = time.time()
+
+    @property
+    def name(self):
+        return '%s.%s.%s' % (self.hostname, self.pid, self.threadid)
+
+    @property
+    def idle(self):
+        return not self.working_on
+
+    @property
+    def status(self):
+        if self.idle:
+            base = 'idle'
+        else:
+            base = 'rendering: %s' % self.working_on
+        if time.time() - self.last_activity > RENDERER_STALE_TIME:
+            stale = ' (STALE %ds)' % time.time() - self.last_activity
+        else:
+            stale = ''
+        return base + stale
+
+    def send_request(self):
+        if self.idle:
+            mt = self.render_queue.dequeue(self.dequeue_strategy)
+            if mt:
+                log_message('%s -> render %s' % (self.name, mt))
+                self.working_on = mt
+                self.last_activity = time.time()
+                self.channel.basic_publish(
+                    exchange='',
+                    routing_key=self.amqp_queue,
+                    properties=pika.BasicProperties(
+                        content_type='application/json'),
+                    body=json.dumps({'command': 'render',
+                                     'metatile': mt}))
+
+    def finished(self, metatile):
+        # Check to see if it's what we think we're working on.  If not, assume
+        # it's from a previous queuemaster and ignore the message.
+        if self.working_on == metatile:
+            self.working_on = None
+            self.last_activity = time.time()
+
 
 class Queue:
     def __init__(self, maxz):
@@ -183,6 +241,7 @@ class Queuemaster:
         self.queue = Queue(self.maxz)
         self.expirer = TileExpirer(self.maxz, self.queue)
         self.expirer.start()
+        self.renderers = {}
 
     ### Startup sequence.
     
@@ -241,38 +300,45 @@ class Queuemaster:
         try:
             message = json.loads(body)
             command = message['command']
-            if command == 'dequeue':
-                response = self.handle_request(message['strategy'])
+            if command == 'register':
+                self.add_renderer(message, props.reply_to)
+                self.send_render_requests()
+            elif command == 'unregister':
+                self.remove_renderer(props.reply_to)
+            elif command == 'rendered':
+                if props.reply_to in self.renderers:
+                    self.renderers[props.reply_to].finished(message['metatile'])
+                self.send_render_requests()
             elif command == 'stats':
-                response = self.get_stats()
+                chan.basic_publish(
+                    exchange='',
+                    routing_key=props.reply_to,
+                    properties=pika.BasicProperties(
+                        correlation_id=props.correlation_id,
+                        content_type='application/json'),
+                    body=self.get_stats())
             else:
-                response = json.dumps({'result': 'error', 'error': 'unknown command: ' + body})
-            if command != 'stats':
-                log_message('%s -> %s @ %s' % (body, response, props.reply_to))
-            chan.basic_publish(
-                exchange='',
-                routing_key=props.reply_to,
-                properties=pika.BasicProperties(
-                    correlation_id=props.correlation_id,
-                    content_type='application/json'),
-                body=response)
+                log_message('unknown message: %s' % body)
         except ValueError:
             log_message('Non-JSON message: %s' % body)
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
-    def handle_request(self, dequeue_strategy):
-        mt = self.queue.dequeue(dequeue_strategy)
-        if mt:
-            return json.dumps({'result': 'ok', 'value': mt})
-        else:
-            return json.dumps({'result': 'error',
-                               'error': 'unknown dequeue strategy: ' + dequeue_strategy})
-
     def get_stats(self):
         return json.dumps({'queue': self.queue.get_stats(),
-                           'expire': self.expirer.get_input_length()})
+                           'expire': self.expirer.get_input_length(),
+                           'render': {r.name: r.status for r in self.renderers.values()}})
 
-    
+    def add_renderer(self, message, queue):
+        self.renderers[queue] =  Renderer(message, self.queue, queue, self.channel)
+
+    def remove_renderer(self, queue):
+        del self.renderers[queue]
+
+    def send_render_requests(self):
+        for renderer in self.renderers.values():
+            renderer.send_request()
+
+
 if __name__ == "__main__":
     qm = Queuemaster(16)
     qm.run()

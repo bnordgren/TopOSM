@@ -4,25 +4,43 @@ Command:
 
 { "command": <command-name>, <parameters> ... }
 
-Result:
+Normal rendering sequence:
 
-{ "result": "ok", "value": <value> }
-{ "result": "error", "error": <error string> }
+queuemaster -> all renderers
 
+    { "command": "queuemaster online" }
 
-Commands understood by queuemaster:
+renderer -> queuemaster
 
-{ "command": "dequeue",
-  "strategy": <strategy name> }
+    { "command": "register",
+      "hostname": <hostname>,
+      "pid": <pid>,
+      "threadid: <threadid>,
+      "strategy": <strategy> }
 
 "strategy" one of:
-
  * by_pct - distributes work based on current queue length at various zoom
    levels.
  * by_fixed_pct - distributes work based on total number of tiles at each
    zoom level.
 
+queuemaster -> renderer
 
-Commands understood by renderd:
+    { "command": "render",
+      "metatile": <metatile e.g. "15/950/1235"> }
 
-{ "command": "queuemaster online" }
+renderer -> queuemaster
+
+    { "command": "rendered",
+      "metatile": <metatile> }
+
+renderer -> queuemaster
+
+    { "command": "unregister" }
+
+All renderer -> queuemaster communication should have the renderer's queue
+as the "reply_to" property.
+
+The queuemaster also understands:
+
+    { "command": "stats" }
