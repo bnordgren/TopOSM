@@ -56,9 +56,8 @@ class Renderer:
     @property
     def status(self):
         if self.idle:
-            base = 'idle'
-        else:
-            base = 'rendering: %s' % self.working_on
+            return 'idle'
+        base = 'rendering: %s' % self.working_on
         if time.time() - self.last_activity > RENDERER_STALE_TIME:
             stale = ' (STALE %ds)' % (time.time() - self.last_activity)
         else:
@@ -102,7 +101,13 @@ class Queue:
     def queue_metatile(self, mt, queue, seen, source):
         added = False
         with self.lock:
-            if seen:
+            if seen == None:
+                # This is a regular, by-zoom queue.
+                if not mt in self.queued_metatiles:
+                    queue.append(mt)
+                    self.queued_metatiles[mt] = 1
+                    added = True
+            else:
                 # This is one of the specialty queues.
                 if not mt in seen:
                     queue.append(mt)
@@ -111,12 +116,6 @@ class Queue:
                         self.queued_metatiles[mt] += 1
                     else:
                         self.queued_metatiles[mt] = 1
-                    added = True
-            else:
-                # This is a regular, by-zoom queue.
-                if not mt in self.queued_metatiles:
-                    self.queued_metatiles[mt] = 1
-                    queue.append(mt)
                     added = True
         if added:
             if source:
@@ -129,7 +128,7 @@ class Queue:
         if queue == 'missing':
             self.queue_metatile(mt, self.missing_queue, self.missing_seen, source)
         elif queue == 'important':
-            self.queue_metatile(mt, self.important_queue, self.important_seen, source)
+            self.queue_metatile(mt, self.important_stack, self.important_seen, source)
         elif queue == 'zoom':
             self.queue_metatile(mt, self.zoom_queues[z], None, source)
 
@@ -284,6 +283,7 @@ class Queuemaster:
         self.expirer = TileExpirer(self.maxz, self.queue)
         self.expirer.start()
         self.renderers = {}
+        self.requests = {}
 
     ### Startup sequence.
     
@@ -350,6 +350,7 @@ class Queuemaster:
                 if props.reply_to in self.renderers:
                     self.remove_renderer(props.reply_to)
             elif command == 'rendered':
+                self.send_render_replies(message['metatile'])
                 if props.reply_to in self.renderers:
                     self.renderers[props.reply_to].finished(message['metatile'])
                 self.send_render_requests()
@@ -361,6 +362,8 @@ class Queuemaster:
                         correlation_id=props.correlation_id,
                         content_type='application/json'),
                     body=self.get_stats())
+            elif command == 'render':
+                self.handle_render_request(message['tile'], props)
             else:
                 log_message('unknown message: %s' % body)
         except ValueError:
@@ -381,6 +384,32 @@ class Queuemaster:
     def send_render_requests(self):
         for renderer in self.renderers.values():
             renderer.send_request()
+
+    def send_render_replies(self, mt):
+        if mt in self.requests:
+            for props in self.requests[mt]:
+                self.channel.basic_publish(
+                    exchange='',
+                    routing_key=props.reply_to,
+                    properties=pika.BasicProperties(
+                        correlation_id=props.correlation_id,
+                        content_type='application/json'),
+                    body=json.dumps({'command': 'rendered'}))
+            del self.requests[mt]
+                
+    def handle_render_request(self, tile, props):
+        z, x, y = [ int(i) for i in tile.split('/') ]
+        mt = '%s/%s/%s' % (z, x / NTILES[z], y / NTILES[z])
+        if mt in self.requests:
+            self.requests[mt].add(props)
+        else:
+            self.requests[mt] = [props]
+        if tileExists(REFERENCE_TILESET, z, x, y):
+            importance = 'important'
+        else:
+            importance = 'missing'
+        self.queue.queue_tile(z, x, y, importance, 'request')
+        
 
 
 if __name__ == "__main__":

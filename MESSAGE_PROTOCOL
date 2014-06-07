@@ -4,6 +4,7 @@ Command:
 
 { "command": <command-name>, <parameters> ... }
 
+
 Normal rendering sequence:
 
 queuemaster -> all renderers
@@ -50,6 +51,19 @@ renderer -> queuemaster
 
 All renderer -> queuemaster communication should have the renderer's queue
 as the "reply_to" property.
+
+
+Normal render request sequence:
+
+requester -> queuemaster
+
+    { "command": "render",
+      "tile": "z/x/y" }
+
+queuemaster -> requester
+
+    { "command": "rendered" }
+
 
 The queuemaster also understands:
 
