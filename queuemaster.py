@@ -312,7 +312,7 @@ class Queuemaster:
 
     def on_expire_bind(self,frame):
         self.channel.basic_consume(self.on_expire, queue='expire_toposm',
-                                   exclusive=True)
+                                   exclusive=True, no_ack=True)
         queue_filler = QueueFiller(self.maxz, self.queue)
         queue_filler.start()
         time.sleep(QUEUE_FILL_DELAY)
@@ -337,7 +337,6 @@ class Queuemaster:
     
     def on_expire(self, chan, method, props, body):
         self.expirer.add_expired(body)
-        chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_command(self, chan, method, props, body):
         try:
@@ -364,6 +363,7 @@ class Queuemaster:
                     body=self.get_stats())
             elif command == 'render':
                 self.handle_render_request(message['tile'], props)
+                self.send_render_requests()
             else:
                 log_message('unknown message: %s' % body)
         except ValueError:
