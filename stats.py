@@ -1,10 +1,8 @@
 #!/usr/bin/python
 
-import os.path, pickle
-
 import lockfile
-
-from threading import Lock
+import os.path
+import pickle
 
 class StatsManager:
     lock = lockfile.FileLock('stats')
