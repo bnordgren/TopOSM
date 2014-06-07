@@ -285,8 +285,9 @@ class Queuemaster:
     def on_command_bind(self, frame):
         self.channel.basic_consume(self.on_command, queue=self.command_queue,
                                    exclusive=True)
+        log_message('queuemaster online')
         self.channel.basic_publish(exchange='osm',
-                                   routing_key='command.toposm.render',
+                                   routing_key='command.toposm',
                                    body=json.dumps({'command': 'queuemaster online'}))
 
 
