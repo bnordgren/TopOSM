@@ -94,25 +94,67 @@ class Queue:
         self.lock = threading.Lock()
         self.queued_metatiles = {}
         self.zoom_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
+        self.missing_queue = collections.deque()
+        self.missing_seen = set()
+        self.important_stack = collections.deque()
+        self.important_seen = set()
 
-    def queue_tile_by_zoom(self, z, x, y, source=None):
-        metatile = '%d/%d/%d' % (z, x / NTILES[z], y / NTILES[z])
+    def queue_metatile(self, mt, queue, seen, source):
+        added = False
         with self.lock:
-            if not metatile in self.queued_metatiles:
-                self.queued_metatiles[metatile] = 1
-                self.zoom_queues[z].append(metatile)
-                if source:
-                    log_message('queue from %s: %s' % (source, metatile))
-                else:
-                    log_message('queue: %s' % metatile)
+            if seen:
+                # This is one of the specialty queues.
+                if not mt in seen:
+                    queue.append(mt)
+                    seen.add(mt)
+                    if mt in self.queued_metatiles:
+                        self.queued_metatiles[mt] += 1
+                    else:
+                        self.queued_metatiles[mt] = 1
+                    added = True
+            else:
+                # This is a regular, by-zoom queue.
+                if not mt in self.queued_metatiles:
+                    self.queued_metatiles[mt] = 1
+                    queue.append(mt)
+                    added = True
+        if added:
+            if source:
+                log_message('queue from %s: %s' % (source, mt))
+            else:
+                log_message('queue: %s' % mt)
+
+    def queue_tile(self, z, x, y, queue='zoom', source=None):
+        mt = '%d/%d/%d' % (z, x / NTILES[z], y / NTILES[z])
+        if queue == 'missing':
+            self.queue_metatile(mt, self.missing_queue, self.missing_seen, source)
+        elif queue == 'important':
+            self.queue_metatile(mt, self.important_queue, self.important_seen, source)
+        elif queue == 'zoom':
+            self.queue_metatile(mt, self.zoom_queues[z], None, source)
 
     def dequeue(self, strategy):
-        if strategy == 'by_work_available':
-            mt = self.dequeue_by_work_available()
-        elif strategy == 'by_zoom':
-            mt = self.dequeue_by_zoom()
-        else:
-            mt = None
+        try:
+            mt = self.missing_queue.popleft()
+            with self.lock:
+                self.missing_seen.remove(mt)
+        except IndexError:
+            if strategy == 'missing':
+                mt = None
+            try:
+                mt = self.important_stack.pop()
+                with self.lock:
+                    self.important_seen.remove(mt)
+            except IndexError:
+                if strategy == 'important':
+                    mt = None
+                elif strategy == 'by_work_available':
+                    mt = self.dequeue_by_work_available()
+                elif strategy == 'by_zoom':
+                    mt = self.dequeue_by_zoom()
+                else:
+                    log_message('unknown dequeue strategy: %s' % strategy)
+                    mt = None
         if mt:
             with self.lock:
                 if self.queued_metatiles[mt] > 1:
@@ -187,7 +229,7 @@ class QueueFiller(threading.Thread):
                             (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
-                    self.queue.queue_tile_by_zoom(z, x, y, 'init')
+                    self.queue.queue_tile(z, x, y, 'zoom', 'init')
         log_message('Queue initialized.')
 
 
@@ -224,7 +266,7 @@ class TileExpirer(threading.Thread):
                     tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
                     if path.isfile(tile_path) and 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                    self.queue.queue_tile_by_zoom(z, x, y, 'expire')
+                    self.queue.queue_tile(z, x, y, 'zoom', 'expire')
 
     def add_expired(self, tile):
         z, x, y = [ int(i) for i in tile.split('/') ]
