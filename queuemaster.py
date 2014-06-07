@@ -60,7 +60,7 @@ class Renderer:
         else:
             base = 'rendering: %s' % self.working_on
         if time.time() - self.last_activity > RENDERER_STALE_TIME:
-            stale = ' (STALE %ds)' % time.time() - self.last_activity
+            stale = ' (STALE %ds)' % (time.time() - self.last_activity)
         else:
             stale = ''
         return base + stale
@@ -305,7 +305,8 @@ class Queuemaster:
                 self.add_renderer(message, props.reply_to)
                 self.send_render_requests()
             elif command == 'unregister':
-                self.remove_renderer(props.reply_to)
+                if props.reply_to in self.renderers:
+                    self.remove_renderer(props.reply_to)
             elif command == 'rendered':
                 if props.reply_to in self.renderers:
                     self.renderers[props.reply_to].finished(message['metatile'])
