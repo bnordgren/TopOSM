@@ -214,10 +214,14 @@ class QueueFiller(threading.Thread):
         threading.Thread.__init__(self)
         self.maxz = maxz
         self.queue = queue
+        self.current_zoom = None
+        self.lock = threading.Lock()
         
     def run(self):
         log_message('Initializing queue.')
         for z in xrange(2, self.maxz + 1):
+            with self.lock:
+                self.current_zoom = z
             for root, dirs, files in os.walk(os.path.join(BASE_TILE_DIR, REFERENCE_TILESET, str(z))):
                 dirty_tiles = []
                 for file in files:
@@ -229,7 +233,13 @@ class QueueFiller(threading.Thread):
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
                     self.queue.queue_tile(z, x, y, 'zoom', 'init')
+        with self.lock:
+            self.current_zoom = -1
         log_message('Queue initialized.')
+
+    def get_status(self):
+        with self.lock:
+            return self.current_zoom
 
 
 class TileExpirer(threading.Thread):
@@ -239,6 +249,9 @@ class TileExpirer(threading.Thread):
         self.queue = queue
         self.keep_running = True
         self.input_queue = collections.deque()
+        self.lock = threading.Lock()
+        self.current_expire = None
+        self.current_expire_zoom = None
 
     def run(self):
         while self.keep_running:
@@ -256,7 +269,11 @@ class TileExpirer(threading.Thread):
             time.sleep(EXPIRE_SLEEP_INTERVAL)
 
     def process_expire(self, expire):
+        with self.lock:
+            self.current_expire = expire
         for z in xrange(self.maxz, 2 - 1, -1):
+            with self.lock:
+                self.current_expire_zoom = z
             for (x, y) in expire.expiredAt(z):
                 tile_path = getTilePath(REFERENCE_TILESET, z, x, y)
                 if path.isfile(tile_path):
@@ -266,6 +283,9 @@ class TileExpirer(threading.Thread):
                     if path.isfile(tile_path) and 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
                     self.queue.queue_tile(z, x, y, 'zoom', 'expire')
+        with self.lock:
+            self.current_expire = None
+            self.current_expire_zoom = None
 
     def add_expired(self, tile):
         z, x, y = [ int(i) for i in tile.split('/') ]
@@ -273,13 +293,21 @@ class TileExpirer(threading.Thread):
 
     def get_input_length(self):
         return len(self.input_queue)
-    
+
+    def get_expire_status(self):
+        with self.lock:
+            if self.current_expire:
+                return (self.current_expire_zoom, self.current_expire.countExpiredAt(self.current_expire_zoom))
+            else:
+                return None
+
         
 class Queuemaster:
 
     def __init__(self, maxz):
         self.maxz = maxz
         self.queue = Queue(self.maxz)
+        self.initializer = None
         self.expirer = TileExpirer(self.maxz, self.queue)
         self.expirer.start()
         self.renderers = {}
@@ -313,8 +341,8 @@ class Queuemaster:
     def on_expire_bind(self,frame):
         self.channel.basic_consume(self.on_expire, queue='expire_toposm',
                                    exclusive=True, no_ack=True)
-        queue_filler = QueueFiller(self.maxz, self.queue)
-        queue_filler.start()
+        self.initializer = QueueFiller(self.maxz, self.queue)
+        self.initializer.start()
         time.sleep(QUEUE_FILL_DELAY)
         self.channel.queue_declare(self.on_command_declare, exclusive=True)
     
@@ -371,9 +399,13 @@ class Queuemaster:
         chan.basic_ack(delivery_tag=method.delivery_tag)
 
     def get_stats(self):
-        return json.dumps({'queue': self.queue.get_stats(),
-                           'expire': self.expirer.get_input_length(),
-                           'render': {r.name: r.status for r in self.renderers.values()}})
+        result = {'queue': self.queue.get_stats(),
+                  'expire': {'input': self.expirer.get_input_length(),
+                             'status': self.expirer.get_expire_status()},
+                  'render': {r.name: r.status for r in self.renderers.values()}}
+        if self.initializer and self.initializer.is_alive():
+            result['init'] = self.initializer.get_status()
+        return json.dumps(result)
 
     def add_renderer(self, message, queue):
         self.renderers[queue] =  Renderer(message, self.queue, queue, self.channel)

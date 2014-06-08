@@ -1,8 +1,5 @@
 
 * stats improvements
-   (todo) include something about currently-expiring quadtree.
-   (todo) include something about the state of the initialization
-            process.
    (todo) output lengths of important and missing queues.
 
 * queuemaster commands

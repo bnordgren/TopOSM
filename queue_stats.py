@@ -10,7 +10,11 @@ import pika
 from toposm import *
 
 def print_stats(s):
-    print 'expire queue: %s' % s['expire']
+    print 'expire queue: %s' % s['expire']['input']
+    if s['expire']['status']:
+        print 'currently expiring at zoom %s, %s tiles' % (s['expire']['status'][0], s['expire']['status'][1])
+    if 'init' in s:
+        print 'currently initializing at zoom %s' % s['init']
     print ''
     for renderer, status in s['render'].items():
         print '%s: %s' % (renderer, status)

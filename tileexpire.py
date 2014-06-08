@@ -94,6 +94,15 @@ class OSMTileExpire:
         self.full = True
         self.children = [None, None, None, None]
 
+    def countExpiredAt(self, targetz):
+        if targetz < self.z:
+            raise Exception('Cannot count expired tiles at zoom {0}, which is lower than my zoom {1}'.format(targetz, self.z))
+        if targetz == self.z:
+            return 1
+        if self.full:
+            return 4 ** (targetz - self.z)
+        return sum([c.countExpiredAt(targetz) for c in self.children if c])
+
     def expiredAt(self, targetz):
         """Yield (as a generator) all the expired tiles at the given zoom."""
         return self._expiredAt(targetz, 0)

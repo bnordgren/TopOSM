@@ -82,4 +82,10 @@ while not result_received:
                 print 'multigraph toposm_queues'
                 for q, v in message['queue'].items():
                     field = 'q{0}'.format(q)
-                    print '{0}.value {1}'.format(field, v)
+                    try:
+                        if 'init' in message and message['init'] <= int(q):
+                            print '{0}.value U'.format(field)
+                        else:
+                            print '{0}.value {1}'.format(field, v)
+                    except ValueError:
+                        print '{0}.value {1}'.format(field, v)
