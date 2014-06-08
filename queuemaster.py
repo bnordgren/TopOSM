@@ -214,6 +214,7 @@ class QueueFiller(threading.Thread):
         threading.Thread.__init__(self)
         self.maxz = maxz
         self.queue = queue
+        self.keep_running = True
         self.current_zoom = None
         self.lock = threading.Lock()
         
@@ -230,6 +231,8 @@ class QueueFiller(threading.Thread):
                         cs = root.split('/')
                         dirty_tiles.append(
                             (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
+                        if not self.keep_running:
+                            return
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
                     self.queue.queue_tile(z, x, y, 'zoom', 'init')
@@ -240,6 +243,9 @@ class QueueFiller(threading.Thread):
     def get_status(self):
         with self.lock:
             return self.current_zoom
+
+    def quit(self):
+        self.keep_running = False
 
 
 class TileExpirer(threading.Thread):
@@ -254,7 +260,7 @@ class TileExpirer(threading.Thread):
         self.current_expire_zoom = None
 
     def run(self):
-        while self.keep_running:
+        while self.keep_running or len(self.input_queue) > 0:
             try:
                 if len(self.input_queue) > 0:
                     log_message('reading expiry input queue')
@@ -301,7 +307,10 @@ class TileExpirer(threading.Thread):
             else:
                 return None
 
-        
+    def quit(self):
+        self.keep_running = False
+
+
 class Queuemaster:
 
     def __init__(self, maxz):
@@ -392,6 +401,8 @@ class Queuemaster:
             elif command == 'render':
                 self.handle_render_request(message['tile'], props)
                 self.send_render_requests()
+            elif command == 'quit':
+                self.quit()
             else:
                 log_message('unknown message: %s' % body)
         except ValueError:
@@ -441,7 +452,16 @@ class Queuemaster:
         else:
             importance = 'missing'
         self.queue.queue_tile(z, x, y, importance, 'request')
-        
+
+    def quit(self):
+        log_message('Exiting.')
+        self.channel.basic_cancel()
+        self.initializer.quit()
+        self.expirer.quit()
+        self.expirer.join()
+        self.initializer.join()
+        self.connection.ioloop.stop()
+        log_message('Shutdown process concluded.')
 
 
 if __name__ == "__main__":
