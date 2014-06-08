@@ -42,13 +42,15 @@ def print_stats(s):
                                                        float(count_w) / float(total_w),
                                                        float(count_fp) / float(total_fp))
 
-def request_stats(chan, queue, correlation_id):
+def request_stats(chan, queue):
+    correlation_id = str(uuid.uuid4())
     chan.basic_publish(
         exchange='osm',
         routing_key='toposm.queuemaster',
         properties=pika.BasicProperties(reply_to=queue,
                                         correlation_id=correlation_id),
         body=json.dumps({'command': 'stats'}))
+    return correlation_id
     
 conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
 chan = conn.channel()
@@ -56,9 +58,8 @@ queue = chan.queue_declare(exclusive=True).method.queue
 chan.queue_bind(queue=queue, exchange='osm', routing_key='command')
 chan.queue_bind(queue=queue, exchange='osm', routing_key='command.toposm')
 
-correlation_id = str(uuid.uuid4())
 time_sent = time.time()
-request_stats(chan, queue, correlation_id)
+correlation_id = request_stats(chan, queue)
 
 result_received = False
 while not result_received:
@@ -66,7 +67,7 @@ while not result_received:
     if method:
         message = json.loads(body)
         if 'command' in message and message['command'] == 'queuemaster online':
-            request_stats(chan, queue, correlation_id)
+            correlation_id = request_stats(chan, queue)
         elif props.correlation_id == correlation_id:
             print '%0.2f seconds to receive message' % (time.time() - time_sent)
             print ''
