@@ -18,6 +18,8 @@ from toposm import *
 import tileexpire
 
 
+# Which of the various TopOSM-generated tilesets should be the one to carry
+# the "needs rendering" markers.
 REFERENCE_TILESET = 'composite_h'
 # How many seconds to wait after starting the queue filling thread to begin
 # processing messages.
@@ -84,7 +86,8 @@ class Renderer:
         # it's from a previous queuemaster and ignore the message.
         if self.working_on == metatile:
             self.working_on = None
-            self.last_activity = time.time()
+        # This counts as the client being active, though.
+        self.last_activity = time.time()
 
 
 class Queue:
@@ -139,31 +142,33 @@ class Queue:
                 self.missing_seen.remove(mt)
         except IndexError:
             if strategy == 'missing':
-                mt = None
+                return None
             try:
                 mt = self.important_stack.pop()
                 with self.lock:
                     self.important_seen.remove(mt)
             except IndexError:
                 if strategy == 'important':
-                    mt = None
+                    return None
                 elif strategy == 'by_work_available':
                     mt = self.dequeue_by_work_available()
                 elif strategy == 'by_zoom':
                     mt = self.dequeue_by_zoom()
                 else:
                     log_message('unknown dequeue strategy: %s' % strategy)
-                    mt = None
-        if mt:
-            with self.lock:
-                if self.queued_metatiles[mt] > 1:
-                    self.queued_metatiles[mt] -= 1
-                else:
-                    del self.queued_metatiles[mt]
+                    return None
+        with self.lock:
+            if self.queued_metatiles[mt] > 1:
+                self.queued_metatiles[mt] -= 1
+            else:
+                del self.queued_metatiles[mt]
         return mt
 
     def get_stats(self):
-        return {z: len(self.zoom_queues[z]) for z in xrange(0, self.maxz + 1)}
+        stats = {z: len(self.zoom_queues[z]) for z in xrange(0, self.maxz + 1)}
+        stats.update({'important': len(self.important_stack),
+                      'missing': len(self.missing_queue)})
+        return stats
 
     def dequeue_by_work_available(self):
         # Queues are weighted according to how many messages they have and the

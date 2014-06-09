@@ -9,6 +9,19 @@ import pika
 
 from toposm import *
 
+def isint(s):
+    try:
+        dummy = int(s)
+        return True
+    except ValueError:
+        return False
+
+def queue_sort(a, b):
+    try:
+        return cmp(int(a), int(b))
+    except ValueError:
+        return cmp(a, b)
+
 def print_stats(s):
     print 'expire queue: %s' % s['expire']['input']
     if s['expire']['status']:
@@ -19,32 +32,35 @@ def print_stats(s):
     for renderer, status in s['render'].items():
         print '%s: %s' % (renderer, status)
     print ''
-    queues = [0] * len(s['queue'])
-    weighted_queues = [0] * len(s['queue'])
-    fixed_pct_queues = [0] * len(s['queue'])
+    weighted_queues = {}
+    fixed_pct_queues = {}
     q_width = 1
     for k, v in s['queue'].items():
-        z = int(k)
         if v > 0:
             w = int(math.ceil(math.log(v, 10)))
             if w > q_width:
                 q_width = w
-            fixed_pct_queues[z] = 2**z
-        queues[z] = v
-        weighted_queues[z] = v * pow(4, z) / pow(NTILES[z], 2)
-    z = 0
-    total = sum(queues)
-    total_w = sum(weighted_queues)
-    total_fp = sum(fixed_pct_queues)
-    print 'zoom  count  by_work  by_zoom'
-    print '----  -----  -------  -------'
-    for z in xrange(0, len(queues)):
-        count = queues[z]
-        count_w = weighted_queues[z]
-        count_fp = fixed_pct_queues[z]
-        print '  {0:2}: {1:>5}  {2:7.2%}  {3:7.3%}'.format(z, str(count).rjust(q_width),
-                                                       float(count_w) / float(total_w),
-                                                       float(count_fp) / float(total_fp))
+        if isint(k):
+            z = int(k)
+            if v > 0:
+                fixed_pct_queues[k] = 2**z
+            else:
+                fixed_pct_queues[k] = 0
+            weighted_queues[k] = v * pow(4, z) / pow(NTILES[z], 2)
+    total_w = sum(weighted_queues.values())
+    total_fp = sum(fixed_pct_queues.values())
+    print 'queue  count  by_work  by_zoom'
+    print '-----  -----  -------  -------'
+    for k in sorted(s['queue'].keys(), queue_sort):
+        count = s['queue'][k]
+        if k in weighted_queues:
+            count_w = weighted_queues[k]
+            count_fp = fixed_pct_queues[k]
+            print '{0:>5}: {1:>5}  {2:7.2%}  {3:7.3%}'.format(k, str(count).rjust(q_width),
+                                                              float(count_w) / float(total_w),
+                                                              float(count_fp) / float(total_fp))
+        else:
+            print '{0:>5}: {1:>5}'.format(k[0:4], str(count).rjust(q_width))
 
 def request_stats(chan, queue):
     correlation_id = str(uuid.uuid4())
