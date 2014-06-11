@@ -60,8 +60,16 @@ class Renderer:
         if self.idle:
             return 'idle'
         base = 'rendering: %s' % self.working_on
-        if time.time() - self.last_activity > RENDERER_STALE_TIME:
-            stale = ' (STALE %ds)' % (time.time() - self.last_activity)
+        time_since_last_contact = time.time() - self.last_activity
+        if time_since_last_contact > RENDERER_STALE_TIME:
+            if time_since_last_contact > (60 * 60 * 24):
+                stale = ' (STALE %d days)' % (time_since_last_contact / (60 * 60 * 24))
+            elif time_since_last_contact > (60 * 60):
+                stale = ' (STALE %d hours)' % (time_since_last_contact / (60 * 60))
+            elif time_since_last_contact > 60:
+                stale = ' (STALE %d minutes)' % (time_since_last_contact / 60)
+            else:
+                stale = ' (STALE %d seconds)' % time_since_last_contact
         else:
             stale = ''
         return base + stale
@@ -197,8 +205,8 @@ class Queue:
     def dequeue_by_zoom(self):
         # Considers only the total number of tiles at each zoom level, not the
         # number of tiles present.  (Exception: empty queues are not considered
-        # at all.)  Good for clearing out high-zoom queues that the by_pct
-        # strategy will neglect.
+        # at all.)  Good for clearing out nearly-empty high-zoom queues that the
+        # by_pct strategy will neglect.
         queues = [ 2**z if len(self.zoom_queues[z]) > 0 else 0 for z in range(0, self.maxz + 1) ]
         queue_pcts = [ float(t) / sum(queues) for t in queues ]
         chosen_pct = random.random()
