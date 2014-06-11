@@ -1,3 +1,6 @@
 
 * Tile proxy.
 
+* dequeue by age
+
+* Consider time to render in by_work dequeue strategy.
