@@ -102,31 +102,29 @@ class Queue:
     def __init__(self, maxz):
         self.maxz = maxz
         self.lock = threading.Lock()
-        self.queued_metatiles = {}
+        self.queued_metatiles = set()
         self.zoom_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
         self.missing_queue = collections.deque()
-        self.missing_seen = set()
         self.important_stack = collections.deque()
-        self.important_seen = set()
 
-    def queue_metatile(self, mt, queue, seen, source):
+    def queue_metatile(self, z, x, y, queue, source):
+        mt = '%s/%s/%s' % (z, x, y)
         added = False
-        with self.lock:
-            if seen == None:
-                # This is a regular, by-zoom queue.
-                if not mt in self.queued_metatiles:
+        if queue is self.zoom_queues[z]:
+            # Ordinary, by-zoom queue.
+            with self.lock:
+                if mt not in self.queued_metatiles:
                     queue.append(mt)
-                    self.queued_metatiles[mt] = 1
+                    self.queued_metatiles.add(mt)
                     added = True
-            else:
-                # This is one of the specialty queues.
-                if not mt in seen:
+        else:
+            # Specialty queue.
+            with self.lock:
+                if mt not in queue:
                     queue.append(mt)
-                    seen.add(mt)
-                    if mt in self.queued_metatiles:
-                        self.queued_metatiles[mt] += 1
-                    else:
-                        self.queued_metatiles[mt] = 1
+                    self.queued_metatiles.add(mt)
+                    if mt in self.zoom_queues[z]:
+                        self.zoom_queues[z].remove(mt)
                     added = True
         if added:
             if source:
@@ -135,13 +133,13 @@ class Queue:
                 log_message('queue: %s' % mt)
 
     def queue_tile(self, z, x, y, queue='zoom', source=None):
-        mt = '%d/%d/%d' % (z, x / NTILES[z], y / NTILES[z])
+        mz, mx, my = z, x / NTILES[z], y / NTILES[z]
         if queue == 'missing':
-            self.queue_metatile(mt, self.missing_queue, self.missing_seen, source)
+            self.queue_metatile(mz, mx, my, self.missing_queue, source)
         elif queue == 'important':
-            self.queue_metatile(mt, self.important_stack, self.important_seen, source)
+            self.queue_metatile(mz, mx, my, self.important_stack, source)
         elif queue == 'zoom':
-            self.queue_metatile(mt, self.zoom_queues[z], None, source)
+            self.queue_metatile(mz, mx, my, self.zoom_queues[z], source)
 
     def dequeue(self, strategy):
         try:
@@ -166,10 +164,7 @@ class Queue:
                     log_message('unknown dequeue strategy: %s' % strategy)
                     return None
         with self.lock:
-            if self.queued_metatiles[mt] > 1:
-                self.queued_metatiles[mt] -= 1
-            else:
-                del self.queued_metatiles[mt]
+            self.queued_metatiles.remove(mt)
         return mt
 
     def get_stats(self):
