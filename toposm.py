@@ -202,7 +202,12 @@ def saveTiles(z, x, y, ntiles, mapname, image, suffix = 'png', imgtype = None):
             else:
                 view.save(tile_path)
             if 'user.toposm_dirty' in xattr.listxattr(tile_path):
-                xattr.removexattr(tile_path, 'user.toposm_dirty')
+                try:
+                    xattr.removexattr(tile_path, 'user.toposm_dirty')
+                except IOError:
+                    # Ignore the failure.  It means the attribute disappeared on
+                    # its own.
+                    pass
 
 
 def getComposite(images):

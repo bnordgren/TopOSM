@@ -311,7 +311,10 @@ class TileExpirer(threading.Thread):
     def get_expire_status(self):
         with self.lock:
             if self.current_expire:
-                return (self.current_expire_zoom, self.current_expire.countExpiredAt(self.current_expire_zoom))
+                try:
+                    return (self.current_expire_zoom, self.current_expire.countExpiredAt(self.current_expire_zoom))
+                except:
+                    return None
             else:
                 return None
 
