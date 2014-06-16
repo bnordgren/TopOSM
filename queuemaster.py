@@ -21,9 +21,6 @@ import tileexpire
 # Which of the various TopOSM-generated tilesets should be the one to carry
 # the "needs rendering" markers.
 REFERENCE_TILESET = 'composite_h'
-# How many seconds to wait after starting the queue filling thread to begin
-# processing messages.
-QUEUE_FILL_DELAY = 15
 # How often the tile expiry thread should wake up and see if it should process
 # the dequeued expirations.
 EXPIRE_SLEEP_INTERVAL = 10
@@ -163,6 +160,8 @@ class Queue:
                 else:
                     log_message('unknown dequeue strategy: %s' % strategy)
                     return None
+        if not mt:
+            return None
         with self.lock:
             self.queued_metatiles.remove(mt)
         return mt
@@ -203,6 +202,8 @@ class Queue:
         # at all.)  Good for clearing out nearly-empty high-zoom queues that the
         # by_pct strategy will neglect.
         queues = [ 2**z if len(self.zoom_queues[z]) > 0 else 0 for z in range(0, self.maxz + 1) ]
+        if sum(queues) == 0:
+            return None
         queue_pcts = [ float(t) / sum(queues) for t in queues ]
         chosen_pct = random.random()
         pct_sum = 0
@@ -225,6 +226,8 @@ class QueueFiller(threading.Thread):
         self.keep_running = True
         self.current_zoom = None
         self.lock = threading.Lock()
+        self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
+        self.chan = self.conn.channel()
         
     def run(self):
         log_message('Initializing queue.')
@@ -244,9 +247,17 @@ class QueueFiller(threading.Thread):
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
                     self.queue.queue_tile(z, x, y, 'zoom', 'init')
+                if len(dirty_tiles) > 0:
+                    self.notify_queuemaster()
         with self.lock:
             self.current_zoom = -1
         log_message('Queue initialized.')
+
+    def notify_queuemaster(self):
+        self.chan.basic_publish(
+            exchange='osm',
+            routing_key='toposm.queuemaster',
+            body=json.dumps({'command': 'queued'}))
 
     def get_status(self):
         with self.lock:
@@ -350,6 +361,7 @@ class Queuemaster:
             durable=True, auto_delete=False)
 
     def on_exchange_declare(self, frame):
+        self.channel.queue_declare(self.on_command_declare, exclusive=True)
         self.channel.queue_declare(self.on_expire_declare, queue='expire_toposm',
                                    durable=True, auto_delete=False)
             
@@ -363,8 +375,6 @@ class Queuemaster:
                                    exclusive=True, no_ack=True)
         self.initializer = QueueFiller(self.maxz, self.queue)
         self.initializer.start()
-        time.sleep(QUEUE_FILL_DELAY)
-        self.channel.queue_declare(self.on_command_declare, exclusive=True)
     
     def on_command_declare(self, frame):
         self.command_queue = frame.method.queue
@@ -411,6 +421,8 @@ class Queuemaster:
                     body=self.get_stats())
             elif command == 'render':
                 self.handle_render_request(message['tile'], props)
+                self.send_render_requests()
+            elif command == 'queued':
                 self.send_render_requests()
             elif command == 'quit':
                 self.quit()
