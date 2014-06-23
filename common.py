@@ -2,7 +2,7 @@
 
 """common.py: Common utility functions for TopOSM"""
 
-import os, time, sys
+import os, time, sys, lockfile
 from os import path
 from threading import Lock
 
@@ -43,31 +43,22 @@ errorLog = ErrorLog()
 
 
 # global locking object for file system ops (e.g. creating directories)
-fslock = Lock()
+fslock = lockfile.FileLock('/tmp/lock.TopOSM.fslock')
 
 def ensureDirExists(path):
-    fslock.acquire()
-    try:
+    with fslock:
         if not os.path.isdir(path):
             os.makedirs(path)
-    finally:
-        fslock.release()
 
 def tryRemove(filename):
-    fslock.acquire()
-    try:
+    with fslock:
         if path.isfile(filename):
             os.remove(filename)
-    finally:
-        fslock.release()
 
 def writeEmpty(filename):
     "Overwrites the specified filename with a new empty file."
-    fslock.acquire()
-    try:
+    with fslock:
         open(filename, 'w').close();
-    finally:
-        fslock.release()
 
 def runSql(sql):
     command = "psql -d %s -q -c \"%s\"" % (DATABASE, sql)
