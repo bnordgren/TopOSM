@@ -128,8 +128,10 @@ class ContinuousRenderThread:
 
     def renderLoop(self):
         self.register()
-        self.chan.start_consuming()
-        self.unregister()
+        try:
+            self.chan.start_consuming()
+        finally:
+            self.unregister()
 
 
 def isOldTile(z, x, y):
