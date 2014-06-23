@@ -56,9 +56,10 @@ def print_stats(s):
         if k in weighted_queues:
             count_w = weighted_queues[k]
             count_fp = fixed_pct_queues[k]
-            print '{0:>5}: {1:>5}  {2:7.2%}  {3:7.3%}'.format(k, str(count).rjust(q_width),
-                                                              float(count_w) / float(total_w),
-                                                              float(count_fp) / float(total_fp))
+            print '{0:>5}: {1:>5}  {2:7.2%}  {3:7.3%}'.format(
+                k, str(count).rjust(q_width),
+                float(count_w) / float(total_w) if total_w > 0 else 0,
+                float(count_fp) / float(total_fp) if total_fp > 0 else 0)
         else:
             print '{0:>5}: {1:>5}'.format(k[0:4], str(count).rjust(q_width))
 
