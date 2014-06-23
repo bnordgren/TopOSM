@@ -1,6 +1,15 @@
 
-* Tile proxy.
-
 * dequeue by age
 
 * Consider time to render in by_work dequeue strategy.
+
+* Tile proxy enhancements
+   - Persistent process to avoid start-up times.
+   - Record request statistics: up-to-date, fresh, and old tiles served
+   - Record last-served date for tiles so as to expire unaccessed tiles.
+
+* commands to force expiration of tiles in queuemaster
+
+* Redo render notifications to hit tile proxy directly
+   - Have renders publish to "toposm.rendered.z.x.y". tp listens to exact
+      topic, queuemaster listens to "toposm.rendered.*".
