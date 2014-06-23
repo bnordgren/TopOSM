@@ -141,15 +141,11 @@ class Queue:
     def dequeue(self, strategy):
         try:
             mt = self.missing_queue.popleft()
-            with self.lock:
-                self.missing_seen.remove(mt)
         except IndexError:
             if strategy == 'missing':
                 return None
             try:
                 mt = self.important_stack.pop()
-                with self.lock:
-                    self.important_seen.remove(mt)
             except IndexError:
                 if strategy == 'important':
                     return None
