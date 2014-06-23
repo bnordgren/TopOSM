@@ -467,7 +467,7 @@ class Queuemaster:
         z, x, y = [ int(i) for i in tile.split('/') ]
         mt = '%s/%s/%s' % (z, x / NTILES[z], y / NTILES[z])
         if mt in self.requests:
-            self.requests[mt].add(props)
+            self.requests[mt].append(props)
         else:
             self.requests[mt] = [props]
         if tileExists(REFERENCE_TILESET, z, x, y):
