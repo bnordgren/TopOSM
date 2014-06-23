@@ -23,11 +23,13 @@ import pika
 from toposm import *
 
 CONTENT_TYPES = {'jpg': 'image/jpeg', 'png': 'image/png'}
-REFERENCE_TILESET = 'composite_h'
 LOW_BANDWIDTH_TILESET = ('jpeg90_h', 'jpg')
 HIGH_BANDWIDTH_TILESET = ('composite_h', 'png')
 
 LOCAL_BASE = 'elros.aperiodic.net/phil/tiles'
+
+# Don't rerender tiles if their zoom level is lower than this.
+RERENDER_MIN_ZOOM = 13
 
 # Failsafe: don't wait more than an hour for a tile to render.
 MISSING_TIMEOUT = 3600
@@ -141,7 +143,7 @@ try:
 
     if not tileExists(TILESET[0], z, x, y, TILESET[1]):
         render_missing(z, x, y)
-    elif tileIsOld(TILESET[0], z, x, y, TILESET[1]):
+    elif z >= RERENDER_MIN_ZOOM and tileIsOld(z, x, y):
         rerender(z, x, y)
 
     upload(z, x, y)

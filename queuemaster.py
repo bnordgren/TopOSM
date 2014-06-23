@@ -18,9 +18,6 @@ from toposm import *
 import tileexpire
 
 
-# Which of the various TopOSM-generated tilesets should be the one to carry
-# the "needs rendering" markers.
-REFERENCE_TILESET = 'composite_h'
 # How often the tile expiry thread should wake up and see if it should process
 # the dequeued expirations.
 EXPIRE_SLEEP_INTERVAL = 10
@@ -163,7 +160,8 @@ class Queue:
         if not mt:
             return None
         with self.lock:
-            self.queued_metatiles.remove(mt)
+            if mt in self.queued_metatiles:
+                self.queued_metatiles.remove(mt)
         return mt
 
     def get_stats(self):

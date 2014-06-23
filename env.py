@@ -57,6 +57,10 @@ NTILES = {
     11:2, 12:4, 13:6, 14:8, 15:10, 16:12, 17:12, 18:12,
     19:12, 20:12 }
 
+# Which of the various TopOSM-generated tilesets should be the one to carry
+# the "needs rendering" markers.
+REFERENCE_TILESET = 'composite_h'
+
 LATLONG_PROJECTION_DEF = "+proj=latlong"
 MERCATOR_PROJECTION_DEF = "+proj=merc +a=6378137 +b=6378137 " + \
     "+lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m " + \

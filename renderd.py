@@ -14,9 +14,9 @@ from env import *
 from toposm import *
 from stats import *
 
+
 REFERENCE_FILE = '/srv/tiles/tirex/planet-import-complete'
 REFERENCE_MTIME = path.getmtime(REFERENCE_FILE)
-REFERENCE_TILESET = 'composite_h'
 
 
 class ContinuousRenderThread:
