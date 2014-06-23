@@ -104,9 +104,13 @@ class Queue:
         self.zoom_queues = [ collections.deque() for z in range(0, self.maxz + 1) ]
         self.missing_queue = collections.deque()
         self.important_stack = collections.deque()
+        self.pending_metatiles = set()
 
     def queue_metatile(self, z, x, y, queue, source):
         mt = '%s/%s/%s' % (z, x, y)
+        if mt in self.pending_metatiles:
+            log_message('skipping pending metatile: %s/%s/%s' % (z, x, y))
+            return
         added = False
         if queue is self.zoom_queues[z]:
             # Ordinary, by-zoom queue.
@@ -162,7 +166,14 @@ class Queue:
         with self.lock:
             if mt in self.queued_metatiles:
                 self.queued_metatiles.remove(mt)
+            self.pending_metatiles.add(mt)
         return mt
+
+    def mark_metatile_rendered(self, z, x, y):
+        mt = '%s/%s/%s' % (z, x, y)
+        with self.lock:
+            if mt in self.pending_metatiles:
+                self.pending_metatiles.remove(mt)
 
     def get_stats(self):
         stats = {z: len(self.zoom_queues[z]) for z in xrange(0, self.maxz + 1)}
@@ -408,6 +419,8 @@ class Queuemaster:
                 self.send_render_replies(message['metatile'])
                 if props.reply_to in self.renderers:
                     self.renderers[props.reply_to].finished(message['metatile'])
+                z, x, y = [ int(s) for s in message['metatile'].split('/') ]
+                self.queue.mark_metatile_rendered(z, x, y)
                 self.send_render_requests()
             elif command == 'stats':
                 chan.basic_publish(
