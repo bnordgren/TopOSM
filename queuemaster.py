@@ -351,7 +351,6 @@ class Queuemaster:
         self.expirer = TileExpirer(self.maxz, self.queue)
         self.expirer.start()
         self.renderers = {}
-        self.requests = {}
 
     ### Startup sequence.
     
@@ -366,7 +365,7 @@ class Queuemaster:
     def on_channel_open(self, chan):
         self.channel = chan
         chan.exchange_declare(
-            self.on_exchange_declare, exchange="osm", type="direct",
+            self.on_exchange_declare, exchange="osm", type="topic",
             durable=True, auto_delete=False)
 
     def on_exchange_declare(self, frame):
@@ -387,6 +386,9 @@ class Queuemaster:
     
     def on_command_declare(self, frame):
         self.command_queue = frame.method.queue
+        self.channel.queue_bind(
+            None, queue=self.command_queue,
+            exchange='osm', routing_key='toposm.rendered.#')
         self.channel.queue_bind(
             self.on_command_bind, queue=self.command_queue,
             exchange='osm', routing_key='toposm.queuemaster')
@@ -416,7 +418,6 @@ class Queuemaster:
                 if props.reply_to in self.renderers:
                     self.remove_renderer(props.reply_to)
             elif command == 'rendered':
-                self.send_render_replies(message['metatile'])
                 if props.reply_to in self.renderers:
                     self.renderers[props.reply_to].finished(message['metatile'])
                 z, x, y = [ int(s) for s in message['metatile'].split('/') ]
@@ -462,25 +463,9 @@ class Queuemaster:
         for renderer in self.renderers.values():
             renderer.send_request()
 
-    def send_render_replies(self, mt):
-        if mt in self.requests:
-            for props in self.requests[mt]:
-                self.channel.basic_publish(
-                    exchange='',
-                    routing_key=props.reply_to,
-                    properties=pika.BasicProperties(
-                        correlation_id=props.correlation_id,
-                        content_type='application/json'),
-                    body=json.dumps({'command': 'rendered'}))
-            del self.requests[mt]
-                
     def handle_render_request(self, tile, props):
         z, x, y = [ int(i) for i in tile.split('/') ]
         mt = '%s/%s/%s' % (z, x / NTILES[z], y / NTILES[z])
-        if mt in self.requests:
-            self.requests[mt].append(props)
-        else:
-            self.requests[mt] = [props]
         if tileExists(REFERENCE_TILESET, z, x, y):
             importance = 'important'
         else:

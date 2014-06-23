@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     conn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
     chan = conn.channel()
-    chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
+    chan.exchange_declare(exchange="osm", type="topic", durable=True, auto_delete=False)
 
     expired = read_tiles(args)
     for z in xrange(args.min_zoom, args.max_zoom+1):

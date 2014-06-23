@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 conn = amqp.Connection(host=DB_HOST, userid="guest", password="guest")
 chan = conn.channel()
-chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
+chan.exchange_declare(exchange="osm", type="topic", durable=True, auto_delete=False)
 chan.queue_declare(queue=args.queue, durable=True, exclusive=False, auto_delete=False)
 chan.queue_bind(queue="expire_toposm", exchange="osm", routing_key="expire")
 

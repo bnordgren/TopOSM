@@ -10,6 +10,4 @@
 
 * commands to force expiration of tiles in queuemaster
 
-* Redo render notifications to hit tile proxy directly
-   - Have renders publish to "toposm.rendered.z.x.y". tp listens to exact
-      topic, queuemaster listens to "toposm.rendered.*".
+* Make renderd max-zoom agnostic

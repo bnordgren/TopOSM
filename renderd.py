@@ -77,7 +77,7 @@ class ContinuousRenderThread:
         self.printMessage('Notifying queuemaster of completion.')
         self.chan.basic_publish(
             exchange='osm',
-            routing_key='toposm.queuemaster',
+            routing_key='toposm.rendered.{0}.{1}.{2}'.format(z, metax, metay),
             properties=pika.BasicProperties(reply_to=self.commandQueue,
                                             content_type='application/json'),
             body=json.dumps({'command': 'rendered',
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     
     conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
     chan = conn.channel()
-    chan.exchange_declare(exchange="osm", type="direct", durable=True, auto_delete=False)
+    chan.exchange_declare(exchange="osm", type="topic", durable=True, auto_delete=False)
     conn.close()
 
     console.printMessage('Starting renderer.')

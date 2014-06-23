@@ -6,7 +6,6 @@ import time
 import httplib
 import json
 import urllib2
-import uuid
 import socket
 import datetime
 import StringIO
@@ -69,18 +68,16 @@ def render_tile(z, x, y, timeout):
     conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
     chan = conn.channel()
     queue = chan.queue_declare(exclusive=True).method.queue
-    correlation_id = str(uuid.uuid4())
+    chan.queue_bind(queue=queue, exchange='osm', routing_key='toposm.rendered.{0}.{1}.{2}'.format(z, x / NTILES[z], y / NTILES[z]))
     chan.basic_publish(
         exchange='osm',
         routing_key='toposm.queuemaster',
-        properties=pika.BasicProperties(reply_to=queue,
-                                        correlation_id=correlation_id),
         body=json.dumps({'command': 'render',
                          'tile': '{0}/{1}/{2}'.format(z, x, y)}))
     start_time = time.time()
     while time.time() - start_time < timeout:
         (method, props, body) = chan.basic_get(queue=queue, no_ack=True)
-        if method and props.correlation_id == correlation_id:
+        if method:
             return
 
 def render_missing(z, x, y):
@@ -139,7 +136,7 @@ def redirect(z, x, y):
 try:
     z, x, y = [ int(s) for s in os.environ['PATH_INFO'].split('/')[-3:] ]
 
-    sys.stderr.write("{0}/{1}/{2}: {3}\n".format(z, x, y, os.environ['HTTP_USER_AGENT']))
+    sys.stderr.write("request: {0}/{1}/{2}\n".format(z, x, y))
 
     if not tileExists(TILESET[0], z, x, y, TILESET[1]):
         render_missing(z, x, y)
