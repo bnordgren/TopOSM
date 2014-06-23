@@ -27,6 +27,10 @@ EXPIRE_SLEEP_INTERVAL = 10
 # How long we can go without hearing from a renderer before we consider it
 # stale.
 RENDERER_STALE_TIME = 3600
+# For the initial queue loading, wait until after this zoom level is complete
+# before starting to render things.  (This prevents the renderers always being
+# asked to render stuff at zoom 2 to start with.)
+INITIAL_QUEUE_NOTIFY_ZOOM = 7
 
 def log_message(message):
     console.printMessage(time.strftime('[%Y-%m-%d %H:%M:%S]') + ' ' + message)
@@ -238,12 +242,12 @@ class QueueFiller(threading.Thread):
                         cs = root.split('/')
                         dirty_tiles.append(
                             (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
-                        if not self.keep_running:
-                            return
+                    if not self.keep_running:
+                        return
                 dirty_tiles.sort()
                 for t, z, x, y in dirty_tiles:
                     self.queue.queue_tile(z, x, y, 'zoom', 'init')
-                if len(dirty_tiles) > 0:
+                if len(dirty_tiles) > 0 and z >= INITIAL_QUEUE_NOTIFY_ZOOM:
                     self.notify_queuemaster()
         with self.lock:
             self.current_zoom = -1
