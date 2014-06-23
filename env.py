@@ -32,6 +32,9 @@ TOPOSM_DEBUG = os.environ['TOPOSM_DEBUG']
 EXTRA_FONTS_DIR = os.environ['EXTRA_FONTS_DIR']
 CACHE_LAYERS = frozenset(os.environ['CACHE_LAYERS'].split(','))
 DB_HOST = os.environ['DB_HOST']
+AWS_ACCESS = os.environ['AWS_ACCESS']
+AWS_SECRET = os.environ['AWS_SECRET']
+AWS_BUCKET = os.environ['AWS_BUCKET']
 
 ##### Common constants
 

@@ -88,6 +88,9 @@ def getTilePath(mapname, z, x, y, suffix = "png"):
 def tileExists(mapname, z, x, y, suffix = "png"):
     return path.isfile(getTilePath(mapname, z, x, y, suffix))
 
+def tileIsOld(mapname, z, x, y, suffix='png'):
+    return 'user.toposm_dirty' in xattr.listxattr(getTilePath(mapname, z, x, y, suffix))
+
 def getTileSize(ntiles, includeBorder = True):
     if includeBorder:
         return TILE_SIZE * ntiles + 2 * BORDER_WIDTH
