@@ -175,6 +175,13 @@ class Queue:
             if mt in self.pending_metatiles:
                 self.pending_metatiles.remove(mt)
 
+    def mark_metatile_abandoned(self, z, x, y):
+        mt = '%s/%s/%s' % (z, x, y)
+        with self.lock:
+            if mt in self.pending_metatiles:
+                self.pending_metatiles.remove(mt)
+        self.queue_metatile(z, x, y, self.important_stack, 'abandoned')
+
     def get_stats(self):
         stats = {z: len(self.zoom_queues[z]) for z in xrange(0, self.maxz + 1)}
         stats.update({'important': len(self.important_stack),
@@ -457,6 +464,9 @@ class Queuemaster:
         self.renderers[queue] =  Renderer(message, self.queue, queue, self.channel)
 
     def remove_renderer(self, queue):
+        if self.renderers[queue].working_on:
+            z, x, y = [ int(s) for s in self.renderers[queue].working_on.split('/') ]
+            self.queue.mark_metatile_abandoned(z, x, y)
         del self.renderers[queue]
 
     def send_render_requests(self):
