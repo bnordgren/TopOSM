@@ -9,5 +9,3 @@
    - Record last-served date for tiles so as to expire unaccessed tiles.
 
 * commands to force expiration of tiles in queuemaster
-
-* Make renderd max-zoom agnostic

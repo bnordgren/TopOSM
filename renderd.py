@@ -20,14 +20,13 @@ REFERENCE_MTIME = path.getmtime(REFERENCE_FILE)
 
 
 class ContinuousRenderThread:
-    def __init__(self, maxz, dequeue_strategy, amqp_channel, threadNumber):
+    def __init__(self, dequeue_strategy, amqp_channel, threadNumber):
         console.printMessage("Creating thread %d" % (threadNumber))
-        self.maxz = maxz
         self.dequeue_strategy = dequeue_strategy
         self.chan = amqp_channel
         self.threadNumber = threadNumber
-        self.tilesizes = [ getTileSize(NTILES[z], True) for z in range(0, self.maxz + 1) ]
-        self.maps = [ None for z in range(0, self.maxz + 1) ]
+        self.tilesizes = []
+        self.maps = []
 
         self.commandQueue = self.chan.queue_declare(exclusive=True).method.queue
         self.chan.queue_bind(queue=self.commandQueue, exchange='osm', routing_key='command')
@@ -41,6 +40,9 @@ class ContinuousRenderThread:
         self.printMessage("Created thread")
 
     def loadMaps(self, zoom):
+        if len(self.maps) <= zoom:
+            self.tilesizes.extend([ getTileSize(NTILES[z], True) for z in xrange(len(self.tilesizes), zoom + 1) ])
+            self.maps.extend([None] * (zoom - len(self.maps) + 1))
         self.maps[zoom] = {}
         for mapname in MAPNIK_LAYERS:
             console.debugMessage('Loading mapnik.Map: {0}/{1}'.format(zoom, mapname))
@@ -69,7 +71,7 @@ class ContinuousRenderThread:
         layerTimes = None
         if metaTileNeedsRendering(z, metax, metay):
             message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
-            if not self.maps[z]:
+            if len(self.maps) <= z or not self.maps[z]:
                 self.loadMaps(z)
             layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
         if layerTimes:
@@ -91,7 +93,7 @@ class ContinuousRenderThread:
             if command == 'quit' or command == 'exit':
                 chan.stop_consuming()
             elif command == 'newmaps':
-                self.maps = [ None for z in range(0, self.maxz + 1) ]
+                self.maps = []
             elif command == 'reload':
                 reload(globals()[parts[1]])
             elif command == 'queuemaster online':
@@ -153,10 +155,9 @@ def metaTileNeedsRendering(z, x, y):
 
 if __name__ == "__main__":
     console.printMessage('Initializing.')
-    maxz = int(sys.argv[1])
 
-    if len(sys.argv) >= 3:
-        dequeue_strategy = sys.argv[2]
+    if len(sys.argv) >= 2:
+        dequeue_strategy = sys.argv[1]
     else:
         dequeue_strategy = 'by_work_available'
     
@@ -168,5 +169,5 @@ if __name__ == "__main__":
     console.printMessage('Starting renderer.')
     rconn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
     rchan = rconn.channel()
-    renderer = ContinuousRenderThread(maxz, dequeue_strategy, rchan, 0)
+    renderer = ContinuousRenderThread(dequeue_strategy, rchan, 0)
     renderer.renderLoop()
