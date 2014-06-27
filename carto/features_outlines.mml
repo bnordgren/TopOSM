@@ -217,6 +217,17 @@
             }
         },
         {
+            "id": "coastlines",
+            "name": "coastlines",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way FROM planet_osm_line WHERE \"natural\" = 'coastline') AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
             "id": "waterlinefills",
             "name": "waterlinefills",
             "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",

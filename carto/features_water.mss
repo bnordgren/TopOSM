@@ -163,6 +163,18 @@
     }
 }
 
+#coastlines[zoom >= 6] {
+    line-color: @waterlinecolor;
+    line-join: round;
+    line-cap: round;
+    [zoom >= 6][zoom < 10] {
+        line-width: 0.5;
+    }
+    [zoom >= 10] {
+        line-width: 0.8
+    }
+}
+
 #waterlinefills {
     [zoom >= 14][waterway = 'river'],
     [zoom >= 14][waterway = 'canal'][disused != 'yes'] {
