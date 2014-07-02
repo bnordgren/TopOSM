@@ -293,6 +293,8 @@ class TileExpirer(threading.Thread):
         self.lock = threading.Lock()
         self.current_expire = None
         self.current_expire_zoom = None
+        self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
+        self.chan = self.conn.channel()
 
     def run(self):
         while self.keep_running or len(self.input_queue) > 0:
@@ -306,6 +308,7 @@ class TileExpirer(threading.Thread):
             except IndexError:
                 log_message('expiry input queue empty; expiring')
                 self.process_expire(expire)
+                self.notify_queuemaster()
                 log_message('expiration pass finished')
             time.sleep(EXPIRE_SLEEP_INTERVAL)
 
@@ -344,6 +347,12 @@ class TileExpirer(threading.Thread):
                     return None
             else:
                 return None
+
+    def notify_queuemaster(self):
+        self.chan.basic_publish(
+            exchange='osm',
+            routing_key='toposm.queuemaster',
+            body=json.dumps({'command': 'queued'}))
 
     def quit(self):
         self.keep_running = False
