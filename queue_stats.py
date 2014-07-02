@@ -29,7 +29,7 @@ def print_stats(s):
     if 'init' in s:
         print 'currently initializing at zoom %s' % s['init']
     print ''
-    for renderer, status in s['render'].items():
+    for renderer, status in sorted(s['render'].items()):
         print '%s: %s' % (renderer, status)
     print ''
     weighted_queues = {}
