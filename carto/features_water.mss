@@ -163,7 +163,7 @@
     }
 }
 
-#coastlines[zoom >= 6] {
+.coastlines[zoom >= 6] {
     line-color: @waterlinecolor;
     line-join: round;
     line-cap: round;
