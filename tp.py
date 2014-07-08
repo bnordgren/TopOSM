@@ -108,7 +108,7 @@ def upload(z, x, y):
     r = s3_connection.getresponse()
     if r.status / 100 == 2:
         # Tile exists remotely.  See if it needs refreshing.
-        mtime = os.stat(getTilePath(TILESET[0], z, x, y, TILESET[1])).st_mtime
+        mtime = time.mktime(time.gmtime(os.stat(getTilePath(TILESET[0], z, x, y, TILESET[1])).st_mtime))
         s3_time = time.mktime(time.strptime(r.getheader('last-modified'), '%a, %d %b %Y %H:%M:%S %Z'))
         if mtime <= s3_time:
             return
