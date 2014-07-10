@@ -60,6 +60,58 @@ JPEG_COMPOSITE_QUALITY = 90
 USE_CAIRO = False
 
 
+class Tile:
+    def __init__(self, z, x, y, is_metatile=False):
+        self.z = z
+        self.x = x
+        self.y = y
+        self.is_metatile = is_metatile
+
+    @classmethod
+    def fromstring(cls, str, is_metatile=False):
+        z, x, y = [ int(s) for s in str.split('/') ]
+        return cls(z, x, y, is_metatile)
+
+    @classmethod
+    def fromjson(cls, str, is_metatile=False):
+        return cls.fromstring(str, is_metatile)
+
+    def tojson(self):
+        return '{0}/{1}/{2}'.format(self.z, self.x, self.y)
+
+    def __repr__(self):
+        return 'Tile({0}, {1}, {2}, {3})'.format(self.z, self.x, self.y, self.is_metatile)
+
+    def __str__(self):
+        if self.is_metatile:
+            return 'mt:{0}/{1}/{2}'.format(self.z, self.x, self.y)
+        else:
+            return '{0}/{1}/{2}'.format(self.z, self.x, self.y)
+
+    def __cmp__(self, other):
+        if not isinstance(other, Tile):
+            return cmp(id(self), other)
+        else:
+            return cmp(self.is_metatile, other.is_metatile) or cmp(self.sort_key, other.sort_key)
+
+    def __hash__(self):
+        return hash(self.is_metatile) | hash(self.z) | hash(self.x) | hash(self.y)
+
+    @property
+    def metatile(self):
+        if self.is_metatile:
+            return self
+        else:
+            return Tile(self.z, self.x / NTILES[self.z], self.y / NTILES[self.z], True)
+
+    @property
+    def sort_key(self):
+        return (self.z, self.x, self.y)
+
+    def exists(self, tileset):
+        return tileExists(tileset, self.z, self.x, self.y)
+
+
 def getCachedMetaTileDir(mapname, z, x):
     return path.join(TEMPDIR, mapname, str(z), str(x))
 
