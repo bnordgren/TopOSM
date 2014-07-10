@@ -133,10 +133,36 @@ def redirect(z, x, y):
     print ''
     exit(0)
 
-try:
-    z, x, y = [ int(s) for s in os.environ['PATH_INFO'].split('/')[-3:] ]
+def print_tile_status(z, x, y):
+    if not tileExists(TILESET[0], z, x, y, TILESET[1]):
+        print 'Tile has never been rendered.'
+        return
+    if tileIsOld(z, x, y):
+        print 'Tile is dirty.'
+    else:
+        print 'Tile is clean.'
+    tstat = os.stat(getTilePath(TILESET[0], z, x, y, TILESET[1]))
+    print 'Metatile is {0}/{1}/{2}.'.format(z, x / NTILES[z], y / NTILES[z])
+    print 'Last rendered at {0} GMT.'.format(time.asctime(time.gmtime(tstat.st_mtime)))
+    print 'Last accessed at {0} GMT.'.format(time.asctime(time.gmtime(tstat.st_atime)))
 
-    sys.stderr.write("request: {0}/{1}/{2}\n".format(z, x, y))
+
+try:
+    components = os.environ['PATH_INFO'].split('/')[-4:]
+    if components[3] == 'status':
+        command = components[-1]
+        z, x, y = [ int(s) for s in components[:3] ]
+    else:
+        command = 'fetch'
+        z, x, y = [ int(s) for s in components[1:] ]
+
+    sys.stderr.write("request: {0} {1}/{2}/{3}\n".format(command, z, x, y))
+
+    if command == 'status':
+        print 'Content-type: text/plain'
+        print ''
+        print_tile_status(z, x, y)
+        exit(0)
 
     if not tileExists(TILESET[0], z, x, y, TILESET[1]):
         render_missing(z, x, y)
