@@ -61,6 +61,8 @@ USE_CAIRO = False
 
 
 class Tile:
+    """Represents a single tile (or metatile)."""
+
     def __init__(self, z, x, y, is_metatile=False):
         self.z = z
         self.x = x
@@ -69,6 +71,7 @@ class Tile:
 
     @classmethod
     def fromstring(cls, str, is_metatile=False):
+        """Creates a Tile instance from a string of the form z/x/y."""
         z, x, y = [ int(s) for s in str.split('/') ]
         return cls(z, x, y, is_metatile)
 
@@ -99,6 +102,7 @@ class Tile:
 
     @property
     def metatile(self):
+        """Returns the metatile for this tile."""
         if self.is_metatile:
             return self
         else:
@@ -108,8 +112,30 @@ class Tile:
     def sort_key(self):
         return (self.z, self.x, self.y)
 
-    def exists(self, tileset):
-        return tileExists(tileset, self.z, self.x, self.y)
+    @property
+    def keytile(self):
+        if self.is_metatile:
+            return Tile(self.z, self.x * NTILES[self.z], self.y * NTILES[self.z], False)
+        else:
+            return self
+
+    def path(self, tileset, suffix='png'):
+        if self.is_metatile:
+            return getMetaTilePath(tileset, self.z, self.x, self.y, suffix)
+        else:
+            return getTilePath(tileset, self.z, self.x, self.y, suffix)
+
+    def exists(self, tileset, suffix='png'):
+        if self.is_metatile:
+            return self.keytile.exists(tileset, suffix)
+        else:
+            return tileExists(tileset, self.z, self.x, self.y, suffix)
+
+    def is_old(self):
+        if self.is_metatile:
+            return self.keytile.is_old()
+        else:
+            return tileIsOld(self.z, self.x, self.y)
 
 
 def getCachedMetaTileDir(mapname, z, x):
