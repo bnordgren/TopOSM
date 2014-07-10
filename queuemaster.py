@@ -85,7 +85,7 @@ class Renderer:
                     properties=pika.BasicProperties(
                         content_type='application/json'),
                     body=json.dumps({'command': 'render',
-                                     'metatile': mt}))
+                                     'metatile': mt.tojson()}))
 
     def finished(self, metatile):
         # Check to see if it's what we think we're working on.  If not, assume
@@ -106,13 +106,13 @@ class Queue:
         self.important_stack = collections.deque()
         self.pending_metatiles = set()
 
-    def queue_metatile(self, z, x, y, queue, source):
-        mt = '%s/%s/%s' % (z, x, y)
+    def queue_metatile(self, mt, queue, source):
+        assert mt.is_metatile
         if mt in self.pending_metatiles:
-            log_message('skipping pending metatile: %s/%s/%s' % (z, x, y))
+            log_message('skipping pending metatile: {0}'.format(mt))
             return
         added = False
-        if queue is self.zoom_queues[z]:
+        if queue is self.zoom_queues[mt.z]:
             # Ordinary, by-zoom queue.
             with self.lock:
                 if mt not in self.queued_metatiles:
@@ -125,8 +125,8 @@ class Queue:
                 if mt not in queue:
                     queue.append(mt)
                     self.queued_metatiles.add(mt)
-                    if mt in self.zoom_queues[z]:
-                        self.zoom_queues[z].remove(mt)
+                    if mt in self.zoom_queues[mt.z]:
+                        self.zoom_queues[mt.z].remove(mt)
                     added = True
         if added:
             if source:
@@ -134,14 +134,14 @@ class Queue:
             else:
                 log_message('queue: %s' % mt)
 
-    def queue_tile(self, z, x, y, queue='zoom', source=None):
-        mz, mx, my = z, x / NTILES[z], y / NTILES[z]
+    def queue_tile(self, t, queue='zoom', source=None):
+        assert not t.is_metatile
         if queue == 'missing':
-            self.queue_metatile(mz, mx, my, self.missing_queue, source)
+            self.queue_metatile(t.metatile, self.missing_queue, source)
         elif queue == 'important':
-            self.queue_metatile(mz, mx, my, self.important_stack, source)
+            self.queue_metatile(t.metatile, self.important_stack, source)
         elif queue == 'zoom':
-            self.queue_metatile(mz, mx, my, self.zoom_queues[z], source)
+            self.queue_metatile(t.metatile, self.zoom_queues[t.z], source)
 
     def dequeue(self, strategy):
         try:
@@ -169,18 +169,18 @@ class Queue:
             self.pending_metatiles.add(mt)
         return mt
 
-    def mark_metatile_rendered(self, z, x, y):
-        mt = '%s/%s/%s' % (z, x, y)
+    def mark_metatile_rendered(self, mt):
+        assert mt.is_metatile
         with self.lock:
             if mt in self.pending_metatiles:
                 self.pending_metatiles.remove(mt)
 
-    def mark_metatile_abandoned(self, z, x, y):
-        mt = '%s/%s/%s' % (z, x, y)
+    def mark_metatile_abandoned(self, mt):
+        assert mt.is_metatile
         with self.lock:
             if mt in self.pending_metatiles:
                 self.pending_metatiles.remove(mt)
-        self.queue_metatile(z, x, y, self.important_stack, 'abandoned')
+        self.queue_metatile(mt, self.important_stack, 'abandoned')
 
     def get_stats(self):
         stats = {z: len(self.zoom_queues[z]) for z in xrange(0, self.maxz + 1)}
@@ -257,12 +257,12 @@ class QueueFiller(threading.Thread):
                     if 'user.toposm_dirty' in xattr.listxattr(full_path):
                         cs = root.split('/')
                         dirty_tiles.append(
-                            (os.stat(full_path).st_mtime, int(cs[-2]), int(cs[-1]), int(file.split('.')[0])))
+                            (os.stat(full_path).st_mtime, Tile(int(cs[-2]), int(cs[-1]), int(file.split('.')[0]))))
                     if not self.keep_running:
                         return
                 dirty_tiles.sort()
-                for t, z, x, y in dirty_tiles:
-                    self.queue.queue_tile(z, x, y, 'zoom', 'init')
+                for time, t in dirty_tiles:
+                    self.queue.queue_tile(t, 'zoom', 'init')
                 if len(dirty_tiles) > 0 and z >= INITIAL_QUEUE_NOTIFY_ZOOM:
                     self.notify_queuemaster()
         with self.lock:
@@ -298,19 +298,20 @@ class TileExpirer(threading.Thread):
 
     def run(self):
         while self.keep_running or len(self.input_queue) > 0:
-            try:
-                if len(self.input_queue) > 0:
-                    log_message('reading expiry input queue')
-                    expire = tileexpire.OSMTileExpire()
+            if len(self.input_queue) > 0:
+                log_message('reading expiry input queue')
+                expire = tileexpire.OSMTileExpire()
+                try:
                     while True:
-                        (z, x, y) = self.input_queue.popleft()
-                        expire.expire(z, x, y)
-            except IndexError:
-                log_message('expiry input queue empty; expiring')
-                self.process_expire(expire)
-                self.notify_queuemaster()
-                log_message('expiration pass finished')
-            time.sleep(EXPIRE_SLEEP_INTERVAL)
+                        t = self.input_queue.popleft()
+                        expire.expire(t.z, t.x, t.y)
+                except IndexError:
+                    log_message('expiry input queue empty; expiring')
+                    self.process_expire(expire)
+                    self.notify_queuemaster()
+                    log_message('expiration pass finished')
+            else:
+                time.sleep(EXPIRE_SLEEP_INTERVAL)
 
     def process_expire(self, expire):
         with self.lock:
@@ -319,21 +320,23 @@ class TileExpirer(threading.Thread):
             with self.lock:
                 self.current_expire_zoom = z
             for (x, y) in expire.expiredAt(z):
+                t = Tile(z, x, y)
                 tile_path = getTilePath(REFERENCE_TILESET, z, x, y)
                 if path.isfile(tile_path):
                     if 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                    tile_path = getTilePath(REFERENCE_TILESET, z, x/NTILES[z]*NTILES[z], y/NTILES[z]*NTILES[z])
+                    mt = t.metatile
+                    tile_path = getTilePath(REFERENCE_TILESET, mt.z, mt.x * NTILES[z], mt.y * NTILES[z])
                     if path.isfile(tile_path) and 'user.toposm_dirty' not in xattr.listxattr(tile_path):
                         xattr.setxattr(tile_path, 'user.toposm_dirty', 'yes')
-                    self.queue.queue_tile(z, x, y, 'zoom', 'expire')
+                    self.queue.queue_tile(t, 'zoom', 'expire')
         with self.lock:
             self.current_expire = None
             self.current_expire_zoom = None
 
-    def add_expired(self, tile):
-        z, x, y = [ int(i) for i in tile.split('/') ]
-        self.input_queue.append((z, x, y))
+    def add_expired(self, t):
+        assert not t.is_metatile
+        self.input_queue.append(t)
 
     def get_input_length(self):
         return len(self.input_queue)
@@ -421,7 +424,7 @@ class Queuemaster:
     ### AMQP commands.
     
     def on_expire(self, chan, method, props, body):
-        self.expirer.add_expired(body)
+        self.expirer.add_expired(Tile.fromstring(body))
 
     def on_command(self, chan, method, props, body):
         try:
@@ -434,10 +437,10 @@ class Queuemaster:
                 if props.reply_to in self.renderers:
                     self.remove_renderer(props.reply_to)
             elif command == 'rendered':
+                mt = Tile.fromjson(message['metatile'], True)
                 if props.reply_to in self.renderers:
-                    self.renderers[props.reply_to].finished(message['metatile'])
-                z, x, y = [ int(s) for s in message['metatile'].split('/') ]
-                self.queue.mark_metatile_rendered(z, x, y)
+                    self.renderers[props.reply_to].finished(mt)
+                self.queue.mark_metatile_rendered(mt)
                 self.send_render_requests()
             elif command == 'stats':
                 chan.basic_publish(
@@ -448,7 +451,7 @@ class Queuemaster:
                         content_type='application/json'),
                     body=self.get_stats())
             elif command == 'render':
-                self.handle_render_request(message['tile'], props)
+                self.handle_render_request(Tile.fromjson(message['tile']), props)
                 self.send_render_requests()
             elif command == 'queued':
                 self.send_render_requests()
@@ -482,14 +485,12 @@ class Queuemaster:
         for renderer in self.renderers.values():
             renderer.send_request()
 
-    def handle_render_request(self, tile, props):
-        z, x, y = [ int(i) for i in tile.split('/') ]
-        mt = '%s/%s/%s' % (z, x / NTILES[z], y / NTILES[z])
-        if tileExists(REFERENCE_TILESET, z, x, y):
+    def handle_render_request(self, t, props):
+        if t.exists(REFERENCE_TILESET):
             importance = 'important'
         else:
             importance = 'missing'
-        self.queue.queue_tile(z, x, y, importance, 'request')
+        self.queue.queue_tile(t, importance, 'request')
 
     def quit(self):
         log_message('Exiting.')
