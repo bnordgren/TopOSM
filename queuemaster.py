@@ -477,8 +477,7 @@ class Queuemaster:
 
     def remove_renderer(self, queue):
         if self.renderers[queue].working_on:
-            z, x, y = [ int(s) for s in self.renderers[queue].working_on.split('/') ]
-            self.queue.mark_metatile_abandoned(z, x, y)
+            self.queue.mark_metatile_abandoned(self.renderers[queue].working_on)
         del self.renderers[queue]
 
     def send_render_requests(self):
