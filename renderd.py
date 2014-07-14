@@ -63,27 +63,26 @@ class ContinuousRenderThread:
             errorLog.log('Failed: ' + message, ex)
             raise
 
-    def renderMetaTileFromMsg(self, msg):
-        if not msg:
+    def renderMetaTileFromMsg(self, mt):
+        if not mt:
             return
         start_time = time.time()
-        z, metax, metay = [int(n) for n in msg.split('/')]
         layerTimes = None
-        if metaTileNeedsRendering(z, metax, metay):
-            message = 'Rendering {0}/{1}/{2}'.format(z, metax, metay)
-            if len(self.maps) <= z or not self.maps[z]:
-                self.loadMaps(z)
-            layerTimes = self.runAndLog(message, renderMetaTile, (z, metax, metay, NTILES[z], self.maps[z]))
+        if metaTileNeedsRendering(mt.z, mt.x, mt.y):
+            message = 'Rendering {0}'.format(mt)
+            if len(self.maps) <= mt.z or not self.maps[mt.z]:
+                self.loadMaps(mt.z)
+            layerTimes = self.runAndLog(message, renderMetaTile, (mt.z, mt.x, mt.y, NTILES[mt.z], self.maps[mt.z]))
         if layerTimes:
-            stats.recordRender(z, time.time() - start_time, layerTimes)
+            stats.recordRender(mt.z, time.time() - start_time, layerTimes)
         self.printMessage('Notifying queuemaster of completion.')
         self.chan.basic_publish(
             exchange='osm',
-            routing_key='toposm.rendered.{0}.{1}.{2}'.format(z, metax, metay),
+            routing_key='toposm.rendered.{0}.{1}.{2}'.format(mt.z, mt.x, mt.y),
             properties=pika.BasicProperties(reply_to=self.commandQueue,
                                             content_type='application/json'),
             body=json.dumps({'command': 'rendered',
-                             'metatile': msg}))
+                             'metatile': mt.tojson()}))
 
     def on_command(self, chan, method, props, body):
         self.printMessage('Received message: ' + body)
@@ -99,7 +98,7 @@ class ContinuousRenderThread:
             elif command == 'queuemaster online':
                 self.register()
             elif command == 'render':
-                self.renderMetaTileFromMsg(message['metatile'])
+                self.renderMetaTileFromMsg(Tile.fromjson(message['metatile']))
             else:
                 self.printMessage('Unknown command: ' + body)
         else:
