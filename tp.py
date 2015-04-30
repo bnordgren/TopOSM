@@ -180,8 +180,9 @@ try:
     upload(tile)
     redirect(tile)
 
-except ValueError:
+except ValueError, e:
     print 'Status: 404 Not Found'
     print 'Content-type: text/plain'
     print ''
     print 'That doesn\'t look like a tile URL to me.'
+    print 'Error:', e
