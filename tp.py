@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import ssl
 import sys
 import time
 import httplib
@@ -60,6 +61,10 @@ else:
     RERENDER_TIMEOUT = 2
     AWS_UPLOAD = True
 
+# Bugfix.  New versions of boto don't work well if the S3 bucket has dots in its
+# name.  This works around that bug.
+if hasattr(ssl, '_create_unverified_context'):
+   ssl._create_default_https_context = ssl._create_unverified_context
 
 def get_tile_url(ts, t):
     return '/{0}/{1}/{2}/{3}.{4}'.format(ts[0], t.z, t.x, t.y, ts[1])
