@@ -1,37 +1,24 @@
-#nature-borders {
-    [zoom >= 7][zoom < 10][way_area > 50000000] {
-        polygon-fill: @naturecolorlight;
-        polygon-opacity: 0.05;
+#protected-land {
+    polygon-fill: @naturecolorlight;
+    polygon-opacity: 0.05;
+    [zoom >= 7] {
         line-color: @naturecolorlight;
+        line-opacity: 0.7;
+    }
+    [zoom >= 7][zoom < 10] {
         line-width: 1;
+        line-offset: -0.5;
         line-dasharray: 5,2;
-        line-opacity: 0.7;
     }
-    [zoom >= 10][zoom < 12][way_area > 10000000] {
-        polygon-fill: @naturecolorlight;
-        polygon-opacity: 0.05;
-        line-color: @naturecolorlight;
+    [zoom >= 10][zoom < 12] {
         line-width: 1.8;
+        line-offset: -0.9;
         line-dasharray: 7,3;
-        line-opacity: 0.7;
     }
-
-    /*
-     * High zoom: Outline large areas, shade small areas.
-     * This is a workaround for the fact that some large areas,
-     * like some national parks, are just tagged as 'park'.
-     */
     [zoom >= 12] {
-        [way_area > 5000000] {
-            line-color: @naturecolorlight;
-            line-width: 3;
-            line-dasharray: 8,3;
-            line-opacity: 0.7;
-        }
-        [way_area <= 5000000] {
-            polygon-fill: @naturecolorlight;
-            polygon-opacity: 0.1;
-        }
+        line-width: 3;
+        line-offset: -1.5;
+        line-dasharray: 8,3;
     }
 }
 

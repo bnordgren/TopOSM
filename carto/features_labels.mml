@@ -51,7 +51,7 @@
             "Datasource": {
                 "type": "postgis",
                 "dbname": "osm",
-                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, way_area, 0 AS ele_w_unit FROM planet_osm_polygon WHERE name IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, way_area, way_area / (!pixel_width!*!pixel_height!) AS way_area_pixels, 0 AS ele_w_unit FROM planet_osm_polygon WHERE name IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         },
@@ -63,7 +63,7 @@
             "Datasource": {
                 "type": "postgis",
                 "dbname": "osm",
-                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, 0 AS way_area, (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit FROM planet_osm_point WHERE name IS NOT NULL OR ele IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, 0 AS way_area, 0 AS way_area_pixels, (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit FROM planet_osm_point WHERE name IS NOT NULL OR ele IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         },
@@ -124,6 +124,17 @@
             }
         },
         {
+            "id": "water-area-names",
+            "name": "water-area-names",
+            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "osm",
+                "table": "(SELECT way, waterway, landuse, \"natural\", name, way_area, way_area / (!pixel_width!*!pixel_height!) AS way_area_pixels FROM planet_osm_polygon WHERE (landuse IN ('reservoir', 'basin') OR \"natural\" IN ('water', 'wetland', 'glacier')) AND name IS NOT NULL ORDER BY way_area DESC) AS water_areas",
+                "extent": "-20037508,-19929239,20037508,19929239"
+            }
+        },
+        {
             "id": "water-line-names",
             "name": "water-line-names",
             "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
@@ -131,17 +142,6 @@
                 "type": "postgis",
                 "dbname": "osm",
                 "table": "(SELECT way, waterway, disused, name, ST_Length(way) length FROM planet_osm_line WHERE waterway IS NOT NULL AND name IS NOT NULL ORDER BY z_order, length DESC) AS water_lines",
-                "extent": "-20037508,-19929239,20037508,19929239"
-            }
-        },
-        {
-            "id": "water-area-names",
-            "name": "water-area-names",
-            "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
-            "Datasource": {
-                "type": "postgis",
-                "dbname": "osm",
-                "table": "(SELECT way, waterway, landuse, \"natural\", name, way_area FROM planet_osm_polygon WHERE (landuse IN ('reservoir', 'basin') OR \"natural\" IN ('water', 'wetland', 'glacier')) AND name IS NOT NULL ORDER BY way_area DESC) AS water_areas",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         },

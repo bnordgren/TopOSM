@@ -51,7 +51,7 @@
             "Datasource": {
                 "type": "postgis",
                 "dbname": "osm",
-                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, way_area, 0 AS ele_w_unit FROM planet_osm_polygon WHERE name IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, way_area, way_area / (!pixel_width!*!pixel_height!) AS way_area_pixels, 0 AS ele_w_unit FROM planet_osm_polygon WHERE name IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         },
@@ -63,7 +63,7 @@
             "Datasource": {
                 "type": "postgis",
                 "dbname": "osm",
-                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, 0 AS way_area, (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit FROM planet_osm_point WHERE name IS NOT NULL OR ele IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
+                "table": "(SELECT way, name, coalesce('natural_' || \"natural\", 'aeroway_' || aeroway, 'railway_' || railway, 'landuse_' || landuse, 'leisure_' || leisure, 'amenity_' || amenity, 'boundary_' || boundary) AS feature, 0 AS way_area, 0 AS way_area_pixels, (CASE WHEN ele LIKE '%m' THEN substr(ele, 0, length(ele)-1) ELSE ele END) || ' m' as ele_w_unit FROM planet_osm_point WHERE name IS NOT NULL OR ele IS NOT NULL ORDER BY z_order, way_area DESC) AS featurenames",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         },
@@ -141,7 +141,7 @@
             "Datasource": {
                 "type": "postgis",
                 "dbname": "osm",
-                "table": "(SELECT way, waterway, landuse, \"natural\", name, way_area FROM planet_osm_polygon WHERE (landuse IN ('reservoir', 'basin') OR \"natural\" IN ('water', 'wetland', 'glacier')) AND name IS NOT NULL ORDER BY way_area DESC) AS water_areas",
+                "table": "(SELECT way, waterway, landuse, \"natural\", name, way_area, way_area / (!pixel_width!*!pixel_height!) AS way_area_pixels FROM planet_osm_polygon WHERE (landuse IN ('reservoir', 'basin') OR \"natural\" IN ('water', 'wetland', 'glacier')) AND name IS NOT NULL ORDER BY way_area DESC) AS water_areas",
                 "extent": "-20037508,-19929239,20037508,19929239"
             }
         }

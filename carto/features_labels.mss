@@ -225,16 +225,21 @@ Map {
 #water-area-names {
     [natural = 'water'][waterway != 'riverbank'],
     [landuse = 'reservoir'][waterway != 'riverbank'] {
-        [zoom >= 10][zoom < 12][way_area > 4000000],
-        [zoom >= 12][zoom < 14][way_area > 1000000],
+        [zoom >= 8][way_area_pixels >= 128],
         [zoom >= 14] {
             text-name: [name];
             text-face-name: @oblique-fonts;
             text-fill: @waterlinecolor;
             text-halo-radius: @haloradius;
             text-halo-fill: @halocolor;
-            text-size: 10;
-            [zoom >= 14] { text-size: 11; }
+            text-placement: interior;
+            text-wrap-width: 128;
+            text-size: 9;
+            [zoom >= 14],
+            [way_area_pixels >     256] { text-size: 10; }
+            [way_area_pixels >    4096] { text-size: 12; }
+            [way_area_pixels >   65536] { text-size: 14; }
+            [way_area_pixels > 1048576] { text-size: 16; }
         }
     }
 }
@@ -296,20 +301,21 @@ Map {
     [feature = 'leisure_recreation_ground'],
     [feature = 'landuse_village_green'],
     [feature = 'landuse_allotments'] {
-        [zoom >=  8][zoom < 10][way_area > 50000000],
-        [zoom >= 10][zoom < 12][way_area >  5000000],
-        [zoom >= 12][zoom < 14][way_area >   200000],
+        [zoom >= 8][way_area_pixels >= 128],
         [zoom >= 14] {
             text-name: [name];
             text-face-name: @oblique-fonts;
-            text-wrap-width: 20;
+            text-placement: interior;
+            text-wrap-width: 64;
+            text-ratio: 50%;
             text-fill: @naturecolortext;
             text-halo-fill: @halocolor;
             text-halo-radius: @haloradius;
-            text-size: 12;
-            [zoom >=  8][zoom < 10] { text-size:  9; }
-            [zoom >= 10][zoom < 12] { text-size: 10; }
-            [zoom >= 12][zoom < 14] { text-size: 11; }
+            text-size: 9;
+            [way_area_pixels >     256] { text-size: 10; }
+            [way_area_pixels >    4096] { text-size: 12; }
+            [way_area_pixels >   65536] { text-size: 14; }
+            [way_area_pixels > 1048576] { text-size: 16; }
         }
     }
 
