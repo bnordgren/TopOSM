@@ -314,7 +314,7 @@ class TileExpirer(threading.Thread):
         self.lock = threading.Lock()
         self.current_expire = None
         self.current_expire_zoom = None
-        self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
+        self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST, heartbeat_interval=0))
         self.chan = self.conn.channel()
 
     def run(self):
@@ -373,10 +373,15 @@ class TileExpirer(threading.Thread):
                 return None
 
     def notify_queuemaster(self):
-        self.chan.basic_publish(
-            exchange='osm',
-            routing_key='toposm.queuemaster',
-            body=json.dumps({'command': 'queued'}))
+        try:
+            self.chan.basic_publish(
+                exchange='osm',
+                routing_key='toposm.queuemaster',
+                body=json.dumps({'command': 'queued'}))
+        except pika.exceptions.ConnectionClosed:
+            self.conn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST, heartbeat_interval=0))
+            self.chan = self.conn.channel()
+            self.notify_queuemaster()
 
     def quit(self):
         self.keep_running = False
