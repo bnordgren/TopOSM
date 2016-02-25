@@ -22,13 +22,46 @@
     ],
     "Layer": [
         {
-            "id": "contours",
-            "name": "contours",
+            "id": "contours-verylow",
+            "name": "contours-verylow",
             "srs": "+proj=latlong +datum=NAD83 +ellps=GRS80 +no_defs",
             "Datasource": {
                 "type": "postgis",
                 "dbname": "ned",
-                "table": "(SELECT way, height, CASE WHEN (CAST(height AS int) % 100) = 0 THEN 3 WHEN (CAST(height AS int) % 10) = 0 THEN 2 ELSE 1 END AS class FROM contours) AS contours",
+                "table": "(SELECT ele_ft, wkb_geometry FROM contours_tmp WHERE ele_ft % 200 = 0) AS contours",
+                "extent": "-127,23,-65,51"
+            }
+        },
+        {
+            "id": "contours-low",
+            "name": "contours-low",
+            "srs": "+proj=latlong +datum=NAD83 +ellps=GRS80 +no_defs",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "ned",
+                "table": "(SELECT ele_ft, wkb_geometry, CASE WHEN ele_ft % 500 = 0 THEN 3 WHEN ele_ft % 100 = 0 THEN 2 ELSE 1 END AS class FROM contours_tmp WHERE ele_ft % 50 = 0) AS contours",
+                "extent": "-127,23,-65,51"
+            }
+        },
+        {
+            "id": "contours-medium",
+            "name": "contours-medium",
+            "srs": "+proj=latlong +datum=NAD83 +ellps=GRS80 +no_defs",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "ned",
+                "table": "(SELECT ele_ft, wkb_geometry, CASE WHEN ele_ft % 250 = 0 THEN 3 WHEN ele_ft % 50 = 0 THEN 2 ELSE 1 END AS class FROM contours_tmp WHERE ele_ft % 25 = 0) AS contours",
+                "extent": "-127,23,-65,51"
+            }
+        },
+        {
+            "id": "contours-high",
+            "name": "contours-high",
+            "srs": "+proj=latlong +datum=NAD83 +ellps=GRS80 +no_defs",
+            "Datasource": {
+                "type": "postgis",
+                "dbname": "ned",
+                "table": "(SELECT ele_ft, wkb_geometry, CASE WHEN ele_ft % 100 = 0 THEN 3 WHEN ele_ft % 20 = 0 THEN 2 ELSE 1 END AS class FROM contours_tmp WHERE ele_ft % 10 = 0) AS contours",
                 "extent": "-127,23,-65,51"
             }
         }
