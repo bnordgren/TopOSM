@@ -493,7 +493,7 @@ class Queuemaster:
         result = {'queue': self.queue.get_stats(),
                   'expire': {'input': self.expirer.get_input_length(),
                              'status': self.expirer.get_expire_status()},
-                  'render': {r.name: r.status for r in self.renderers.values()}}
+                  'render': {r.name: (r.status, r.dequeue_strategy) for r in self.renderers.values()}}
         if self.initializer and self.initializer.is_alive():
             result['init'] = self.initializer.get_status()
         return json.dumps(result)
