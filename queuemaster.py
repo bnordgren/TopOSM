@@ -2,10 +2,13 @@
 
 # standard modules
 import collections
+import datetime
+import dateutil.parser
 import json
 import os
 import os.path
 import random
+import re
 import threading
 
 # addon modules
@@ -28,10 +31,26 @@ RENDERER_STALE_TIME = 3600
 # before starting to render things.  (This prevents the renderers always being
 # asked to render stuff at zoom 2 to start with.)
 INITIAL_QUEUE_NOTIFY_ZOOM = 7
+# Where the minutely update file lives.
+MINUTELY_STATE_FILE = '/home/mapnik/updates/state.txt'
+# Maximum age of the database for rendering, in seconds.  If the database age is
+# greater than this, non-important rendering will cease until the database
+# catches up.
+# Half an hour.
+MAXIMUM_DATABASE_AGE = 30 * 60
 
 def log_message(message):
     console.printMessage(time.strftime('[%Y-%m-%d %H:%M:%S]') + ' ' + message)
-    
+
+def database_age():
+    with open(MINUTELY_STATE_FILE) as state:
+        for line in state:
+            m = re.search('^timestamp=(.*)', line)
+            if m:
+                minutely_timestamp = dateutil.parser.parse(m.group(1).replace('\\', ''))
+                return (datetime.datetime.now(minutely_timestamp.tzinfo) - minutely_timestamp).total_seconds()
+    return None
+
 
 class Renderer:
     def __init__(self, registration, render_queue, amqp_queue, channel):
@@ -152,7 +171,9 @@ class Queue:
             try:
                 mt = self.important_stack.pop()
             except IndexError:
-                if strategy == 'important':
+                if database_age() > MAXIMUM_DATABASE_AGE:
+                    return None
+                elif strategy == 'important':
                     return None
                 elif strategy == 'by_work_available':
                     mt = self.dequeue_by_work_available()
