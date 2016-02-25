@@ -166,7 +166,7 @@ if __name__ == "__main__":
     conn.close()
 
     console.printMessage('Starting renderer.')
-    rconn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST))
+    rconn = pika.BlockingConnection(pika.ConnectionParameters(host=DB_HOST, heartbeat_interval=0))
     rchan = rconn.channel()
     renderer = ContinuousRenderThread(dequeue_strategy, rchan, 0)
     renderer.renderLoop()
