@@ -511,6 +511,9 @@ class Queuemaster:
             renderer.send_request()
 
     def handle_render_request(self, t, props):
+        if not t.is_valid:
+            log_message('ignoring request for invalid tile: %s' % t)
+            return
         if t.exists(REFERENCE_TILESET):
             importance = 'important'
         else:

@@ -141,6 +141,15 @@ class Tile:
         else:
             return tileIsOld(self.z, self.x, self.y)
 
+    @property
+    def is_valid(self):
+        if self.is_metatile:
+            return 0 <= self.x and self.x < 2**self.z / NTILES[self.z] and \
+                   0 <= self.y and self.y < 2**self.z / NTILES[self.z]
+        else:
+            return 0 <= self.x and self.x < 2**self.z and \
+                   0 <= self.y and self.y < 2**self.z
+
 
 def getCachedMetaTileDir(mapname, z, x):
     return path.join(TEMPDIR, mapname, str(z), str(x))
