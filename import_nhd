@@ -5,11 +5,13 @@ if [[ -z $TOPOSM_ENV_SET ]]; then
     exit 1
 fi
 
+export PGPASSWORD=$DB_PASS
 SETUPCMD="shp2pgsql -p -I -g way -W latin1"
 IMPORTCMD="shp2pgsql -a -g way -W latin1"
-DBCMD="psql -q -p $DB_PORT $DB_NAME $DB_USER"
-TEMPDIR="temp"
-SRS900913="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
+DBCMD="psql -q -h $DB_HOST -U $DB_USER -p $DB_PORT $DB_NAME"
+TEMPDIR="/mnt/enterprise/Data/Bryce/rendered/temp"
+SRS="+proj=lcc +lat_1=49 +lat_2=45 +lat_0=44.25 +lon_0=-109.5 +x_0=600000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+#SRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
 TEMPFILE="$TEMPDIR/temp.shp"
 
 
@@ -46,17 +48,20 @@ ImportShapefiles() {
   CREATE_MAJOR=$3
   echo "Importing ${SHAPEFILEPREFIX} shapefiles..."
   PREP_TABLE=1
-  for SRCFILE in $NHD_DIR/${SHAPEFILEPREFIX}*.shp; do
+  for SRCFILE in $NHD_DIR/${SHAPEFILEPREFIX}.shp; do
     echo "Reprojecting $SRCFILE and applying bbox..."
-    ogr2ogr -t_srs "$SRS900913" \
+    ogr2ogr -t_srs "$SRS" \
       -spat $XMINLL $YMINLL $XMAXLL $YMAXLL \
       "$TEMPFILE" "$SRCFILE"
     
     # set up table(s)
     if [ "$PREP_TABLE" ]; then 
+      echo "Dropping table ${NHD_TABLE_PREFIX}..."
+      echo "DROP TABLE IF EXISTS ${NHD_TABLE_PREFIX}_${TABLESUFFIX}" | $DBCMD
       echo "Creating ${NHD_TABLE_PREFIX}_area tables..."
       $SETUPCMD "$TEMPFILE" ${NHD_TABLE_PREFIX}_${TABLESUFFIX} | $DBCMD
       if [ ! -z $CREATE_MAJOR ]; then
+        echo "DROP TABLE IF EXISTS ${NHD_TABLE_PREFIX}_${TABLESUFFIX}_major" | $DBCMD
         $SETUPCMD "$TEMPFILE" ${NHD_TABLE_PREFIX}_${TABLESUFFIX}_major | $DBCMD
       fi
       unset PREP_TABLE
@@ -75,7 +80,7 @@ mkdir -pv "$TEMPDIR"
 rm -f $TEMPDIR/temp.{dbf,prj,shp,shx}
 
 echo;echo "##### Area ####"
-ImportShapefiles "nhdarhi" "area" 1
+ImportShapefiles "NHDArea" "area" 1
 ExtractMajorFeatures "area" "areasqkm > 1"
 UpdateColumnDatatypes "area"
 UpdateColumnDatatypes "area_major"
@@ -83,7 +88,7 @@ CreateFcodeIndex "area"
 CreateFcodeIndex "area_major"
 
 echo;echo "##### Flowline ####"
-ImportShapefiles "nhdflh" "flowline" 1
+ImportShapefiles "NHDFlowline" "flowline" 1
 ExtractMajorFeatures "flowline" "lengthkm > 2"
 UpdateColumnDatatypes "flowline"
 UpdateColumnDatatypes "flowline_major"
@@ -91,12 +96,12 @@ CreateFcodeIndex "flowline"
 CreateFcodeIndex "flowline_major"
 
 echo;echo "##### Point ####"
-ImportShapefiles "nhdpthi" "point"
+ImportShapefiles "NHDPoint" "point"
 UpdateColumnDatatypes "point"
 CreateFcodeIndex "point"
 
 echo;echo "##### Waterbody ####"
-ImportShapefiles "nhdwbhi" "waterbody" 1
+ImportShapefiles "NHDWaterbody" "waterbody" 1
 ExtractMajorFeatures "waterbody" "areasqkm > 1"
 UpdateColumnDatatypes "waterbody"
 UpdateColumnDatatypes "waterbody_major"
@@ -104,7 +109,7 @@ CreateFcodeIndex "waterbody"
 CreateFcodeIndex "waterbody_major"
 
 echo;echo "##### Line ####"
-ImportShapefiles "nhdlihi" "line"
+ImportShapefiles "NHDLine" "line"
 UpdateColumnDatatypes "line"
 CreateFcodeIndex "line"
 
