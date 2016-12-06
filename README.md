@@ -63,8 +63,8 @@ BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
 * http://tile.openstreetmap.org/world_boundaries-spherical.tgz
 * http://tile.openstreetmap.org/processed_p.tar.bz2
 * http://tile.openstreetmap.org/shoreline_300.tar.bz2
-* http://www.naturalearthdata.com/download/10m/cultural/10m-populated-places.zip
-* http://www.naturalearthdata.com/download/110m/cultural/110m-admin-0-boundary-lines.zip
+* http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+* http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
 * USGS NHD shapefiles: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
 * USGS NED data, as needed: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
 * NLCD 2006 (Land cover) data: http://www.mrlc.gov/nlcd06_data.php
