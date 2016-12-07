@@ -87,7 +87,7 @@ to try, here are a few places to add the PROJ.4 definition of your desired proje
 * import_nhd
 * include/utils.inc.templ
 
-Once defined, you'll need to tell mapnik to use your projection. In the above, you should have added an <!ENTITY > statement to the include/utils.inc.templ file. Use it in the <Map /> elements of:
+Once defined, you'll need to tell mapnik to use your projection. In the above, you should have added an `<!ENTITY >` statement to the include/utils.inc.templ file. Use it in the `<Map />` elements of:
 
 * templates/areas.xml.templ
 * templates/contours.xml.templ
@@ -95,6 +95,12 @@ Once defined, you'll need to tell mapnik to use your projection. In the above, y
 * templates/hypsorelief.xml.templ
 * templates/landcoverrelief.xml.templ
 * templates/ocean.xml.templ
+
+Finally, a `<Map />` contains many `<Layer />`s. By default, the `<Layer />`s inherit the projection information from 
+the `<Map />` to which they belong. If the layer definition does not explicitly specify the projection of the data source, 
+then changing the Map's output projection silently changed the _assumed_ projection of all your input data. This is almost
+certainly not what you want. You must visit each `<Layer />` element inside the map and add an srs="xxx" attribute, 
+where "xxx" is whatever was originally in the Map element before you replaced it.
   
 ### Configuring the Rendering Environment ###
 
