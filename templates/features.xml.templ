@@ -28,7 +28,7 @@
     %colors;
 ]>
 
-<Map background-color="transparent" srs="&srs900913;">
+<Map background-color="transparent" srs="&srs32100;">
 
 &water;
 
@@ -525,7 +525,7 @@
 </Layer>
 
 
-<Layer name="nature-areas" status="on">
+<Layer name="nature-areas" status="on" srs="&srs900913;">
   <StyleName>nature-areas</StyleName>
     <Datasource>
       &dbsettings; &extents;
@@ -540,7 +540,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="misc-areas" status="on">
+<Layer name="misc-areas" status="on" srs="&srs900913;">
   <StyleName>misc-areas</StyleName>
     <Datasource>
       &dbsettings; &extents;
@@ -553,7 +553,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="ferry-routes" status="on">
+<Layer name="ferry-routes" status="on" srs="&srs900913;">
     <StyleName>ferry-routes</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -563,7 +563,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="buildings" status="on">
+<Layer name="buildings" status="on" srs="&srs900913;">
     <StyleName>buildings</StyleName>
     <Datasource>
 		&dbsettings; &extents;
@@ -573,7 +573,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="parking-outline" status="on">
+<Layer name="parking-outline" status="on" srs="&srs900913;">
     <StyleName>parking-outline</StyleName>
     <Datasource>
 		&dbsettings; &extents;
@@ -581,7 +581,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="railway" status="on">
+<Layer name="railway" status="on" srs="&srs900913;">
     <StyleName>railway-outline</StyleName>
     <StyleName>railway-fill</StyleName>
     <Datasource>
@@ -602,7 +602,7 @@
 </Layer>
 
 <!-- Roads at z1-z8 (major roads only) -->
-<Layer name="highway-lowzoom" status="on">
+<Layer name="highway-lowzoom" status="on" srs="&srs900913;">
     <StyleName>highway-lowzoom</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -633,7 +633,7 @@
 </Layer>
 
 <!-- Roads at z9+ (all roads) -->
-<Layer name="highway-highzoom" status="on">
+<Layer name="highway-highzoom" status="on"  srs="&srs900913;">
     <StyleName>highway-highzoom-outline</StyleName>
     <StyleName>highway-highzoom-fill</StyleName>
     <Datasource>
@@ -676,7 +676,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="parking-fill" status="on">
+<Layer name="parking-fill" status="on" srs="&srs900913;">
     <StyleName>parking-fill</StyleName>
     <Datasource>
 		&dbsettings; &extents;
@@ -684,7 +684,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="aeroway-line-outline" status="on">
+<Layer name="aeroway-line-outline" status="on" srs="&srs900913;">
     <StyleName>aeroway-outline</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -694,7 +694,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="aeroway-area-outline" status="on">
+<Layer name="aeroway-area-outline" status="on" srs="&srs900913;">
     <StyleName>aeroway-outline</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -704,7 +704,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="aeroway-line-fill" status="on">
+<Layer name="aeroway-line-fill" status="on" srs="&srs900913;">
     <StyleName>aeroway-fill</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -714,7 +714,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="aeroway-area-fill" status="on">
+<Layer name="aeroway-area-fill" status="on" srs="&srs900913;">
     <StyleName>aeroway-fill</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -724,7 +724,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="bridges" status="on">
+<Layer name="bridges" status="on" srs="&srs900913;">
     <StyleName>bridges</StyleName>
     <Datasource>
         &dbsettings; &extents;
@@ -749,7 +749,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="aerialway" status="on">
+<Layer name="aerialway" status="on" srs="&srs900913;">
     <StyleName>aerialway</StyleName>
     <Datasource>
 	  &dbsettings; &extents;
@@ -759,7 +759,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="power-lines" status="on">
+<Layer name="power-lines" status="on" srs="&srs900913;">
     <StyleName>power-lines</StyleName>
     <StyleName>power-busbar-voltage</StyleName>
     <StyleName>power-busbar</StyleName>
@@ -774,7 +774,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="borders-level6" status="on">
+<Layer name="borders-level6" status="on" srs="&srs900913;">
     <StyleName>county-borders</StyleName>
 	<Datasource>
 		&dbsettings; &extents;
@@ -786,7 +786,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="borders-level2-4" status="on">
+<Layer name="borders-level2-4" status="on" srs="&srs900913;">
 	<StyleName>state-borders</StyleName>
 	<StyleName>country-borders</StyleName>
 	<Datasource>
@@ -799,7 +799,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="statenames" status="on">
+<Layer name="statenames" status="on" srs="&srs900913;">
     <StyleName>statenames</StyleName>
     <Datasource>
 		&dbsettings; &extents;
@@ -810,7 +810,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="placenames" status="on">
+<Layer name="placenames" status="on" srs="&srs900913;">
     <StyleName>placenames</StyleName>
     <Datasource>
         &dbsettings; &extents;
@@ -832,7 +832,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="shields-very-low-zoom" status="on">
+<Layer name="shields-very-low-zoom" status="on" srs="&srs900913;">
     <StyleName>shields-very-low-zoom</StyleName>
     <Datasource>
     	&dbsettings; &extents;
@@ -848,7 +848,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="shields-low-zoom" status="on">
+<Layer name="shields-low-zoom" status="on" srs="&srs900913;">
     <StyleName>shields-low-zoom</StyleName>
     <Datasource>
 	&dbsettings; &extents;
@@ -864,7 +864,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="shields-20px" status="on">
+<Layer name="shields-20px" status="on" srs="&srs900913;">
     <StyleName>shields-20px</StyleName>
     <Datasource>
     	&dbsettings; &extents;
@@ -880,7 +880,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="shields-24px" status="on">
+<Layer name="shields-24px" status="on" srs="&srs900913;">
     <StyleName>shields-24px</StyleName>
     <Datasource>
         &dbsettings; &extents;
@@ -896,7 +896,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="streetnames" status="on">
+<Layer name="streetnames" status="on" srs="&srs900913;">
     <StyleName>streetnames</StyleName>
     <StyleName>trailnames</StyleName>
     <Datasource>
@@ -907,7 +907,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="water-line-names" status="on">
+<Layer name="water-line-names" status="on" srs="&srs900913;">
     <StyleName>water-line-labels</StyleName>
     <Datasource>
 	&dbsettings; &extents;
@@ -921,7 +921,7 @@
         </Parameter>
     </Datasource>
 </Layer>
-<Layer name="water-area-names" status="on">
+<Layer name="water-area-names" status="on" srs="&srs900913;">
     <StyleName>water-area-labels</StyleName>
     <Datasource>
 	&dbsettings; &extents;
@@ -937,7 +937,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="pointfeaturenames" status="on">
+<Layer name="pointfeaturenames" status="on" srs="&srs900913;">
   <StyleName>featurenames</StyleName>
   <Datasource>
     &dbsettings; &extents;
@@ -951,7 +951,7 @@
   </Datasource>
 </Layer>
 
-<Layer name="areafeaturenames" status="on">
+<Layer name="areafeaturenames" status="on" srs="&srs900913;">
     <StyleName>featurenames</StyleName>
     <Datasource>
       &dbsettings; &extents;
@@ -965,7 +965,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="points" status="on">
+<Layer name="points" status="on" srs="&srs900913;">
     <StyleName>symbols</StyleName>
     <Datasource>
       &dbsettings; &extents;

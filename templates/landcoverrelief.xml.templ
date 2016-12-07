@@ -10,7 +10,7 @@
 	%colors;
 ]>
 
-<Map background-color="#ccc" srs="&srs900913;">
+<Map background-color="#ccc" srs="&srs32100;">
 
 <!-- original landcover palette: #fff, .65 .55 -->
 
@@ -27,7 +27,7 @@
 </Style>
 
 
-<Layer name="landcover" status="on">
+<Layer name="landcover" status="on" srs="&srs900913;">
     <StyleName>landcover</StyleName>
     <Datasource>
       <Parameter name="type">gdal</Parameter>
@@ -35,7 +35,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="hillshade" status="on">
+<Layer name="hillshade" status="on" srs="&srs32100;">
     <StyleName>hillshade</StyleName>
     <Datasource>
       <Parameter name="type">gdal</Parameter>

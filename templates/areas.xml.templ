@@ -8,7 +8,7 @@
 	%colors;
 ]>
 
-<Map background-color="transparent" srs="&srs900913;">
+<Map background-color="transparent" srs="&srs32100;">
 
 <Style name="builtup">
     <Rule>
@@ -129,7 +129,7 @@
 
 <!-- Layers -->
 
-<Layer name="builtup" status="on">
+<Layer name="builtup" status="on" srs="&srs900913;">
     <StyleName>builtup</StyleName>
     <Datasource>
         &extents;    
@@ -138,7 +138,7 @@
     </Datasource>
 </Layer>
 
-<Layer name="areafills" status="on">
+<Layer name="areafills" status="on" srs="&srs900913;">
     <StyleName>areafills</StyleName>
     <Datasource>
 		&dbsettings; &extents;

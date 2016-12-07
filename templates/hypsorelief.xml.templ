@@ -10,7 +10,7 @@
 	%colors;
 ]>
 
-<Map background-color="#bbb" srs="&srs900913;">
+<Map background-color="#bbb" srs="&srs32100;">
 
 <Style name="hypsorelief">
   <Rule>
@@ -18,7 +18,7 @@
   </Rule>
 </Style>
 
-<Layer name="hypsorelief" status="on">
+<Layer name="hypsorelief" status="on" srs="&srs32100;">
     <StyleName>hypsorelief</StyleName>
     <Datasource>
       <Parameter name="type">gdal</Parameter>

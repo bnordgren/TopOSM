@@ -10,19 +10,26 @@ SRS="+proj=lcc +lat_1=49 +lat_2=45 +lat_0=44.25 +lon_0=-109.5 +x_0=600000 +y_0=0
 #SRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
 
 # NOTE: X values are negative, since we're west of the 0 meridian
-LEFT=$(($XMINLL * -1))
-RIGHT=$(($XMAXLL * -1))
-BOTTOM=$YMINLL
-TOP=$YMAXLL
+#LEFT=$(($XMINLL * -1))
+#RIGHT=$(($XMAXLL * -1))
+#BOTTOM=$YMINLL
+#TOP=$YMAXLL
+LEFT=116
+RIGHT=116
+BOTTOM=47
+TOP=47
 
 mkdir -pv $HILLSHADE_DIR
 mkdir -pv $COLORMAP_DIR
 mkdir -pv $HYPSORELIEF_DIR
 
-for x in `seq $RIGHT $LEFT`; do
-for y in `seq $BOTTOM $TOP`; do
+#for x in `seq $RIGHT $LEFT`; do
+#for y in `seq $BOTTOM $TOP`; do
 
-    BASE=`printf "n%02dw%03d" $y $x`
+for scene in n49w115 n49w114 n49w113 ; do 
+
+#    BASE=`printf "n%02dw%03d" $y $x`
+    BASE=$scene
     FILE=float${BASE}_13.flt
     NEDPATH=$NED13_DIR/$FILE
 
@@ -94,7 +101,8 @@ for y in `seq $BOTTOM $TOP`; do
     fi
  
     fi;
-done; done
+#done; done
+done
 
 # generate overviews and VRT layers
 for d in $HILLSHADE_DIR $HYPSORELIEF_DIR ; do
