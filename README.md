@@ -61,19 +61,19 @@ BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
 ### Required data files ###
 
 * Processed / simplified / corrected OSM data
-** http://tile.openstreetmap.org/world_boundaries-spherical.tgz
-** http://tile.openstreetmap.org/processed_p.tar.bz2
-** http://tile.openstreetmap.org/shoreline_300.tar.bz2
-** http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
-** http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
-** Water polygons (in spherical mercator) from http://openstreetmapdata.com/
+  * http://tile.openstreetmap.org/world_boundaries-spherical.tgz
+  * http://tile.openstreetmap.org/processed_p.tar.bz2
+  * http://tile.openstreetmap.org/shoreline_300.tar.bz2
+  * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+  * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
+  * Water polygons (in spherical mercator) from http://openstreetmapdata.com/
 * USGS Data
-** USGS NHD shapefiles: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
-** USGS NED data, as needed: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
-** NLCD 2006 (Land cover) data: http://www.mrlc.gov/nlcd06_data.php
+  * USGS NHD shapefiles: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
+  * USGS NED data, as needed: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
+  * NLCD 2006 (Land cover) data: http://www.mrlc.gov/nlcd06_data.php
 * Planet.osm or other OSM dataset:
-** http://planet.openstreetmap.org/
-** http://download.geofabrik.de/
+  * http://planet.openstreetmap.org/
+  * http://download.geofabrik.de/
 
 
 
