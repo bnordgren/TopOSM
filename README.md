@@ -78,7 +78,24 @@ BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
   * http://download.geofabrik.de/
 
 
+### Spatial Reference Information ###
 
+These scripts are not really set up to allow you to easily change the projection of the rendered output. If you want
+to try, here are a few places to add the PROJ.4 definition of your desired projection: 
+
+* prep_toposm_data
+* import_nhd
+* include/utils.inc.templ
+
+Once defined, you'll need to tell mapnik to use your projection. In the above, you should have added an <!ENTITY > statement to the include/utils.inc.templ file. Use it in the <Map /> elements of:
+
+* templates/areas.xml.templ
+* templates/contours.xml.templ
+* templates/features.xml.templ
+* templates/hypsorelief.xml.templ
+* templates/landcoverrelief.xml.templ
+* templates/ocean.xml.templ
+  
 ### Configuring the Rendering Environment ###
 
 Create the required directories for tiles and temp files:
