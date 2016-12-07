@@ -61,17 +61,19 @@ BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
 ### Required data files ###
 
 * Processed / simplified / corrected OSM data
-  * http://tile.openstreetmap.org/world_boundaries-spherical.tgz
+  * __$WORLD_BOUNDARIES_DIR__ http://tile.openstreetmap.org/world_boundaries-spherical.tgz
+  * __$WORLD_BOUNDARIES_DIR/water-polygons-split-3857/water_polygons__ Water polygons (in spherical mercator) from http://openstreetmapdata.com/
+* Cannot find where these are referenced by mapnik files... Loaded into postgis? Unused? 
   * http://tile.openstreetmap.org/processed_p.tar.bz2
   * http://tile.openstreetmap.org/shoreline_300.tar.bz2
   * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
   * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
-  * Water polygons (in spherical mercator) from http://openstreetmapdata.com/
+
 * USGS Data
-  * USGS NHD shapefiles: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
-  * USGS NED data, as needed: ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
-  * NLCD 2006 (Land cover) data: http://www.mrlc.gov/nlcd06_data.php
-* Planet.osm or other OSM dataset:
+  * USGS NHD shapefiles (__$NHD_DIR__): ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
+  * USGS NED data, as needed (__$NED13_DIR__): ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
+  * NLCD 2006 (Land cover) data (__$NLCD_DIR__): http://www.mrlc.gov/nlcd06_data.php
+* Planet.osm or other OSM dataset (loaded into PostGIS database):
   * http://planet.openstreetmap.org/
   * http://download.geofabrik.de/
 
