@@ -20,6 +20,8 @@ if not 'TOPOSM_ENV_SET' in os.environ:
 BASE_TILE_DIR = os.environ['BASE_TILE_DIR']
 CONTOURS_TABLE = os.environ['CONTOURS_TABLE']
 DATABASE = os.environ['DB_NAME']
+DB_USER  = os.environ['DB_USER']
+DB_HOST  = os.environ['DB_HOST']
 TEMPDIR = os.environ['TEMP_DIR']
 NED13DIR = os.environ['NED13_DIR']
 COLORFILE = os.environ['COLORFILE']
@@ -62,6 +64,9 @@ NTILES = {
 REFERENCE_TILESET = 'composite_h'
 
 LATLONG_PROJECTION_DEF = "+proj=latlong"
+MT_STATE_PROJECTION_DEF = "+proj=lcc +lat_1=49 +lat_2=45 +lat_0=44.25 " + \
+    "+lon_0=-109.5 +x_0=600000 +y_0=0 +ellps=GRS80 +datum=NAD83 " + \
+    "+units=m +no_defs"
 MERCATOR_PROJECTION_DEF = "+proj=merc +a=6378137 +b=6378137 " + \
     "+lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m " + \
     "+nadgrids=@null +no_defs +over"

@@ -22,7 +22,7 @@ STEP = 0.5
 
 def getTilepath(basename):
     return os.path.join(
-        NED13DIR, basename + '.tif')
+        NED13DIR, "float{0}_13.flt".format(basename))
 
 def getTiles(envLL):
     """Gets the (basename, Box2d) of all (existing) 1/3 NED tiles
@@ -96,16 +96,17 @@ def analyzeContoursTable():
     runSql(sql)
 
 def prepDataFile(basename, env):
-    geotiff = getTilepath(basename)
+    nedfile = getTilepath(basename)
 
     # split the GeoTIFF, since it's often too large otherwise
     for y in numpy.arange(env.miny, env.maxy, STEP):
         for x in numpy.arange(env.minx, env.maxx, STEP):       
             nedslice = getSlice('ned', x, y)
             if not path.isfile(nedslice):
-                print '  Cutting geotiff slice...'
-                cmd = 'gdalwarp -q -te %f %f %f %f "%s" "%s"' % \
-                    (x, y, x+STEP, y+STEP, geotiff, nedslice)
+                print '  Cutting NED slice...'
+                cmd = 'gdalwarp -te %f %f %f %f "%s" "%s"' % \
+                    (x, y, x+STEP, y+STEP, nedfile, nedslice)
+                print cmd
                 os.system(cmd)
             
             contourbasefile = path.join(TEMPDIR, 'contours_' + str(x) + '_' + str(y))
@@ -120,14 +121,14 @@ def prepDataFile(basename, env):
                 print '  Reprojecting contour lines...'
                 # NOTE: The s_srs is not required with most GDAL/OGR versions
                 cmd = 'ogr2ogr -s_srs "%s" -t_srs "%s" -f "ESRI Shapefile" "%s" "%s"' % \
-                    (NAD83_PROJECTION_DEF, MERCATOR_PROJECTION_DEF, \
+                    (NAD83_PROJECTION_DEF, MT_STATE_PROJECTION_DEF, \
                     contourfileproj, contourfile)
                 os.system(cmd)
 
                 print '  Importing contour lines...'
                 # NOTE: this assumes that the table is already set up
-                cmd = 'shp2pgsql -a -g way "%s" "%s" | psql -q "%s"' % \
-                    (contourfileproj, CONTOURS_TABLE, DATABASE)
+                cmd = 'shp2pgsql -a -g way "%s" "%s" | psql -q -U %s -h %s "%s"' % \
+                    (contourfileproj, CONTOURS_TABLE, DB_USER, DB_HOST, DATABASE)
                 os.system(cmd)
                 
                 # Clear contents (but keep file to prevent us from importing

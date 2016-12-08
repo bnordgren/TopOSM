@@ -61,7 +61,7 @@ def writeEmpty(filename):
         open(filename, 'w').close();
 
 def runSql(sql):
-    command = "psql -d %s -q -c \"%s\"" % (DATABASE, sql)
+    command = "psql -h %s -U %s -d %s -q -c \"%s\"" % (DB_HOST, DB_USER, DATABASE, sql)
     print command
     os.system(command)
 
