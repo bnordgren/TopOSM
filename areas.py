@@ -170,16 +170,8 @@ Nature = [YellowstoneTetons, OregonCascades, SierraNevN,
     BlackHills, GreatSandDunes, WhiteSands, GreenMountains,
     WhiteMountains, Adirondacks, EvergladesKeys, NiagaraFalls]
 
-# Maryland things
-WesternMaryland = Box2d(-79.4833, 39.2000, -77.5333, 39.7167)
-CentralAndEasternMaryland = Box2d(-77.5333, 37.8833, -75.0500, 39.7167)
-Maryland = [WesternMaryland, CentralAndEasternMaryland]
-Cumberland = Box2d(-78.81, 39.58, -78.72, 39.68)
-HowardCounty = Box2d(-77.19, 39.10, -76.69, 39.37)
-US29Top = Box2d(-76.956, 39.073, -76.817, 39.303)
-
-RandallstownZ13 = Box2d(-76.81640625,39.3342974298,-76.7724609375,39.3682791492)
-RandallstownZ10 = Box2d(-76.9921875,39.0959629363,-76.640625,39.3682791492)
-CumberlandGapZ13 = Box2d(-78.8818359375,39.6056881783,-78.837890625,39.6395375644)
-CumberlandGapZ10 = Box2d(-79.1015625,39.3682791492,-78.75,39.6395375644)
-CumberlandGapZ8 = Box2d(-80.15625,38.8225909762,-78.75,39.9097362345)
+#Mineral-county-centric things
+MineralVicinity = Box2d(-116.049,46.6316,-113.303,48.264)
+Mineral = Box2d(-115.759,46.6966, -114.419,47.4968)
+Sanders = Box2d(-116.049,47.1207, -114.187,48.264)
+MissoulaCo = Box2d(-114.797,46.6316, -113.303,47.6003)
