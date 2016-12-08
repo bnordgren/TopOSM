@@ -111,7 +111,7 @@ def prepDataFile(basename, env):
             
             contourbasefile = path.join(TEMPDIR, 'contours_' + str(x) + '_' + str(y))
             contourfile = contourbasefile + '.shp'
-            contourfileproj = contourbasefile + '_900913.shp'
+            contourfileproj = contourbasefile + '_32100.shp'
             if not path.isfile(contourfile):
                 print '  Generating contour lines...'
                 cmd = 'gdal_contour -i %f -snodata 32767 -a height "%s" "%s"' % \
