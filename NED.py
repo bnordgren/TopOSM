@@ -114,20 +114,21 @@ def prepDataFile(basename, env):
             contourfileproj = contourbasefile + '_32100.shp'
             if not path.isfile(contourfile):
                 print '  Generating contour lines...'
-                cmd = 'gdal_contour -i %f -snodata 32767 -a height "%s" "%s"' % \
+                cmd = 'gdal_contour -i %f -a height "%s" "%s"' % \
                     (CONTOUR_INTERVAL, nedslice, contourfile)
                 os.system(cmd)
 
                 print '  Reprojecting contour lines...'
-                # NOTE: The s_srs is not required with most GDAL/OGR versions
-                cmd = 'ogr2ogr -s_srs "%s" -t_srs "%s" -f "ESRI Shapefile" "%s" "%s"' % \
-                    (NAD83_PROJECTION_DEF, MT_STATE_PROJECTION_DEF, \
+                # NOTE: Add an -s_srs command line option if GDAL/OGR not picking 
+                # up projection of original contours file
+                cmd = 'ogr2ogr -t_srs "%s" -f "ESRI Shapefile" "%s" "%s"' % \
+                    (MT_STATE_PROJECTION_DEF, \
                     contourfileproj, contourfile)
                 os.system(cmd)
 
                 print '  Importing contour lines...'
                 # NOTE: this assumes that the table is already set up
-                cmd = 'shp2pgsql -a -g way "%s" "%s" | psql -q -U %s -h %s "%s"' % \
+                cmd = 'shp2pgsql -a -g way -s 32100 "%s" "%s" | psql -q -U %s -h %s "%s"' % \
                     (contourfileproj, CONTOURS_TABLE, DB_USER, DB_HOST, DATABASE)
                 os.system(cmd)
                 
