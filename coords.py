@@ -73,19 +73,23 @@ class GoogleProjection:
 GOOGLE_PROJECTION = GoogleProjection()
 LATLONG_PROJECTION = Projection(LATLONG_PROJECTION_DEF)
 MERCATOR_PROJECTION = Projection(MERCATOR_PROJECTION_DEF)
+MT_STATE_PROJECTION = Projection(MT_STATE_PROJECTION_DEF)
+
+# Use this projection for the map:
+OUTPUT_PROJECTION = MT_STATE_PROJECTION
 
 
 ##### Geographic coordinate transformation
 
-def LLToMerc(coord):
+def LLToOutput(coord):
     """Converts a Coord(lon,lat) or Box2d(l,b,r,t) to
-    OSM Mercator (x,y)."""
-    return MERCATOR_PROJECTION.forward(coord)
+    (x,y) coordinates in the selected map projection."""
+    return OUTPUT_PROJECTION.forward(coord)
 
-def mercToLL(coord):
-    """Converts an OSM Mercator Coord(x,y) or Box2d(l,b,r,t)
-    to (lon,lat)."""
-    return MERCATOR_PROJECTION.inverse(coord)
+def outputToLL(coord):
+    """Converts a Coord(x,y) or Box2d(l,b,r,t) in the 
+    selected map projection to (lon,lat)."""
+    return OUTPUT_PROJECTION.inverse(coord)
 
 def LLToPixel(coord, z):
     """Converts a Coord(lon,lat) or Box2d(l,b,r,t) to
@@ -103,21 +107,23 @@ def pixelToLL(coord, z):
     else:
         return GOOGLE_PROJECTION.envPixelToLL(coord, z)
 
-def pixelToMerc(coord, z):
+def pixelToOutput(coord, z):
     """Converts an OSM pixel Coord(x,y) or Box2d(l,b,r,t)
-    to OSM Mercator (x,y) at the specified zoom level."""
+    to (x,y) in the selected map projection at the specified 
+    zoom level."""
     # No direct transformation. Use px->ll->merc.
     if isinstance(coord, Coord):
         ll = GOOGLE_PROJECTION.pixelToLL(coord, z)
     else:
         ll = GOOGLE_PROJECTION.envPixelToLL(coord, z)
-    return MERCATOR_PROJECTION.forward(ll)
+    return OUTPUT_PROJECTION.forward(ll)
 
-def mercToPixel(coord, z):
-    """Converts an OSM Mercator Coord(x,y) or Box2d(l,b,r,t)
-    to OSM pixel coordinates (x,y) at the specified zoom level."""
+def outputToPixel(coord, z):
+    """Converts a Coord(x,y) or Box2d(l,b,r,t) in the
+    specified map projection to OSM pixel coordinates 
+    (x,y) at the specified zoom level."""
     # No direct transformation. Use merc->ll->pixel.
-    ll = MERCATOR_PROJECTION.inverse(coord)
+    ll = OUTPUT_PROJECTION.inverse(coord)
     if isinstance(coord, Coord):
         return GOOGLE_PROJECTION.LLToPixel(ll, z)
     else:
@@ -144,10 +150,10 @@ def getLLTileEnv(z, x, y, ntiles = 1, includeBorder = True):
     tile coordinates."""
     return pixelToLL(getPixelTileEnv(x, y, ntiles, includeBorder), z)
 
-def getMercTileEnv(z, x, y, ntiles = 1, includeBorder = True):
-    """Returns the OSM Mercator Box2d for the tile(s) at the specified
-    tile coordinates."""
-    return pixelToMerc(getPixelTileEnv(x, y, ntiles, includeBorder), z)
+def getOutputTileEnv(z, x, y, ntiles = 1, includeBorder = True):
+    """Returns the Box2d in output map projection for the tile(s) 
+    at the specified tile coordinates."""
+    return pixelToOutput(getPixelTileEnv(x, y, ntiles, includeBorder), z)
 
 def getTileAtLL(coord, z, ntiles = 1):
     """Returns the OSM tile coordinates (x, y) at the specified

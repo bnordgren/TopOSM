@@ -255,17 +255,17 @@ def renderMetatileLayer(name, z, x, y, ntiles, map):
         console.debugMessage(' Using cached:    ' + name)
         return mapnik.Image.open(getCachedMetaTilePath(name, z, x, y, 'png'))
     console.debugMessage(' Rendering layer: ' + name)
-    env = getMercTileEnv(z, x, y, ntiles, True)
+    env = getOutputTileEnv(z, x, y, ntiles, True)
     tilesize = getTileSize(ntiles, True)
-    image = renderLayerMerc(name, env, tilesize, tilesize, map)
+    image = renderLayerProjected(name, env, tilesize, tilesize, map)
     if name in CACHE_LAYERS:
         ensureDirExists(getCachedMetaTileDir(name, z, x))
         image.save(getCachedMetaTilePath(name, z, x, y, 'png'))
     return image
 
-def renderLayerMerc(name, env, xsize, ysize, map):
-    """Renders the specified layer to an image.  ENV must be in spherical
-    mercator projection."""
+def renderLayerProjected(name, env, xsize, ysize, map):
+    """Renders the specified layer to an image.  ENV must be in the 
+    output map projection"""
     map.zoom_to_box(env)
     if USE_CAIRO and name in CAIRO_LAYERS:
         assert mapnik.has_cairo()
@@ -278,7 +278,7 @@ def renderLayerMerc(name, env, xsize, ysize, map):
     return image
 
 def renderLayerLL(name, env, xsize, ysize, map):
-    return renderLayerMerc(name, LLToMerc(env), xsize, ysize, map)
+    return renderLayerProjected(name, LLToOutput(env), xsize, ysize, map)
 
 def saveTiles(z, x, y, ntiles, mapname, image, suffix = 'png', imgtype = None):
     """Saves the individual tiles from a metatile image."""
@@ -355,10 +355,10 @@ def renderToPdf(envLL, filename, sizex, sizey):
         localfilename = basefilename + '_' + mapname + '.pdf';
         file = open(localfilename, 'wb')
         surface = cairo.PDFSurface(file.name, sizex, sizey) 
-        envMerc = LLToMerc(envLL)
+        envOutput = LLToOutput(envLL)
         map = mapnik.Map(sizex, sizey)
         mapnik.load_map(map, mapname + ".xml")
-        map.zoom_to_box(envMerc)
+        map.zoom_to_box(envOutput)
         mapnik.render(map, surface)
         surface.finish()
         file.close()
