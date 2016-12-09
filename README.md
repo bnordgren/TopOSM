@@ -158,7 +158,7 @@ $ ./toposm.py prep WhiteMountains
 
 To render tiles for the specified area and image size:
 ```
-$ ./toposm.py png|pdf WhiteMountains <size x> <size y>
+$ ./toposm.py png|pdf WhiteMountains <filename> <size x> <size y>
 ```
 
 ## Credits ##
