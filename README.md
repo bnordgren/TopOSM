@@ -156,13 +156,10 @@ $ ./prep_contours_table
 $ ./toposm.py prep WhiteMountains
 ```
 
-To render tiles for the specified area and zoom levels:
+To render tiles for the specified area and image size:
 ```
-$ ./toposm.py render WhiteMountains 5 15
+$ ./toposm.py png|pdf WhiteMountains <size x> <size y>
 ```
-
-To render a PDF, use renderToPdf() in toposm.py
-
 
 ## Credits ##
 
