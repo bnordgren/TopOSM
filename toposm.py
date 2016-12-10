@@ -236,18 +236,20 @@ def renderMetaTile(z, x, y, ntiles, maps):
 
 def combineLayers(images):
     console.debugMessage(' Combining layers')
-    images['contour-mask'].set_grayscale_to_alpha()
-    images['features_mask'].set_grayscale_to_alpha()
+    #images['contour-mask'].set_grayscale_to_alpha()
+    #images['features_mask'].set_grayscale_to_alpha()
     return getComposite((
         images['hypsorelief'],
         images['areas'],
         images['ocean'],
-        getMask(images['contours'], images['contour-mask']),
-        images['contour-labels'],
-        getMask(images['features_outlines'], images['features_mask']),
-        images['features_fills'],
-        getMask(images['features_top'], images['features_mask']),
-        images['features_labels']))
+        images['contours'],
+        images['features']))
+        #getMask(images['contours'], images['contour-mask']),
+        #images['contour-labels'],
+        #getMask(images['features_outlines'], images['features_mask']),
+        #images['features_fills'],
+        #getMask(images['features_top'], images['features_mask']),
+        #images['features_labels']))
 
 def renderMetatileLayer(name, z, x, y, ntiles, map):
     """Renders the specified map tile (layer) as a mapnik.Image."""

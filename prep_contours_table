@@ -5,7 +5,7 @@ if [[ -z $TOPOSM_ENV_SET ]]; then
     exit 1
 fi
 
-DBCMD="psql -q -p $DB_PORT -h $DB_HOST $DB_NAME $DB_USER"
+DBCMD="psql -q -U $DB_USER -p $DB_PORT -h $DB_HOST $CONTOURS_DB"
 
 shp2pgsql -p -I -g way contours.shp $CONTOURS_TABLE | $DBCMD
 echo "ALTER TABLE $CONTOURS_TABLE ADD COLUMN height_ft INT" | $DBCMD

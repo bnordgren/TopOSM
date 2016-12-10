@@ -18,6 +18,7 @@ if not 'TOPOSM_ENV_SET' in os.environ:
     sys.exit(1)
 
 BASE_TILE_DIR = os.environ['BASE_TILE_DIR']
+CONTOURS_DB    = os.environ['CONTOURS_DB']
 CONTOURS_TABLE = os.environ['CONTOURS_TABLE']
 DATABASE = os.environ['DB_NAME']
 DB_USER  = os.environ['DB_USER']
@@ -46,10 +47,12 @@ AWS_BUCKET = os.environ['AWS_BUCKET']
 CONTOUR_INTERVAL = 5
 
 AGG_LAYERS = frozenset(['hypsorelief', 'areas', 'ocean'])
-CAIRO_LAYERS = frozenset(['contour-labels', 'contour-mask', 'contours',
-                          'features_fills', 'features_labels', 'features_mask',
-                          'features_outlines', 'features_top'])
+CAIRO_LAYERS = frozenset(['contours', 'features'])
+#CAIRO_LAYERS = frozenset(['contour-labels', 'contour-mask', 'contours',
+#                          'features_fills', 'features_labels', 'features_mask',
+#                          'features_outlines', 'features_top'])
 MAPNIK_LAYERS = AGG_LAYERS | CAIRO_LAYERS
+#MAPNIK_LAYERS = AGG_LAYERS 
 
 # Optimal metatile size (N x N subtiles) by zoom level.
 # A too low number is inefficient. A too high number uses
