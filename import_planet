@@ -14,7 +14,7 @@ fi
 #fi
 
 
-DBCMD="psql -q -p $DB_PORT $DB_NAME $DB_USER"
+DBCMD="psql -q -U $DB_USER -h $DB_HOST -p $DB_PORT $DB_NAME $DB_NAME"
 
 # Import data files.
 while [ $# -gt 0 ]; do
@@ -59,11 +59,10 @@ while [ $# -gt 0 ]; do
 #          -U "$DB_USER" --prefix "$DB_PREFIX" \
 #          --slim -C 2000 -	
 
-	$CAT "$SRCFILE" | \
         osm2pgsql -m $OPERATOR --bbox "$EXTENTS_LATLON" \
           --style "$OSM2PGSQL_STYLE_FILE" -P $DB_PORT -d "$DB_NAME" \
-          -U "$DB_USER" --prefix "$DB_PREFIX" \
-          --slim -C 2000 -	
+          -H "$DB_HOST" -U "$DB_USER" --prefix "$DB_PREFIX" \
+          --slim -C 2000 $SRCFILE	
 
 	shift
 done
