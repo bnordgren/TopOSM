@@ -60,18 +60,48 @@ BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
 
 ### Required data files ###
 
-* http://tile.openstreetmap.org/world_boundaries-spherical.tgz
-* http://tile.openstreetmap.org/processed_p.tar.bz2
-* http://tile.openstreetmap.org/shoreline_300.tar.bz2
-* http://www.naturalearthdata.com/download/10m/cultural/10m-populated-places.zip
-* http://www.naturalearthdata.com/download/110m/cultural/110m-admin-0-boundary-lines.zip
-* USGS NHD shapefiles: http://209.98.153.33/nhd/
-* USGS NED data, as needed: http://209.98.153.33/ned/13arcsec/grid/
-* NLCD 2006 (Land cover) data: http://www.mrlc.gov/nlcd06_data.php
-* Planet.osm or other OSM dataset: http://planet.openstreetmap.org/
-* Water polygons (in spherical mercator) from http://openstreetmapdata.com/
+* Processed / simplified / corrected OSM data
+  * __$WORLD_BOUNDARIES_DIR__ http://tile.openstreetmap.org/world_boundaries-spherical.tgz
+  * __$WORLD_BOUNDARIES_DIR/water-polygons-split-3857/water_polygons__ Water polygons (in spherical mercator) from http://openstreetmapdata.com/
+* Cannot find where these are referenced by mapnik files... Loaded into postgis? Unused? 
+  * http://tile.openstreetmap.org/processed_p.tar.bz2
+  * http://tile.openstreetmap.org/shoreline_300.tar.bz2
+  * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places.zip
+  * http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
+
+* USGS Data
+  * USGS NHD shapefiles (__$NHD_DIR__): ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/Hydrography/NHD/
+  * USGS NED data, as needed (__$NED13_DIR__): ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/
+  * NLCD 2006 (Land cover) data (__$NLCD_DIR__): http://www.mrlc.gov/nlcd06_data.php
+* Planet.osm or other OSM dataset (loaded into PostGIS database):
+  * http://planet.openstreetmap.org/
+  * http://download.geofabrik.de/
 
 
+### Spatial Reference Information ###
+
+These scripts are not really set up to allow you to easily change the projection of the rendered output. If you want
+to try, here are a few places to add the PROJ.4 definition of your desired projection: 
+
+* prep_toposm_data
+* import_nhd
+* include/utils.inc.templ
+
+Once defined, you'll need to tell mapnik to use your projection. In the above, you should have added an `<!ENTITY >` statement to the include/utils.inc.templ file. Use it in the `<Map />` elements of:
+
+* templates/areas.xml.templ
+* templates/contours.xml.templ
+* templates/features.xml.templ
+* templates/hypsorelief.xml.templ
+* templates/landcoverrelief.xml.templ
+* templates/ocean.xml.templ
+
+Finally, a `<Map />` contains many `<Layer />`s. By default, the `<Layer />`s inherit the projection information from 
+the `<Map />` to which they belong. If the layer definition does not explicitly specify the projection of the data source, 
+then changing the Map's output projection silently changed the _assumed_ projection of all your input data. This is almost
+certainly not what you want. You must visit each `<Layer />` element inside the map and add an srs="xxx" attribute, 
+where "xxx" is whatever was originally in the Map element before you replaced it.
+  
 ### Configuring the Rendering Environment ###
 
 Create the required directories for tiles and temp files:
@@ -126,13 +156,10 @@ $ ./prep_contours_table
 $ ./toposm.py prep WhiteMountains
 ```
 
-To render tiles for the specified area and zoom levels:
+To render tiles for the specified area and image size:
 ```
-$ ./toposm.py render WhiteMountains 5 15
+$ ./toposm.py png|pdf WhiteMountains <filename> <size x> <size y>
 ```
-
-To render a PDF, use renderToPdf() in toposm.py
-
 
 ## Credits ##
 
