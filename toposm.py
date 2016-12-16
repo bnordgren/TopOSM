@@ -310,7 +310,7 @@ def getComposite(images):
     """Composites (stacks) the specified images, in the given order."""
     composite = mapnik.Image(images[0].width(), images[0].height())
     for image in images:
-        composite.composite(image, mapnik.CompositeOp.overlay)
+        composite.composite(image, mapnik.CompositeOp.src_over)
     return composite
 
 def getMask(image, mask):
