@@ -6,8 +6,9 @@ if [[ -z $TOPOSM_ENV_SET ]]; then
 fi
 
 # EPGS:32100 Montana State Plane
-SRS="+proj=lcc +lat_1=49 +lat_2=45 +lat_0=44.25 +lon_0=-109.5 +x_0=600000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+#SRS="+proj=lcc +lat_1=49 +lat_2=45 +lat_0=44.25 +lon_0=-109.5 +x_0=600000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 #SRS="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over"
+SRS="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs"
 
 # NOTE: X values are negative, since we're west of the 0 meridian
 #LEFT=$(($XMINLL * -1))
@@ -26,7 +27,7 @@ mkdir -pv $HYPSORELIEF_DIR
 #for x in `seq $RIGHT $LEFT`; do
 #for y in `seq $BOTTOM $TOP`; do
 
-for scene in n49w115 n49w114 n49w113 ; do 
+for scene in n47w115 n47w116 n48w115 n48w116 ; do 
 
 #    BASE=`printf "n%02dw%03d" $y $x`
     BASE=$scene
@@ -51,9 +52,10 @@ for scene in n49w115 n49w114 n49w113 ; do
     echo -n "shade: "
     gdaldem hillshade $NEDPATH $HILLSHADE_DIR/$BASE.unproj.tif -z 0.00001
     echo -n "warp: "
-    gdalwarp -t_srs "$SRS" -r cubicspline -multi -of GTiff \
-        $HILLSHADE_DIR/$BASE.unproj.tif $HILLSHADE_DIR/$BASE.uncomp.tif
-    rm $HILLSHADE_DIR/$BASE.unproj.tif
+    mv $HILLSHADE_DIR/$BASE.unproj.tif $HILLSHADE_DIR/$BASE.uncomp.tif
+#    gdalwarp -t_srs "$SRS" -r cubicspline -multi -of GTiff \
+#        $HILLSHADE_DIR/$BASE.unproj.tif $HILLSHADE_DIR/$BASE.uncomp.tif
+#    rm $HILLSHADE_DIR/$BASE.unproj.tif
     echo -n "compress: "
     gdal_translate -of GTiff -co COMPRESS=JPEG \
         $HILLSHADE_DIR/$BASE.uncomp.tif $HILLSHADE_DIR/$BASE.tif
@@ -65,9 +67,10 @@ for scene in n49w115 n49w114 n49w113 ; do
     echo -n "color: "
     gdaldem color-relief $NEDPATH $COLORFILE $COLORMAP_DIR/$BASE.unproj.tif
     echo -n "warp: "
-    gdalwarp -t_srs "$SRS" -r cubicspline -multi -of GTiff \
-       $COLORMAP_DIR/$BASE.unproj.tif $COLORMAP_DIR/$BASE.uncomp.tif
-    rm $COLORMAP_DIR/$BASE.unproj.tif
+    mv $COLORMAP_DIR/$BASE.unproj.tif $COLORMAP_DIR/$BASE.uncomp.tif
+#    gdalwarp -t_srs "$SRS" -r cubicspline -multi -of GTiff \
+#       $COLORMAP_DIR/$BASE.unproj.tif $COLORMAP_DIR/$BASE.uncomp.tif
+#    rm $COLORMAP_DIR/$BASE.unproj.tif
  
     # Render hypsorelief (relief shade with hypsometric tinting)
     # (IM strips any georeferencing in the file, so we have to use
