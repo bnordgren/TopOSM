@@ -832,67 +832,36 @@
     </Datasource>
 </Layer>
 
-<Layer name="shields-very-low-zoom" status="on" srs="&srs900913;">
-    <StyleName>shields-very-low-zoom</StyleName>
+<Layer name="interstateshields" status="on" srs="&srs900913;">
+    <StyleName>interstateshields</StyleName>
     <Datasource>
     	&dbsettings; &extents;
-	<Parameter name="table">
-	    (SELECT way, shields_get_single_filename(network, ref, 'cutouts', 20) AS route_shield
-               FROM ${DB_PREFIX}_line
-	       WHERE osm_id &lt; 0
-                 AND route = 'road'
-                 AND (network = 'US:I' AND char_length(ref) BETWEEN 1 AND 2)
-               ORDER BY ST_Length(way) DESC
-	    ) AS shields
-        </Parameter>
+		<Parameter name="table">
+		(SELECT way, highway, roadnumber, char_length(roadnumber) as textlen FROM ${DB_PREFIX}_roads
+		WHERE (highway = 'motorway' OR highway = 'trunk') AND roadtype = 'I')
+		AS interstateshields</Parameter>
     </Datasource>
 </Layer>
 
-<Layer name="shields-low-zoom" status="on" srs="&srs900913;">
-    <StyleName>shields-low-zoom</StyleName>
+<Layer name="usshields" status="on" srs="&srs900913;">
+    <StyleName>usshields</StyleName>
     <Datasource>
-	&dbsettings; &extents;
-	<Parameter name="table">
-	    (SELECT way, highway, ref, char_length(ref) AS length,
-                    shields_get_filename(osm_id, way, 'cutouts', 20) AS route_shield
-               FROM ${DB_PREFIX}_roads
-	       WHERE highway IN ('motorway', 'trunk', 'primary', 'secondary')
-                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
-                      shields_get_route_memberships(osm_id) IS NOT NULL)
-            ) AS shields
-        </Parameter>
+		&dbsettings; &extents;
+		<Parameter name="table">
+		(SELECT way, highway, roadnumber FROM ${DB_PREFIX}_roads
+		WHERE (highway &lt;&gt; '' AND highway IS NOT NULL) AND roadtype = 'U')
+		AS usshields</Parameter>
     </Datasource>
 </Layer>
 
-<Layer name="shields-20px" status="on" srs="&srs900913;">
-    <StyleName>shields-20px</StyleName>
+<Layer name="stateshields" status="on" srs="&srs900913;">
+    <StyleName>stateshields</StyleName>
     <Datasource>
     	&dbsettings; &extents;
-	<Parameter name="table">
-            (SELECT way, highway, ref, char_length(ref) as length,
-                    shields_get_filename(osm_id, way, 'cutouts', 20) route_shield
-               FROM ${DB_PREFIX}_line
-               WHERE highway IS NOT NULL
-                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
-                      shields_get_route_memberships(osm_id) IS NOT NULL)
-            ) AS shields
-        </Parameter>
-    </Datasource>
-</Layer>
-
-<Layer name="shields-24px" status="on" srs="&srs900913;">
-    <StyleName>shields-24px</StyleName>
-    <Datasource>
-        &dbsettings; &extents;
-	<Parameter name="table">
-            (SELECT way, highway, ref, char_length(ref) as length,
-                    shields_get_filename(osm_id, way, 'cutouts', 24) route_shield
-               FROM ${DB_PREFIX}_line
-               WHERE highway IS NOT NULL
-                 AND ((ref IS NOT NULL AND char_length(ref) BETWEEN 1 AND 8) OR
-                      shields_get_route_memberships(osm_id) IS NOT NULL)
-            ) AS shields
-        </Parameter>
+		<Parameter name="table">
+		(SELECT * FROM ${DB_PREFIX}_roads
+		WHERE (highway &lt;&gt; '' AND highway IS NOT NULL) AND roadtype = 'S')
+		AS stateshields</Parameter>
     </Datasource>
 </Layer>
 
