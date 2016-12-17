@@ -10,90 +10,73 @@
 
 <Map background-color="transparent" srs="&srs32100;">
 
+<!-- Contour classes:  
+   - 1] Always defined so that major lines are multiples of five minor lines.
+   - 2] Defined so that contours look good (not too dense, not too sparse) 
+   -    in mountainous terrain.
+   - 3] Defined in feet, not meters.
+   - 
+   - Course scale: 1000 ft major, 200 ft minor
+   - Intermediate scale: 400 ft. major, 80 ft minor
+   - Fine scale: 200 ft major, 40 ft. minor
+   - 
+   - "classes" are defined as: 
+   - Class 5 == 1000 ft intervals
+   - Class 4 == 400 ft intervals (not also class 5)
+   - Class 3 == 200 ft intervals (not also class 4,5)
+   - Class 2 == 80 ft intervals  (not also class 3/4/5)
+   - Class 1 == 40 ft intervals  (not also class 2+)
+   -->
+
 <!--
-z11: 3 (labels on 3)
-z12: major 3, minor 2 (labels on 3)
-z13-15: major 2/3, minor 1 (labels on 2/3)
-z16-: major 2/3, minor 1 (labels on 1/2/3)
+z10: 5 (no labels)
+z11-12: major 5, minor 3,4 (labels on 5)
+z13: major 4,5 minor 2,3 (labels on 4,5)
+z14-15: major 3,4,5 minor 1,2 (labels on 3,4,5)
+z16-: major 3,4,5 minor 1,2 (labels on all)
 -->
 
 <Style name="contourlines">
      
   <Rule>
      &minz10; &maxz10;
-     <Filter>[class] = 3</Filter>
+     <Filter>[class] = 5</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.2" /> 
   </Rule>
   
   <Rule>
      &minz11; &maxz12;
-     <Filter>[class] = 3</Filter>
+     <Filter>[class] = 5</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.4" /> 
   </Rule>
   <Rule>
      &minz11; &maxz12;
-     <Filter>[class] = 2</Filter>
+     <Filter>[class] = 3 or [class] = 4</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.2" /> 
   </Rule>
   
+  <Rule>
+     &minz13; &maxz13;
+     <Filter>[class] = 4 or [class] = 5</Filter>
+     <LineSymbolizer stroke="&contourcolor;" stroke-width="0.4" /> 
+  </Rule>
   <Rule>
      &minz13; &maxz13;
      <Filter>[class] = 2 or [class] = 3</Filter>
-     <LineSymbolizer stroke="&contourcolor;" stroke-width="0.4" /> 
-  </Rule>
-  <Rule>
-     &minz13; &maxz13;
-     <Filter>[class] = 1</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.15" /> 
   </Rule>
   
   <Rule>
      &minz14;
-     <Filter>[class] = 2 or [class] = 3</Filter>
+     <Filter>[class] = 3 or [class] = 4 or [class] = 5</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.5" /> 
   </Rule>
   <Rule>
      &minz14;
-     <Filter>[class] = 1</Filter>
+     <Filter>[class] = 1 or [class] = 2</Filter>
      <LineSymbolizer stroke="&contourcolor;" stroke-width="0.2" /> 
   </Rule>
   
-  <!-- Major lines -->
-  <!--
-  <Rule>
-    &minz11; &maxz12;
-    <Filter>[mod250] = 0</Filter>
-    <LineSymbolizer stroke="&contourcolor;" stroke-width="0.15" />
-  </Rule>
-  -->
-  <!--
-  <Rule>
-    &minz13; &maxz14;
-    <Filter>[mod250] = 0</Filter>
-    <LineSymbolizer stroke="&contourcolor;" stroke-width="0.4" />
-  </Rule>
-  <Rule>
-    &minz14;
-    <Filter>[mod250] = 0</Filter>
-    <LineSymbolizer stroke="&contourcolor;" stroke-width="0.8" />
-  </Rule>
-  -->
-  
-  <!-- Minor lines -->
-  <!--
-  <Rule> 
-    &minz13; &maxz13;
-    <Filter>[mod250] &lt;&gt; 0</Filter>
-    <LineSymbolizer stroke="&contourcolor;" stroke-width="0.15" />
-  </Rule>
-  -->
-  <!--
-  <Rule> 
-    &minz14;
-    <Filter>[mod250] &lt;&gt; 0</Filter>
-    <LineSymbolizer stroke="&contourcolor;" stroke-width="0.3" />
-  </Rule>
-  -->
 </Style>
 
 <Style name="contourlabels">
@@ -101,7 +84,7 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
    <!-- Major labels -->
    <Rule>
      &minz11; &maxz11;
-     <Filter>[class] = 3</Filter>
+     <Filter>[class] = 5</Filter>
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="8" fill="&contourcolor;" placement="line" halo-fill="transparent"
         halo-radius="4" minimum-distance="100" max-char-angle-delta="30"
@@ -109,15 +92,15 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
    </Rule>
    <Rule>
      &minz12; &maxz12;
-     <Filter>[class] = 3</Filter>
+     <Filter>[class] = 5</Filter>
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
         halo-radius="5" minimum-distance="100" max-char-angle-delta="30"
 	>[height]</TextSymbolizer>
    </Rule>
    <Rule>
-     &minz13; &maxz14;
-     <Filter>[class] = 2 or [class] = 3</Filter>
+     &minz13; &maxz13;
+     <Filter>[class] = 4 or [class] = 5</Filter>
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="550"
@@ -125,20 +108,19 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
 	>[height]</TextSymbolizer>
    </Rule>
    <Rule>
-     &minz15;
-     <Filter>[class] = 2 or [class] = 3</Filter>
+     &minz14; 
+     <Filter>[class] = 3 or [class] = 4 or [class] = 5</Filter>
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="9" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="550"
         halo-radius="5" minimum-distance="150" max-char-angle-delta="30"
 	>[height]</TextSymbolizer>
    </Rule>
-
 
    <!-- Minor labels -->
    <Rule>
      &minz16;
-     <Filter>[class] = 1</Filter>
+     <Filter>[class] = 1 or [class] = 2</Filter>
      <TextSymbolizer face-name="DejaVu Sans Book"
         size="8" fill="&contourcolor;" placement="line" halo-fill="transparent"
 	spacing="750"
@@ -150,17 +132,19 @@ z16-: major 2/3, minor 1 (labels on 1/2/3)
 
 <!-- LAYERS -->
 
-<Layer name="contours" status="on" srs="&srsLatLongNAD83;">
+<Layer name="contours" status="on" srs="&srs32100;">
   <StyleName>contourlines</StyleName>
   <StyleName>contourlabels</StyleName>
   <Datasource>
     &dbsettings;
     <Parameter name="estimate_extent">false</Parameter>
-    <Parameter name="extent">${EXTENTS_LATLON}</Parameter>
+    <Parameter name="extent">${EXTENTS_OUTPUT}</Parameter>
     <Parameter name="table">
-    (SELECT way, height, CASE
-        WHEN (CAST(height AS int) % 100) = 0 THEN 3
-        WHEN (CAST(height AS int) % 10) = 0 THEN 2
+    (SELECT way, height_ft as height, CASE
+        WHEN (CAST(height_ft AS int) % 1000) = 0 THEN 5
+        WHEN (CAST(height_ft AS int) % 400) = 0 THEN 4
+        WHEN (CAST(height_ft AS int) % 200) = 0 THEN 3
+        WHEN (CAST(height_ft AS int) % 80) = 0 THEN 2
         ELSE 1 END AS class
     FROM ${CONTOURS_TABLE}) AS contours
     </Parameter>

@@ -43,8 +43,8 @@ AWS_BUCKET = os.environ['AWS_BUCKET']
 
 #CONTOUR_INTERVAL = 15.24 # 50 ft in meters
 #CONTOUR_INTERVAL = 7.62 # 25 ft in meters
-#CONTOUR_INTERVAL = 12.192 # 40 ft in meters
-CONTOUR_INTERVAL = 5
+CONTOUR_INTERVAL = 12.192 # 40 ft in meters
+#CONTOUR_INTERVAL = 5
 
 AGG_LAYERS = frozenset(['hypsorelief', 'areas', 'ocean'])
 CAIRO_LAYERS = frozenset(['contours', 'features'])
