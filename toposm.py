@@ -59,6 +59,51 @@ JPEG_COMPOSITE_QUALITY = 90
 # Enable/disable the use of the cairo renderer altogether
 USE_CAIRO = False
 
+class RenderThread:
+    def __init__(self, q, maxz, threadNumber):
+        self.q = q
+        self.maxz = maxz
+        self.threadNumber = threadNumber
+        self.currentz = 0
+        
+    def init_zoomlevel(self, z):
+        self.currentz = z
+        self.tilesize = getTileSize(NTILES[z], True)
+        self.maps = {}
+        for mapName in MAPNIK_LAYERS:
+            console.debugMessage('Loading mapnik.Map: ' + mapName)
+            self.maps[mapName] = mapnik.Map(self.tilesize, self.tilesize)
+            mapnik.load_map(self.maps[mapName], mapName + ".xml")
+    def runAndLog(self, message, function, args):
+        message = '[%02d] %s' % (self.threadNumber+1,  message)
+        console.printMessage(message)
+        try:
+            function(*args)        
+        except Exception as ex:
+            console.printMessage('Failed: ' + message)
+            errorLog.log('Failed: ' + message, ex)
+            raise
+
+    def renderMetaTile(self, z, x, y):
+        ntiles = NTILES[z]
+        if (z != self.currentz):
+            self.init_zoomlevel(z)
+        if not (allConstituentTilesExist(z, x, y, ntiles)):
+            msg = "Rendering meta tile %s %s %s (%sx%s)" % \
+                (z, x, y, ntiles, ntiles)
+            self.runAndLog(msg, renderMetaTile, (z, x, y, ntiles, self.maps))
+
+    def renderLoop(self):
+        self.currentz = 0
+        while True:
+            r = self.q.get()
+            if (r == None):
+                self.q.task_done()
+                break
+            self.renderMetaTile(*r)
+            self.q.task_done()
+
+
 
 class Tile:
     """Represents a single tile (or metatile)."""
@@ -347,6 +392,30 @@ def prepareData(envLLs):
     NED.clusterContoursOnGeoColumn()
     NED.analyzeContoursTable()
 
+def renderTiles(envLLs, minz, maxz):
+    if not hasattr(envLLs, '__iter__'):
+        envLLs = (envLLs,)
+    queue = Queue(32)
+    renderers = {}
+    for i in range(NUM_THREADS):
+        renderer = RenderThread(queue, maxz, i)
+        renderThread = threading.Thread(target=renderer.renderLoop)
+        renderThread.start()
+        renderers[i] = renderThread
+    for envLL in envLLs:
+        for z in range(minz, maxz+1):
+            ntiles = NTILES[z]
+            (fromx, tox, fromy, toy) = getTileRange(envLL, z, ntiles)
+            for x in range(fromx, tox+1):
+                for y in range(fromy, toy+1):
+                    queue.put((z, x, y))
+    for i in range(NUM_THREADS):
+        queue.put(None)
+    queue.join()
+    for i in range(NUM_THREADS):
+        renderers[i].join()       
+
+
 def renderToPdf(envLL, filename, sizex, sizey):
     """Renders the specified Box2d and zoom level as a PDF"""
     basefilename = os.path.splitext(filename)[0]
@@ -412,6 +481,7 @@ def renderToPng(envLL, filename, sizex, sizey):
 
 def printSyntax():
     print "Syntax:"
+    print " toposm.py render <area(s)> <minZoom> <maxZoom>"
     print " toposm.py pdf <area> <filename> <sizeX> <sizeY>"
     print " toposm.py png <area> <filename> <sizeX> <sizeY>"
     print " toposm.py prep <area(s)>"
@@ -423,7 +493,15 @@ if __name__ == "__main__":
         printSyntax()
         sys.exit(1)
     cmd = sys.argv[1]
-    if cmd == 'pdf' or cmd == 'png':
+    if cmd == 'render':
+        areaname = sys.argv[2]
+        minzoom = int(sys.argv[3])
+        maxzoom = int(sys.argv[4])
+        env = vars(areas)[areaname]            
+        print "Render: %s %s, z: %d-%d" % (areaname, env, minzoom, maxzoom)
+        BASE_TILE_DIR = path.join(BASE_TILE_DIR, areaname)
+        renderTiles(env, minzoom, maxzoom)
+    elif cmd == 'pdf' or cmd == 'png':
         areaname = sys.argv[2]
         filename = sys.argv[3]
         sizex = int(sys.argv[4])
