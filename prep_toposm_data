@@ -27,7 +27,9 @@ mkdir -pv $HYPSORELIEF_DIR
 #for x in `seq $RIGHT $LEFT`; do
 #for y in `seq $BOTTOM $TOP`; do
 
-for scene in n47w115 n47w116 n48w115 n48w116 ; do 
+
+
+for scene in n45w113 n45w114 n46w113 n46w114 n46w115 n47w113 n47w114 n48w113 n48w114 n48w117 n49w113 n49w114 n49w115 n49w116 n49w117 ; do 
 
 #    BASE=`printf "n%02dw%03d" $y $x`
     BASE=$scene
