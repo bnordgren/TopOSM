@@ -7,7 +7,7 @@ A system for rendering OpenStreetMap Based Topographic Maps
 
 TopOSM runs on Linux. It may be possible to build and run it on other platforms, but I have not tested this. If you try it, please let me know.
 
-TopOSM depends on some fairly recent software, including:
+The original TopOSM documentation mentioned dependencies on these versions of the following software, with Ubuntu 11.04 as a base:
 
 * Mapnik (2.0) with included patches and Cairo support
 * Python (2.6)
@@ -15,30 +15,51 @@ TopOSM depends on some fairly recent software, including:
 * PostgreSQL + PostGIS
 * ImageMagick
 
-(later versions than those mentioned above will probably work)
+My fork is running with Ubuntu 16.04 as a base.
 
 
 ## Installation ##
 
-Required packages will vary depending on your distribution. For Ubuntu 11.04, this list of packages may be a good start:
+My Dockerfile sets up my installation as follows: 
 
-    python-mapnik mapnik-utils gdal-bin gdal-contrib python-gdal
-    libgdal-dev proj libproj-dev python-pyproj python-numpy imagemagick
-    gcc g++ optipng subversion postgresql postgresql-contrib
-    postgresql-server-dev-8.4 postgis wget libxml2-dev python-libxml2
-    libgeos-dev libbz2-dev make htop python-cairo python-cairo-dev
-    osm2pgsql unzip python-pypdf libboost-all-dev libicu-dev libpng-dev
-    libjpeg-dev libtiff-dev libz-dev libfreetype6-dev libxml2-dev
-    libproj-dev libcairo-dev libcairomm-1.0-dev python-cairo-dev
-    libpq-dev libgdal-dev libsqlite3-dev libcurl4-gnutls-dev
-    libsigc++-dev libsigc++-2.0-dev ttf-sil-gentium
-    ttf-mscorefonts-installer "ttf-adf-*"
+```
+FROM ubuntu:16.04
+MAINTAINER Bryce Nordgren <bnordgren@gmail.com>
+
+# Need multiverse for mscorefonts
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    apt-add-repository "deb http://us.archive.ubuntu.com/ubuntu/ xenial multiverse" && \
+    apt-add-repository "deb http://us.archive.ubuntu.com/ubuntu/ xenial-updates multiverse" && \
+    apt-get update
+
+# Processing requirements for TopOSM
+RUN apt-get install -y debconf-utils && \
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula boolean true | debconf-set-selections && \
+    apt-get install -y python-mapnik mapnik-utils gdal-bin gdal-contrib python-gdal \
+       libgdal-dev proj-bin proj-data libproj-dev python-pyproj python-numpy imagemagick \
+       gcc g++ optipng git postgresql postgresql-contrib \
+       postgresql-server-dev-all postgis wget libxml2-dev python-libxml2 \
+       libgeos-dev libbz2-dev make htop python-cairo python-cairo-dev \
+       osm2pgsql unzip python-pypdf libboost-all-dev libicu-dev libpng-dev \
+       libjpeg-dev libtiff-dev libz-dev libfreetype6-dev libxml2-dev \
+       libproj-dev libcairo-dev libcairomm-1.0-dev python-cairo-dev \
+       libpq-dev libgdal-dev libsqlite3-dev libcurl4-gnutls-dev \
+       libsigc++-2.0-dev fonts-sil-gentium ttf-mscorefonts-installer \
+       "ttf-adf-*" vim python-xattr python-lockfile python-pillow \
+       python-pastescript python-webob \
+    && rm -rf /var/lib/apt/lists/*
+```
 
 Set up PostgreSQL with PostGIS, see:
 http://wiki.openstreetmap.org/wiki/Mapnik/PostGIS
 
 
 ### Build local patched Mapnik ###
+
+This is retained for historical purposes. I'm using plain Mapnik installed from packages as shown above. 
+I have not been able to determine whether this patch was added to the Mapnik code base in the interim.
+Regardless, the process seems to work without it. 
 
 ```
 $ git clone https://github.com/mapnik/mapnik.git
@@ -51,7 +72,7 @@ $ python scons/scons.py
 $ python scons/scons.py install
 ```
 
-If you need a more recent boost than available for your system, you can build one locally (i.e. with PREFIX=$HOME) and tell the mapnik configure step to link against that by adding:
+Also a historical note, because the process works with Boost installed from packages: _If you need a more recent boost than available for your system, you can build one locally (i.e. with PREFIX=$HOME) and tell the mapnik configure step to link against that by adding:_
 
 ```
 BOOST_INCLUDES=$HOME/include BOOST_LIBS=$HOME/lib
