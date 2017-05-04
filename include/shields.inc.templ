@@ -5,7 +5,7 @@
       &minz6; &maxz8;
       <Filter>[textlen] &lt;= 2</Filter>
       <ShieldSymbolizer
-         face-name="DejaVu Sans" size="7"
+         face-name="DejaVu Sans Book" size="7"
          fill="white" placement="line"
          file="&customsymbolsdir;/shield-interstate.svg"
          transform="scale(0.7,0.7)" dx="-0.5"
@@ -17,7 +17,7 @@
       &minz6; &maxz8;
       <Filter>[textlen] &gt; 2</Filter>
       <ShieldSymbolizer
-         face-name="DejaVu Sans" size="7"
+         face-name="DejaVu Sans Book" size="7"
          fill="white" placement="line"
          file="&customsymbolsdir;/shield-interstate.svg"
          transform="scale(0.9,0.75)" dy="-0.5"
@@ -53,9 +53,19 @@
 
 <Style name="usshields">
    <Rule>
+      &maxz7;
+      <ShieldSymbolizer
+         face-name="DejaVu Sans Book" size="8"
+         fill="black" placement="line" dx="-0.5" dy="-1"
+         transform="scale(0.7,0.7)"
+         file="&customsymbolsdir;/shield-us-3.svg"
+         minimum-distance="35" spacing="500"
+         >[roadnumber]</ShieldSymbolizer>
+   </Rule>
+   <Rule>
       &minz7; &maxz9;
       <ShieldSymbolizer
-         face-name="DejaVu Sans" size="7"
+         face-name="DejaVu Sans Book" size="8"
          fill="black" placement="line" dx="-0.5" dy="-1"
          transform="scale(0.7,0.7)"
          file="&customsymbolsdir;/shield-us-3.svg"
