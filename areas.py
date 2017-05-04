@@ -171,6 +171,7 @@ Nature = [YellowstoneTetons, OregonCascades, SierraNevN,
     WhiteMountains, Adirondacks, EvergladesKeys, NiagaraFalls]
 
 #Mineral-county-centric things
+Montana = Box2d(-116.157396,44.420047,-103.676014,49.129227)
 MineralVicinity = Box2d(-116.049,46.6316,-113.303,48.264)
 Mineral = Box2d(-115.759,46.6966, -114.419,47.4968)
 Sanders = Box2d(-116.049,47.1207, -114.187,48.264)
