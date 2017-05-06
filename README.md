@@ -177,10 +177,26 @@ $ ./prep_contours_table
 $ ./toposm.py prep WhiteMountains
 ```
 
+After the contours are created, you need to sort out the contours for better rendering. Create a column called "class" and
+apply the following criteria: 
+```
+   - Class 5 == 1000 ft intervals
+   - Class 4 == 400 ft intervals (not also class 5)
+   - Class 3 == 200 ft intervals (not also class 4,5)
+   - Class 2 == 80 ft intervals  (not also class 3/4/5)
+   - Class 1 == 40 ft intervals  (not also class 2+)
+```
+
+
 To render tiles for the specified area and image size:
 ```
 $ ./toposm.py png|pdf WhiteMountains <filename> <size x> <size y>
 ```
+
+For faster rendering, create indexes on: 
+| Table | Column |
+| contour | class | 
+| contour | way | 
 
 ## Credits ##
 
