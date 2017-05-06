@@ -194,7 +194,9 @@ $ ./toposm.py png|pdf WhiteMountains <filename> <size x> <size y>
 ```
 
 For faster rendering, create indexes on: 
+
 | Table | Column |
+| ----- | ------ |
 | contour | class | 
 | contour | way | 
 
